@@ -1,0 +1,51 @@
+{
+  "name": "gestionpro",
+  "private": true,
+  "packageManager": "pnpm@10.26.1",
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:api": "pnpm --filter nestjs-starter dev",
+    "dev:web": "pnpm --filter next-shadcn-dashboard-starter dev",
+    "build": "turbo build",
+    "build:api": "pnpm --filter nestjs-starter build",
+    "build:web": "pnpm --filter next-shadcn-dashboard-starter build",
+    "lint": "turbo lint",
+    "lint:api": "pnpm --filter nestjs-starter lint:fix",
+    "lint:web": "pnpm --filter next-shadcn-dashboard-starter lint",
+    "test": "turbo test",
+    "test:api": "pnpm --filter nestjs-starter test",
+    "format": "turbo lint",
+    "format:api": "pnpm --filter nestjs-starter format",
+    "format:web": "pnpm --filter next-shadcn-dashboard-starter format",
+    "db:generate": "pnpm --filter nestjs-starter db:generate",
+    "db:migrate": "pnpm --filter nestjs-starter db:migrate",
+    "db:push": "cd apps/api && npx prisma db push",
+    "db:studio": "cd apps/api && npx prisma studio",
+    "db:migrate-prod": "pnpm --filter nestjs-starter db:migrate-prod",
+    "seed:admin": "pnpm --filter nestjs-starter seed:admin",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "clean": "rimraf apps/*/node_modules packages/*/node_modules node_modules apps/*/.next apps/*/dist"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "prisma",
+      "@swc/core",
+      "argon2",
+      "sharp",
+      "@nestjs/core",
+      "@sentry/cli",
+      "@clerk/shared",
+      "@scarf/scarf",
+      "msgpackr-extract",
+      "unrs-resolver"
+    ]
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  },
+  "dependencies": {
+    "docx": "^9.6.1"
+  }
+}
