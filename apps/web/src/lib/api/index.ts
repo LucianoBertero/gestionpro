@@ -1,1 +1,1 @@
-export { default as api, configureApiAuth, unwrap } from './client';
+export { default as api, configureAuthInterceptors } from '@/lib/auth/axios-instance';

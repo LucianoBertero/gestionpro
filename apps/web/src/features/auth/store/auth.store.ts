@@ -1,7 +1,6 @@
 'use client';
 
 import { create } from 'zustand';
-import api, { configureApiAuth, unwrap } from '@/lib/api/client';
 import { configureAuthInterceptors } from '@/lib/auth/axios-instance';
 import type { AuthState } from './auth.types';
 import type { User } from '@/types/auth';
@@ -23,7 +22,6 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
   };
 
-  configureApiAuth(authConfig);
   configureAuthInterceptors(authConfig);
 
   return {
@@ -36,14 +34,13 @@ export const useAuthStore = create<AuthState>((set, get) => {
     login: async (email: string, password: string) => {
       set({ isLoading: true });
       try {
-        const result = await api.POST('/v1/auth/login', {
-          body: { email, password },
-        });
+        const api = (await import('@/lib/auth/axios-instance')).default;
+        const { data: envelope } = await api.post('/v1/auth/login', { email, password });
 
-        const { accessToken, user } = unwrap<{
+        const { accessToken, user } = envelope.data as {
           accessToken: string;
           user: User;
-        }>(result.data);
+        };
 
         set({
           accessToken,
@@ -60,7 +57,8 @@ export const useAuthStore = create<AuthState>((set, get) => {
 
     logout: async () => {
       try {
-        await api.POST('/v1/auth/logout');
+        const api = (await import('@/lib/auth/axios-instance')).default;
+        await api.post('/v1/auth/logout');
       } finally {
         set({
           user: null,
@@ -75,15 +73,14 @@ export const useAuthStore = create<AuthState>((set, get) => {
     refresh: async () => {
       set({ isLoading: true });
       try {
-        const refreshResult = await api.GET('/v1/auth/refresh-token');
-        const { accessToken } = unwrap<{ accessToken: string }>(
-          refreshResult.data
-        );
+        const api = (await import('@/lib/auth/axios-instance')).default;
+        const refreshResult = await api.get('/v1/auth/refresh-token');
+        const { accessToken } = refreshResult.data.data as { accessToken: string };
 
         set({ accessToken });
 
-        const profileResult = await api.GET('/v1/user/profile');
-        const user = unwrap<User>(profileResult.data);
+        const profileResult = await api.get('/v1/user/profile');
+        const user = profileResult.data.data as User;
 
         set({
           user,

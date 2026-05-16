@@ -1,7 +1,7 @@
 // ============================================================
 // User Service — Backend API
 // ============================================================
-import api, { unwrap } from '@/lib/api/client';
+import api from '@/lib/auth/axios-instance';
 import type {
   UserFilters,
   UsersResponse,
@@ -12,29 +12,23 @@ import type {
 export async function getUsers(
   _filters?: UserFilters
 ): Promise<UsersResponse> {
-  const result = await api.GET('/v1/admin/user');
-  const data = unwrap<User[]>(result.data);
-  return { data, total: data.length };
+  const { data: envelope } = await api.get('/v1/admin/user');
+  return { data: envelope.data as User[], total: (envelope.data as User[]).length };
 }
 
 export async function createUser(data: UserMutationPayload) {
-  const result = await api.POST('/v1/auth/signup', { body: data });
-  return unwrap<User>(result.data);
+  const { data: envelope } = await api.post('/v1/auth/signup', data);
+  return envelope.data as User;
 }
 
 export async function updateUser(
   id: string,
   data: Partial<UserMutationPayload>
 ) {
-  const result = await api.PATCH('/v1/admin/user/{id}', {
-    params: { path: { id } },
-    body: data,
-  });
-  return unwrap<User>(result.data);
+  const { data: envelope } = await api.patch(`/v1/admin/user/${id}`, data);
+  return envelope.data as User;
 }
 
 export async function deleteUser(id: string) {
-  await api.DELETE('/v1/admin/user/{id}', {
-    params: { path: { id } },
-  });
+  await api.delete(`/v1/admin/user/${id}`);
 }
