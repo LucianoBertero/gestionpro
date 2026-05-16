@@ -35,24 +35,71 @@ const SENSITIVE_PATHS = [
     'res.headers["set-cookie"]',
 ];
 
+const ANSI = {
+    reset: '\x1b[0m',
+    bold: '\x1b[1m',
+    dim: '\x1b[2m',
+    blue: '\x1b[34m',
+    cyan: '\x1b[36m',
+    green: '\x1b[32m',
+    yellow: '\x1b[33m',
+    red: '\x1b[31m',
+    magenta: '\x1b[35m',
+};
+
+const colorize = (enabled: boolean, text: string, color: string): string =>
+    enabled ? `${color}${text}${ANSI.reset}` : text;
+
+const colorMethod = (enabled: boolean, method?: string): string => {
+    const value = method ?? 'UNKNOWN';
+    switch (value) {
+        case 'GET':
+            return colorize(enabled, value, `${ANSI.bold}${ANSI.blue}`);
+        case 'POST':
+            return colorize(enabled, value, `${ANSI.bold}${ANSI.green}`);
+        case 'PUT':
+        case 'PATCH':
+            return colorize(enabled, value, `${ANSI.bold}${ANSI.yellow}`);
+        case 'DELETE':
+            return colorize(enabled, value, `${ANSI.bold}${ANSI.red}`);
+        default:
+            return colorize(enabled, value, `${ANSI.bold}${ANSI.magenta}`);
+    }
+};
+
+const colorStatus = (enabled: boolean, statusCode: number): string => {
+    if (statusCode >= 500) {
+        return colorize(enabled, statusCode.toString(), `${ANSI.bold}${ANSI.red}`);
+    }
+    if (statusCode >= 400) {
+        return colorize(enabled, statusCode.toString(), `${ANSI.bold}${ANSI.yellow}`);
+    }
+    if (statusCode >= 300) {
+        return colorize(enabled, statusCode.toString(), `${ANSI.bold}${ANSI.cyan}`);
+    }
+    return colorize(enabled, statusCode.toString(), `${ANSI.bold}${ANSI.green}`);
+};
+
 export const createLoggerConfig = (configService: ConfigService): Params => {
     const env = configService.get<string>('app.env', APP_ENVIRONMENT.LOCAL);
-    const isLocal = env === APP_ENVIRONMENT.LOCAL;
+    const isPrettyEnv =
+        env === APP_ENVIRONMENT.LOCAL ||
+        env === APP_ENVIRONMENT.DEVELOPMENT;
     const logLevel = configService.get<string>('app.logLevel', 'info');
 
     return {
         pinoHttp: {
             level: logLevel,
 
-            transport: isLocal
+            transport: isPrettyEnv
                 ? {
                       target: 'pino-pretty',
                       options: {
                           colorize: true,
                           levelFirst: true,
                           translateTime: 'yyyy-mm-dd HH:MM:ss.l',
-                          ignore: 'pid,hostname,service,version,environment',
-                          singleLine: false,
+                          ignore: 'pid,hostname,service,version,environment,req,res,responseTime',
+                          singleLine: true,
                           messageFormat: '[{context}] {msg}',
                       },
                   }
@@ -134,13 +181,34 @@ export const createLoggerConfig = (configService: ConfigService): Params => {
                 req: IncomingMessage,
                 res: ServerResponse,
                 responseTime: number
-            ) => `${req.method} ${req.url} ${res.statusCode} ${responseTime}ms`,
+            ) => {
+                const method = colorMethod(isPrettyEnv, req.method);
+                const statusCode = colorStatus(isPrettyEnv, res.statusCode);
+                const duration = colorize(
+                    isPrettyEnv,
+                    `${responseTime}ms`,
+                    `${ANSI.dim}${ANSI.cyan}`
+                );
+                return `<-- ${method} ${req.url} ${statusCode} ${duration}`;
+            },
+
+            customReceivedMessage: (req: IncomingMessage) =>
+                `--> ${colorMethod(isPrettyEnv, req.method)} ${req.url}`,
 
             customErrorMessage: (
                 req: IncomingMessage,
                 res: ServerResponse,
                 err: Error
-            ) => `${req.method} ${req.url} ${res.statusCode} — ${err.message}`,
+            ) => {
+                const method = colorMethod(isPrettyEnv, req.method);
+                const statusCode = colorStatus(isPrettyEnv, res.statusCode);
+                const errorMessage = colorize(
+                    isPrettyEnv,
+                    err.message,
+                    `${ANSI.bold}${ANSI.red}`
+                );
+                return `<-- ${method} ${req.url} ${statusCode} ${errorMessage}`;
+            },
 
             genReqId: (req: IncomingMessage) => {
                 const r = req as AuthenticatedRequest;

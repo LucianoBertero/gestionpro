@@ -76,14 +76,16 @@ export function DataTableFacetedFilter<TData, TValue>({
       <PopoverTrigger asChild>
         <Button variant='outline' size='sm' className='border-dashed'>
           {selectedValues?.size > 0 ? (
-            <button
-              type='button'
+            <span
+              role='button'
+              tabIndex={0}
               aria-label={`Clear ${title} filter`}
               onClick={onReset}
-              className='focus-visible:ring-ring rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-1 focus-visible:outline-none'
+              onKeyDown={(e) => e.key === 'Enter' && onReset()}
+              className='focus-visible:ring-ring rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-1 focus-visible:outline-none cursor-pointer'
             >
               <Icons.xCircle />
-            </button>
+            </span>
           ) : (
             <Icons.plusCircle />
           )}

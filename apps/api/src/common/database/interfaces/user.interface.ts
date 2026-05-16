@@ -6,18 +6,23 @@ export type UserEntity = User;
 
 export interface CreateUserInput {
     email: string;
-    userName: string;
+    nombre: string;
     password: string;
     role: UserRole;
-    firstName?: string | null;
-    lastName?: string | null;
-    isVerified?: boolean;
+    emoji?: string | null;
+    telefono?: string | null;
+    telegramChatId?: string | null;
+    googleTokens?: Record<string, unknown> | null;
+    estudioId?: number;
 }
 
 export interface UpdateUserInput {
     email?: string;
-    userName?: string;
-    firstName?: string | null;
-    lastName?: string | null;
-    avatar?: string | null;
+    nombre?: string;
+    emoji?: string | null;
+    telefono?: string | null;
+    telegramChatId?: string | null;
+    googleTokens?: Record<string, unknown> | null;
+    estudioId?: number;
+    activo?: boolean;
 }

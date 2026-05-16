@@ -1,47 +1,40 @@
 // ============================================================
-// User Service — Data Access Layer
+// User Service — Backend API
 // ============================================================
-// This is the ONLY file you modify when connecting to your backend.
-// Queries (queries.ts) and components import from here — they never change.
-//
-// Pick your pattern and replace the function bodies below:
-//
-// 1. Server Actions + ORM (Prisma / Drizzle / Supabase)
-//    → Add 'use server' at the top of this file
-//    → Call your ORM directly in each function
-//
-// 2. Route Handlers + ORM
-//    → import { apiClient } from '@/lib/api-client'
-//    → return apiClient<UsersResponse>('/users?...')
-//    → Replace mock calls in route handlers (src/app/api/users/) with ORM
-//
-// 3. BFF — Route Handlers proxy to external backend (Laravel, Go, etc.)
-//    → import { apiClient } from '@/lib/api-client'
-//    → return apiClient<UsersResponse>('/users?...')
-//    → Route handlers proxy requests to your external backend service
-//
-// 4. Direct external API (frontend-only, no Next.js backend)
-//    → const res = await fetch('https://your-api.com/users?...')
-//    → return res.json()
-//
-// Current: Mock (in-memory fake data for demo/prototyping)
-// ============================================================
+import api, { unwrap } from '@/lib/api/client';
+import type {
+  UserFilters,
+  UsersResponse,
+  UserMutationPayload,
+  User,
+} from './types';
 
-import { fakeUsers } from '@/constants/mock-api-users';
-import type { UserFilters, UsersResponse, UserMutationPayload } from './types';
-
-export async function getUsers(filters: UserFilters): Promise<UsersResponse> {
-  return fakeUsers.getUsers(filters);
+export async function getUsers(
+  _filters?: UserFilters
+): Promise<UsersResponse> {
+  const result = await api.GET('/v1/admin/user');
+  const data = unwrap<User[]>(result.data);
+  return { data, total: data.length };
 }
 
 export async function createUser(data: UserMutationPayload) {
-  return fakeUsers.createUser(data);
+  const result = await api.POST('/v1/auth/signup', { body: data });
+  return unwrap<User>(result.data);
 }
 
-export async function updateUser(id: number, data: UserMutationPayload) {
-  return fakeUsers.updateUser(id, data);
+export async function updateUser(
+  id: string,
+  data: Partial<UserMutationPayload>
+) {
+  const result = await api.PATCH('/v1/admin/user/{id}', {
+    params: { path: { id } },
+    body: data,
+  });
+  return unwrap<User>(result.data);
 }
 
-export async function deleteUser(id: number) {
-  return fakeUsers.deleteUser(id);
+export async function deleteUser(id: string) {
+  await api.DELETE('/v1/admin/user/{id}', {
+    params: { path: { id } },
+  });
 }

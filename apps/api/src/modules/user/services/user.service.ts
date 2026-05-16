@@ -6,6 +6,7 @@ import { ApiGenericResponseDto } from 'src/common/response/dtos/response.generic
 import {
     UserGetProfileResponseDto,
     UserUpdateProfileResponseDto,
+    UserResponseDto,
 } from '../dtos/user.dto';
 import { UserUpdateDto } from '../dtos/user.update.dto';
 
@@ -13,7 +14,11 @@ import { UserUpdateDto } from '../dtos/user.update.dto';
 export class UserService {
     constructor(private readonly userRepository: UserRepository) {}
 
-    async getProfile(userId: string): Promise<UserGetProfileResponseDto> {
+    async findAll(): Promise<UserResponseDto[]> {
+        return this.userRepository.findAll();
+    }
+
+    async findById(userId: string): Promise<UserResponseDto> {
         const user = await this.userRepository.findById(userId);
         if (!user) {
             throw new HttpException(
@@ -22,6 +27,10 @@ export class UserService {
             );
         }
         return user;
+    }
+
+    async getProfile(userId: string): Promise<UserGetProfileResponseDto> {
+        return this.findById(userId);
     }
 
     async updateUser(

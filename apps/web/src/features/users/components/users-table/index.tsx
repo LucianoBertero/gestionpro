@@ -30,10 +30,10 @@ export function UsersTable() {
 
   const { data } = useSuspenseQuery(usersQueryOptions(filters));
 
-  const pageCount = Math.ceil(data.total_users / params.perPage);
+  const pageCount = Math.ceil(data.total / params.perPage);
 
   const { table } = useDataTable({
-    data: data.users,
+    data: data.data,
     columns,
     pageCount,
     shallow: true,

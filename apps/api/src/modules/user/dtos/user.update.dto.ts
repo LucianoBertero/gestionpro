@@ -3,11 +3,13 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
     IsEmail,
+    IsEnum,
     IsOptional,
     IsString,
     MaxLength,
     MinLength,
 } from 'class-validator';
+import { UserRole } from 'src/common/database/enums/role.enum';
 
 export class UserUpdateDto {
     @ApiProperty({
@@ -20,32 +22,41 @@ export class UserUpdateDto {
     email?: string;
 
     @ApiProperty({
-        example: faker.person.firstName(),
+        example: faker.person.fullName(),
         required: false,
     })
     @IsString()
     @IsOptional()
     @MinLength(2)
-    @MaxLength(50)
+    @MaxLength(100)
     @Transform(({ value }) => value?.trim())
-    firstName?: string;
+    nombre?: string;
 
     @ApiProperty({
-        example: faker.person.lastName(),
+        example: '👤',
         required: false,
     })
     @IsString()
     @IsOptional()
-    @MinLength(2)
-    @MaxLength(50)
+    @MaxLength(10)
     @Transform(({ value }) => value?.trim())
-    lastName?: string;
+    emoji?: string;
 
     @ApiProperty({
-        example: 'user-avatars/1234567890abcdef.jpg',
+        example: faker.phone.number(),
         required: false,
     })
     @IsString()
     @IsOptional()
-    avatar?: string;
+    @Transform(({ value }) => value?.trim())
+    telefono?: string;
+
+    @ApiProperty({
+        enum: UserRole,
+        example: faker.helpers.arrayElement(Object.values(UserRole)),
+        required: false,
+    })
+    @IsEnum(UserRole)
+    @IsOptional()
+    role?: UserRole;
 }

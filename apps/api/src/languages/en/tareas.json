@@ -1,0 +1,13 @@
+{
+  "success": {
+    "list": "Tareas retrieved successfully",
+    "retrieved": "Tarea retrieved successfully",
+    "created": "Tarea created successfully",
+    "updated": "Tarea updated successfully",
+    "completed": "Tarea marked as completed",
+    "tareaDeleted": "Tarea deleted successfully"
+  },
+  "error": {
+    "tareaNotFound": "Tarea not found"
+  }
+}

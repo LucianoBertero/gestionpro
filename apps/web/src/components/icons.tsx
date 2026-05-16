@@ -9,8 +9,13 @@ import {
   IconBrandGithub,
   IconBrandTwitter,
   IconBrightness,
+  IconBuilding,
+  IconBuildingFactory,
   IconCalendar,
+  IconCalendarClock,
+  IconCalculator,
   IconCheck,
+  IconChecklist,
   IconChecks,
   IconChevronDown,
   IconChevronLeft,
@@ -33,6 +38,7 @@ import {
   IconDotsVertical,
   IconEdit,
   IconExternalLink,
+  IconEye,
   IconEyeOff,
   IconFile,
   IconFileText,
@@ -43,6 +49,7 @@ import {
   IconFolder,
   IconGripVertical,
   IconHelpCircle,
+  IconId,
   IconInfoCircle,
   IconItalic,
   IconLayoutDashboard,
@@ -52,6 +59,7 @@ import {
   IconLock,
   IconLogin,
   IconLogout,
+  IconMail,
   IconMessage,
   IconMinus,
   IconMoon,
@@ -74,6 +82,7 @@ import {
   IconStack2,
   IconStar,
   IconSun,
+  IconTrafficCone,
   IconTrash,
   IconTrendingDown,
   IconTrendingUp,
@@ -124,6 +133,8 @@ export const Icons = {
   chevronsUpDown: IconSelector,
 
   // Layout
+  building: IconBuilding,
+  building2: IconBuildingFactory,
   dashboard: IconLayoutDashboard,
   kanban: IconLayoutKanban,
   panelLeft: IconLayoutSidebar,
@@ -144,6 +155,7 @@ export const Icons = {
 
   // Communication
   chat: IconMessage,
+  mail: IconMail,
   notification: IconBell,
   phone: IconPhone,
   video: IconVideo,
@@ -153,6 +165,7 @@ export const Icons = {
   // Files
   page: IconFile,
   post: IconFileText,
+  fileText: IconFileText,
   fileTypePdf: IconFileTypePdf,
   fileTypeDoc: IconFileTypeDoc,
   fileTypeXls: IconFileTypeXls,
@@ -196,6 +209,7 @@ export const Icons = {
   // Data / Charts
   trendingDown: IconTrendingDown,
   trendingUp: IconTrendingUp,
+  eye: IconEye,
   eyeOff: IconEyeOff,
   adjustments: IconAdjustmentsHorizontal,
 
@@ -219,5 +233,10 @@ export const Icons = {
   slash: IconSlash,
   calendar: IconCalendar,
   galleryVerticalEnd: IconStack2,
-  moreHorizontal: IconDots
+  moreHorizontal: IconDots,
+  trafficCone: IconTrafficCone,
+  idCard: IconId,
+  tasks: IconChecklist,
+  calculator: IconCalculator,
+  calendarClock: IconCalendarClock,
 };

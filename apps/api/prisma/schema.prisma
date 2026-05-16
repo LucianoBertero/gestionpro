@@ -10,25 +10,311 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  userName     String    @unique @map("user_name")
-  email        String    @unique
-  passwordHash String    @map("password_hash")
-  firstName    String?   @map("first_name")
-  lastName     String?   @map("last_name")
-  isVerified   Boolean   @default(false) @map("is_verified")
-  phone        String?
-  role         Role      @default(MEMBER)
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
-  deletedAt    DateTime? @map("deleted_at")
-  avatar       String?
+  id             String         @id @default(uuid())
+  nombre         String
+  email          String         @unique
+  passwordHash   String         @map("password_hash")
+  telefono       String?
+  role           Role           @default(COLABORADOR)
+  emoji          String?        @default("👤")
+  telegramChatId String?        @map("telegram_chat_id")
+  estudioId      Int            @default(1) @map("estudio_id")
+  googleTokens   Json?          @map("google_tokens")
+  activo         Boolean        @default(true)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  refreshTokens        RefreshToken[]
+  clientesEncargado    Cliente[]          @relation("Encargado")
+  clientesSupervisado  Cliente[]          @relation("Supervisor")
+  tareas               Tarea[]            @relation("TareaEncargado")
+  agendaItems          AgendaItem[]
+  notificaciones       Notificacion[]
+  liquidacionesCargadas Liquidacion[]     @relation("LiquidacionCargadoPor")
+  comunicaciones       Comunicacion[]     @relation("ComunicacionUsuario")
+  archivosSubidos      Archivo[]          @relation("ArchivoSubidoPor")
 
   @@map("users")
 }
 
+model RefreshToken {
+  id         String   @id @default(uuid())
+  usuarioId  String   @map("usuario_id")
+  token      String   @unique
+  expira     DateTime
+  revocado   Boolean  @default(false) @map("revocado")
+  creadoEn   DateTime @default(now()) @map("creado_en")
+  usuario    User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
 enum Role {
-  ADMIN
-  MEMBER
-  DEVELOPER
+  SOCIO
+  COLABORADOR
+}
+
+enum TipoImpuesto {
+  AUTONOMOS
+  IVA
+  IIBB_LOCAL
+  MUNICIPAL
+  SUELDOS
+  MONOTRIBUTO
+  GANANCIAS
+}
+
+enum EstadoSemaforo {
+  VERDE
+  AMARILLO
+  ROJO
+}
+
+enum TipoTarea {
+  DDJJ
+  VEP
+  INTERNA
+  BALANCE
+  OTRO
+}
+
+enum Prioridad {
+  ALTA
+  MEDIA
+  BAJA
+}
+
+enum EstadoTarea {
+  PENDIENTE
+  EN_PROCESO
+  COMPLETADA
+  CANCELADA
+}
+
+enum ResultadoLiq {
+  A_PAGAR
+  SALDO_A_FAVOR
+  SIN_MOVIMIENTO
+}
+
+enum TipoEvento {
+  TAREA
+  ESTUDIO
+  PERSONAL
+}
+
+enum OrigenEvento {
+  SISTEMA
+  MANUAL
+  GOOGLE
+}
+
+enum TipoTemplate {
+  VENCIMIENTO
+  LIQUIDACION
+  RECORDATORIO
+  GENERAL
+}
+
+enum TipoNotificacion {
+  VENCIMIENTO
+  TAREA
+  SISTEMA
+}
+
+enum TipoArchivo {
+  COMPROBANTE
+  DDJJ
+  CONTRATO
+  OTRO
+}
+
+model Cliente {
+  id           Int             @id @default(autoincrement())
+  estudioId    Int             @default(1) @map("estudio_id")
+  cuit         String          @unique
+  denominacion String
+  termino      Int             @default(0)
+  condicionIva String          @map("condicion_iva")
+  actividades  String[]
+  domicilio    String?
+  telefono     String?
+  email        String?
+  whatsapp     String?
+  encargadoId  String          @map("encargado_id")
+  supervisorId String?         @map("supervisor_id")
+  semaforo     EstadoSemaforo  @default(VERDE)
+  activo       Boolean         @default(true)
+  honorarioMensual Decimal?    @db.Decimal(10, 2) @map("honorario_mensual")
+  notas        String?
+  creadoEn     DateTime        @default(now()) @map("creado_en")
+
+  encargado   User             @relation("Encargado", fields: [encargadoId], references: [id])
+  supervisor  User?            @relation("Supervisor", fields: [supervisorId], references: [id])
+  impuestos   ClienteImpuesto[]
+  tareas      Tarea[]
+  liquidaciones Liquidacion[]
+  comunicaciones Comunicacion[]
+  archivos    Archivo[]
+
+  @@map("clientes")
+}
+
+model ClienteImpuesto {
+  id        Int           @id @default(autoincrement())
+  clienteId Int           @map("cliente_id")
+  tipo      TipoImpuesto
+  activo    Boolean       @default(true)
+
+  cliente   Cliente       @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  @@map("cliente_impuestos")
+}
+
+model Tarea {
+  id            Int          @id @default(autoincrement())
+  estudioId     Int          @default(1) @map("estudio_id")
+  clienteId     Int?         @map("cliente_id")
+  encargadoId   String       @map("encargado_id")
+  titulo        String
+  descripcion   String?      @map("descripcion")
+  tipo          TipoTarea
+  impuesto      TipoImpuesto?
+  periodo       String?
+  tiempoEstMin  Int?         @map("tiempo_est_min")
+  prioridad     Prioridad    @default(MEDIA)
+  estado        EstadoTarea  @default(PENDIENTE)
+  vence         DateTime?
+  esRecurrente  Boolean      @default(false) @map("es_recurrente")
+  reglaRecur    Json?        @map("regla_recur")
+  notas         String?
+  activo        Boolean      @default(true)
+  creadoEn      DateTime     @default(now()) @map("creado_en")
+  actualizadoEn DateTime     @updatedAt @map("actualizado_en")
+
+  cliente       Cliente?     @relation(fields: [clienteId], references: [id])
+  encargado     User         @relation("TareaEncargado", fields: [encargadoId], references: [id])
+  agendaItems   AgendaItem[]
+
+  @@map("tareas")
+}
+
+model Liquidacion {
+  id            Int           @id @default(autoincrement())
+  estudioId     Int           @default(1) @map("estudio_id")
+  clienteId     Int           @map("cliente_id")
+  impuesto      TipoImpuesto
+  periodo       String
+  resultado     ResultadoLiq
+  importe       Decimal?      @db.Decimal(12, 2)
+  importeRef    Decimal?      @db.Decimal(12, 2) @map("importe_ref")
+  vencimiento   DateTime?
+  formaPago     String?       @map("forma_pago")
+  comprobante   String?
+  cargadoPorId  String        @map("cargado_por_id")
+  origenCarga   String        @default("MANUAL") @map("origen_carga")
+  activo        Boolean       @default(true)
+  creadoEn      DateTime      @default(now()) @map("creado_en")
+  actualizadoEn DateTime      @updatedAt @map("actualizado_en")
+
+  cliente       Cliente       @relation(fields: [clienteId], references: [id])
+  cargadoPor    User          @relation("LiquidacionCargadoPor", fields: [cargadoPorId], references: [id])
+
+  @@map("liquidaciones")
+}
+
+model AgendaItem {
+  id             Int          @id @default(autoincrement())
+  usuarioId      String       @map("usuario_id")
+  tareaId        Int?         @map("tarea_id")
+  titulo         String
+  descripcion    String?      @map("descripcion")
+  fecha          DateTime
+  duracionMin    Int          @map("duracion_min")
+  tipo           TipoEvento   @default(PERSONAL)
+  origen         OrigenEvento @default(MANUAL)
+  googleEventId  String?      @map("google_event_id")
+  esEstudio      Boolean      @default(false) @map("es_estudio")
+  activo         Boolean      @default(true)
+  creadoEn       DateTime     @default(now()) @map("creado_en")
+  actualizadoEn  DateTime     @updatedAt @map("actualizado_en")
+
+  usuario        User         @relation(fields: [usuarioId], references: [id])
+  tarea          Tarea?       @relation(fields: [tareaId], references: [id])
+
+  @@map("agenda_items")
+}
+
+model CalendarioVencimiento {
+  id          Int          @id @default(autoincrement())
+  impuesto    TipoImpuesto
+  anio        Int
+  mes         Int
+  digitoCuit  Int          @map("digito_cuit")
+  fechaVence  DateTime     @map("fecha_vence")
+  creadoEn    DateTime     @default(now()) @map("creado_en")
+
+  @@unique([impuesto, anio, mes, digitoCuit])
+  @@map("calendario_vencimientos")
+}
+
+model Notificacion {
+  id         Int               @id @default(autoincrement())
+  usuarioId  String            @map("usuario_id")
+  tipo       TipoNotificacion
+  titulo     String
+  mensaje    String
+  leida      Boolean           @default(false)
+  enlace     String?
+  creadoEn   DateTime          @default(now()) @map("creado_en")
+
+  usuario    User              @relation(fields: [usuarioId], references: [id])
+
+  @@map("notificaciones")
+}
+
+model EmailTemplate {
+  id          Int            @id @default(autoincrement())
+  estudioId   Int            @default(1) @map("estudio_id")
+  nombre      String
+  tipo        TipoTemplate
+  asunto      String
+  cuerpo      String
+  activo      Boolean        @default(true)
+  creadoEn    DateTime       @default(now()) @map("creado_en")
+  actualizadoEn DateTime     @updatedAt @map("actualizado_en")
+
+  @@map("email_templates")
+}
+
+model Comunicacion {
+  id          Int      @id @default(autoincrement())
+  clienteId   Int      @map("cliente_id")
+  usuarioId   String   @map("usuario_id")
+  tipo        String
+  asunto      String?
+  contenido   String?
+  creadoEn    DateTime @default(now()) @map("creado_en")
+
+  cliente     Cliente  @relation(fields: [clienteId], references: [id])
+  usuario     User     @relation("ComunicacionUsuario", fields: [usuarioId], references: [id])
+
+  @@map("comunicaciones")
+}
+
+model Archivo {
+  id          Int        @id @default(autoincrement())
+  clienteId   Int        @map("cliente_id")
+  nombre      String
+  tipo        TipoArchivo
+  periodo     String?
+  url         String
+  tamanioKb   Int?       @map("tamanio_kb")
+  subidoPorId String     @map("subido_por_id")
+  activo      Boolean    @default(true)
+  creadoEn    DateTime   @default(now()) @map("creado_en")
+
+  cliente     Cliente    @relation(fields: [clienteId], references: [id])
+  subidoPor   User       @relation("ArchivoSubidoPor", fields: [subidoPorId], references: [id])
+
+  @@map("archivos")
 }

@@ -6,20 +6,19 @@ import { UserLoginDto } from './auth.login.dto';
 
 export class UserCreateDto extends UserLoginDto {
     @ApiProperty({
-        example: faker.person.firstName(),
-        required: false,
+        example: faker.person.fullName(),
+        required: true,
     })
     @IsString()
-    @IsOptional()
-    @Length(1, 50)
-    public firstName?: string;
+    @Length(1, 100)
+    public nombre: string;
 
     @ApiProperty({
-        example: faker.person.lastName(),
+        example: '👤',
         required: false,
     })
     @IsString()
     @IsOptional()
-    @Length(1, 50)
-    public lastName?: string;
+    @Length(1, 10)
+    public emoji?: string;
 }

@@ -1,0 +1,12 @@
+{
+  "success": {
+    "list": "Liquidaciones retrieved successfully",
+    "retrieved": "Liquidacion retrieved successfully",
+    "created": "Liquidacion created successfully",
+    "updated": "Liquidacion updated successfully",
+    "deleted": "Liquidacion deleted successfully"
+  },
+  "error": {
+    "notFound": "Liquidacion not found"
+  }
+}

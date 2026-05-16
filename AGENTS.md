@@ -65,7 +65,7 @@ gestionpro/                      ← Monorepo Turborepo + pnpm
 
 ## Modelo de Datos — RESUMEN
 
-**12 modelos, 10 enums.** Ver detalle completo en `especificaciones/doc_tecnico_ia.js` Sección 4.
+**12 modelos, 10 enums.** Ver detalle completo en `especificaciones/doc_tecnico_ia.md` Sección 4.
 
 Modelos principales:
 - **Usuario**: SOCIO/COLABORADOR, JWT auth, vinculación Telegram
@@ -112,6 +112,10 @@ Modelos principales:
 
 ## Testing
 
+**NO escribir tests a menos que el usuario lo pida explícitamente.** El foco está en desarrollo de features, no en cobertura.
+
+Cuando se pidan tests:
+
 ### Backend (apps/api)
 - **Jest 30** con 100% coverage requerido (statements, branches, functions, lines)
 - Comando: `npm test` (desde apps/api)
@@ -121,6 +125,63 @@ Modelos principales:
 
 ### Frontend (apps/web)
 - **Sin test runner** — necesita configuración (Vitest recomendado)
+
+## Archivos Protegidos — NO MODIFICAR sin orden explícita
+
+Estos archivos/directorios son el "sistema operativo" del proyecto. **Ninguna IA puede modificarlos** a menos que el usuario lo pida explícitamente:
+
+| Archivo/Directorio | Rol | Riesgo si se modifica sin permiso |
+|---|---|---|
+| `AGENTS.md` (todos) | Fuente de verdad para IAs | Degradación del contexto, reglas inconsistentes |
+| `.atl/` | SDD artifacts (exploration, specs, design, tasks) | Desincronización entre lo planeado y lo implementado |
+| `especificaciones/` | Documentación técnica maestra | Pérdida de la referencia canónica del sistema |
+| `apps/api/AGENTS.md` | Patrones backend | Divergencia de convenciones, bugs en cascada |
+| `apps/web/AGENTS.md` | Patrones frontend | Divergencia de convenciones, bugs en cascada |
+| `prisma/schema.prisma` | Modelo de datos | Migraciones rotas, pérdida de datos |
+| `packages/types/` | Tipos compartidos | Breaking changes en ambos apps |
+
+> **Regla**: Si una IA sugiere modificar cualquiera de estos archivos sin que vos lo hayas pedido, es una RED FLAG. Marcale el alto inmediatamente.
+
+## Una Feature por Vez
+
+**Nunca implementar más de un feature module a la vez sin pedirlo.** Cada feature debe ser autocontenida:
+
+- Backend: un módulo = controller(s) + service(s) + DTO(s) + repository + Prisma models
+- Frontend: un módulo = api/types + api/service + api/queries + components + page(s)
+
+Reglas:
+1. Terminar e integrar un feature ANTES de empezar otro
+2. Si un feature necesita cambios en otro módulo, pedir confirmación
+3. No hacer "refactors preventivos" — si funciona, no se toca
+4. PRs atómicos: un feature = un PR
+
+## Convención de Branches y Commits
+
+### Branches
+```
+feat/<modulo>-<descripcion>     # feature nueva
+fix/<modulo>-<descripcion>      # bug fix
+refactor/<modulo>-<descripcion> # refactor sin cambio funcional
+```
+
+Ejemplos:
+- `feat/clientes-crud`
+- `fix/auth-refresh-token`
+- `refactor/user-dtos`
+
+### Commits — Conventional Commits
+```
+feat(scope): descripción
+fix(scope): descripción
+chore(scope): descripción
+```
+
+Ejemplos:
+- `feat(clientes): add ClienteRepository with CRUD operations`
+- `fix(auth): handle expired refresh token gracefully`
+- `chore(api): update Prisma to 7.x`
+
+**Nunca** poner "Co-Authored-By" o atribución a IA en los commits.
 
 ## Etapas de Desarrollo
 
@@ -135,23 +196,25 @@ Modelos principales:
 
 ## Reglas para IAs
 
-1. **NO usar librerías fuera del stack definido** sin consultar
-2. **NO cambiar la estructura de carpetas**
-3. **NO tomar decisiones arquitectónicas** sin consultar
-4. **Seguir convenciones de nomenclatura exactas**
-5. **Todo endpoint nuevo con JwtAuthGuard y validación DTO**
-6. **Leer `especificaciones/doc_tecnico_ia.js`** para contexto completo antes de empezar
-7. **Backend: importar `DatabaseModule`, nunca `CommonModule`** en feature modules
-8. **Frontend: usar `Icons.keyName` desde `@/components/icons`, nunca importar iconos directo**
-9. **Prisma: `@map("snake_case")` y `@@map("plural_snake_case")`** en todos los campos y tablas
-10. **Fechas siempre UTC en DB**, convertir solo en frontend
+1. **NO modificar archivos protegidos** (AGENTS.md, .atl/, especificaciones/, prisma/schema.prisma, packages/types/) sin orden explícita
+2. **NO usar librerías fuera del stack definido** sin consultar
+3. **NO cambiar la estructura de carpetas**
+4. **NO tomar decisiones arquitectónicas** sin consultar
+5. **NO hacer cambios en más de un feature a la vez** sin pedirlo — un feature = un PR
+6. **Seguir convenciones de nomenclatura exactas**
+7. **Todo endpoint nuevo con JwtAuthGuard y validación DTO**
+8. **Leer `especificaciones/doc_tecnico_ia.md`** para contexto completo antes de empezar. Para backend: leer `apps/api/AGENTS.md`, para frontend: `apps/web/AGENTS.md`.
+9. **Backend: importar `DatabaseModule`, nunca `CommonModule`** en feature modules. Leer `apps/api/AGENTS.md` para patrones completos del backend.
+10. **Frontend: usar `Icons.keyName` desde `@/components/icons`, nunca importar iconos directo**
+11. **Prisma: `@map("snake_case")` y `@@map("plural_snake_case")`** en todos los campos y tablas
+12. **Fechas siempre UTC en DB**, convertir solo en frontend
 
 ## Archivos de contexto IA
 
 | Archivo | Qué contiene |
 |---------|-------------|
 | `AGENTS.md` (este) | Visión general del proyecto |
-| `apps/api/CLAUDE.md` | Convenciones NestJS detalladas |
+| `apps/api/AGENTS.md` | Convenciones NestJS exhaustivas: patrones, wiring, testing, pitfalls |
 | `apps/web/AGENTS.md` | Convenciones Next.js + patrones del template |
-| `especificaciones/doc_tecnico_ia.js` | Documento técnico completo (1141 líneas) |
+| `especificaciones/doc_tecnico_ia.md` | Documento técnico completo: modelos, módulos, etapas, stack |
 | `.atl/skill-registry.md` | Skills disponibles y su aplicabilidad |

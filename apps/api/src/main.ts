@@ -6,13 +6,13 @@ import { NestFactory } from '@nestjs/core';
 import * as Sentry from '@sentry/node';
 import { useContainer } from 'class-validator';
 import compression from 'compression';
-import { type NextFunction, type Request, type Response } from 'express';
+import { type NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { Logger } from 'nestjs-pino';
 
 import { AppModule } from './app/app.module';
 import { APP_ENVIRONMENT } from './app/enums/app.enum';
-import setupSwagger from './swagger';
+import { createSwaggerDocument, setupSwaggerUI } from './swagger';
 
 if (process.env.SENTRY_DSN) {
     Sentry.init({
@@ -55,8 +55,15 @@ async function bootstrap(): Promise<void> {
 
     useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
+    const swaggerDocument = createSwaggerDocument(app);
+
+    // Always serve raw OpenAPI JSON for code generation
+    app.getHttpAdapter().get('/docs-json', (_req: Request, res: Response) => {
+        res.json(swaggerDocument);
+    });
+
     if (env !== APP_ENVIRONMENT.PRODUCTION) {
-        setupSwagger(app);
+        setupSwaggerUI(app, swaggerDocument);
     }
 
     app.enableShutdownHooks();

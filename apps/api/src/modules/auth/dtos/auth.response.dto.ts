@@ -36,4 +36,13 @@ export class AuthResponseDto extends TokenDto {
     user: UserResponseDto;
 }
 
-export class AuthRefreshResponseDto extends TokenDto {}
+export class AuthRefreshResponseDto {
+    @ApiProperty({
+        example: faker.string.alphanumeric({ length: 64 }),
+        required: true,
+    })
+    @Expose()
+    @IsString()
+    @IsNotEmpty()
+    accessToken: string;
+}

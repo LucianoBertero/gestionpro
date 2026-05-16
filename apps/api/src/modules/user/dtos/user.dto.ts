@@ -6,6 +6,7 @@ import {
     IsDate,
     IsEmail,
     IsEnum,
+    IsInt,
     IsOptional,
     IsString,
     IsUUID,
@@ -14,13 +15,20 @@ import {
 import { UserRole } from 'src/common/database/enums/role.enum';
 import type { UserEntity } from 'src/common/database/interfaces/user.interface';
 
-export class UserResponseDto implements Omit<UserEntity, 'passwordHash'> {
+export class UserResponseDto {
     @ApiProperty({
         example: faker.string.uuid(),
     })
     @Expose()
     @IsUUID()
     id: string;
+
+    @ApiProperty({
+        example: faker.person.fullName(),
+    })
+    @Expose()
+    @IsString()
+    nombre: string;
 
     @ApiProperty({
         example: faker.internet.email(),
@@ -30,41 +38,14 @@ export class UserResponseDto implements Omit<UserEntity, 'passwordHash'> {
     email: string;
 
     @ApiProperty({
-        example: faker.person.firstName(),
+        example: '👤',
         required: false,
         nullable: true,
     })
     @Expose()
     @IsString()
     @IsOptional()
-    firstName: string | null;
-
-    @ApiProperty({
-        example: faker.person.lastName(),
-        required: false,
-        nullable: true,
-    })
-    @Expose()
-    @IsString()
-    @IsOptional()
-    lastName: string | null;
-
-    @ApiProperty({
-        example: faker.image.avatar(),
-        required: false,
-        nullable: true,
-    })
-    @Expose()
-    @IsString()
-    @IsOptional()
-    avatar: string | null;
-
-    @ApiProperty({
-        example: faker.internet.username(),
-    })
-    @Expose()
-    @IsString()
-    userName: string;
+    emoji: string | null;
 
     @ApiProperty({
         example: faker.phone.number(),
@@ -74,7 +55,34 @@ export class UserResponseDto implements Omit<UserEntity, 'passwordHash'> {
     @Expose()
     @IsString()
     @IsOptional()
-    phone: string | null;
+    telefono: string | null;
+
+    @ApiProperty({
+        example: faker.string.numeric(10),
+        required: false,
+        nullable: true,
+    })
+    @Expose()
+    @IsString()
+    @IsOptional()
+    telegramChatId: string | null;
+
+    @ApiProperty({
+        example: 1,
+    })
+    @Expose()
+    @IsInt()
+    estudioId: number;
+
+    @ApiProperty({
+        example: {},
+        required: false,
+        nullable: true,
+    })
+    @Expose()
+    @IsOptional()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    googleTokens: any;
 
     @ApiProperty({
         enum: UserRole,
@@ -85,11 +93,11 @@ export class UserResponseDto implements Omit<UserEntity, 'passwordHash'> {
     role: UserRole;
 
     @ApiProperty({
-        example: faker.datatype.boolean(),
+        example: true,
     })
     @Expose()
     @IsBoolean()
-    isVerified: boolean;
+    activo: boolean;
 
     @ApiProperty({
         example: faker.date.past().toISOString(),
@@ -104,16 +112,6 @@ export class UserResponseDto implements Omit<UserEntity, 'passwordHash'> {
     @Expose()
     @IsDate()
     updatedAt: Date;
-
-    @ApiProperty({
-        example: faker.date.future().toISOString(),
-        required: false,
-        nullable: true,
-    })
-    @Expose()
-    @IsDate()
-    @IsOptional()
-    deletedAt: Date | null;
 
     @ApiHideProperty()
     @Exclude()

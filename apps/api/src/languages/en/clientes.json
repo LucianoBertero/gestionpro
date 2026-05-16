@@ -1,0 +1,17 @@
+{
+    "success": {
+        "list": "Clientes retrieved successfully",
+        "retrieved": "Cliente retrieved successfully",
+        "legajoRetrieved": "Cliente legajo retrieved successfully",
+        "created": "Cliente created successfully",
+        "updated": "Cliente updated successfully",
+        "clienteDeleted": "Cliente deleted successfully",
+        "afipRetrieved": "AFIP data retrieved successfully"
+    },
+    "error": {
+        "clienteNotFound": "Cliente not found",
+        "cuitDuplicate": "A cliente with this CUIT already exists",
+        "cuitInvalido": "Invalid CUIT format. Expected format: XX-NNNNNNNN-X",
+        "afipNoData": "No AFIP data found for this CUIT"
+    }
+}

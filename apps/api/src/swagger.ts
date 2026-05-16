@@ -1,12 +1,14 @@
 import { Logger, type INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import {
+    DocumentBuilder,
+    SwaggerModule,
+    type OpenAPIObject,
+} from '@nestjs/swagger';
 
-export default function setupSwagger(app: INestApplication): void {
+function buildDocumentConfig(app: INestApplication) {
     const configService = app.get(ConfigService);
-    const logger = new Logger('SwaggerSetup');
-
-    const swaggerConfig = {
+    return {
         name: configService.get<string>('doc.name', 'API Documentation'),
         description: configService.get<string>(
             'doc.description',
@@ -15,6 +17,10 @@ export default function setupSwagger(app: INestApplication): void {
         version: configService.get<string>('doc.version', '1.0'),
         prefix: configService.get<string>('doc.prefix', 'docs'),
     };
+}
+
+export function createSwaggerDocument(app: INestApplication): OpenAPIObject {
+    const swaggerConfig = buildDocumentConfig(app);
 
     const documentBuild = new DocumentBuilder()
         .setTitle(swaggerConfig.name)
@@ -44,9 +50,17 @@ export default function setupSwagger(app: INestApplication): void {
         )
         .build();
 
-    const document = SwaggerModule.createDocument(app, documentBuild, {
+    return SwaggerModule.createDocument(app, documentBuild, {
         deepScanRoutes: true,
     });
+}
+
+export function setupSwaggerUI(
+    app: INestApplication,
+    document: OpenAPIObject
+): void {
+    const swaggerConfig = buildDocumentConfig(app);
+    const logger = new Logger('SwaggerSetup');
 
     const darkModeTheme = `
         body {

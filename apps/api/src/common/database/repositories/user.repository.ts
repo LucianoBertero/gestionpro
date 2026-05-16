@@ -20,6 +20,14 @@ export class UserRepository {
         return this.db.user.findUnique({ where: { email } });
     }
 
+    findByEmoji(emoji: string): Promise<UserEntity | null> {
+        return this.db.user.findFirst({ where: { emoji } });
+    }
+
+    findAll(): Promise<UserEntity[]> {
+        return this.db.user.findMany({ where: { activo: true } });
+    }
+
     async existsById(id: string): Promise<boolean> {
         const found = await this.db.user.findUnique({
             where: { id },
@@ -39,18 +47,20 @@ export class UserRepository {
     create(data: CreateUserInput): Promise<UserEntity> {
         const { password, ...rest } = data;
         return this.db.user.create({
-            data: { ...rest, passwordHash: password },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            data: { ...rest, passwordHash: password } as any,
         });
     }
 
     update(id: string, data: UpdateUserInput): Promise<UserEntity> {
-        return this.db.user.update({ where: { id }, data });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return this.db.user.update({ where: { id }, data: data as any });
     }
 
     softDelete(id: string): Promise<UserEntity> {
         return this.db.user.update({
             where: { id },
-            data: { deletedAt: new Date() },
+            data: { activo: false },
         });
     }
 
