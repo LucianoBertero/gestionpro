@@ -5,6 +5,7 @@ import { Breadcrumbs } from '../breadcrumbs';
 import { ThemeModeToggle } from '../themes/theme-mode-toggle';
 import { UserNav } from './user-nav';
 import { LanguageSwitcher } from '../language-switcher';
+import { NotificationsDropdown } from './notifications-dropdown';
 
 export default function Header() {
   return (
@@ -17,6 +18,7 @@ export default function Header() {
 
       <div className='flex items-center gap-2 px-4'>
         <LanguageSwitcher />
+        <NotificationsDropdown />
         <ThemeModeToggle />
         <UserNav />
       </div>
