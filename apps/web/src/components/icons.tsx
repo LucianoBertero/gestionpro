@@ -51,6 +51,7 @@ import {
   IconHelpCircle,
   IconId,
   IconInfoCircle,
+  IconLanguage,
   IconItalic,
   IconLayoutDashboard,
   IconLayoutKanban,
@@ -239,4 +240,5 @@ export const Icons = {
   tasks: IconChecklist,
   calculator: IconCalculator,
   calendarClock: IconCalendarClock,
+  language: IconLanguage,
 };
