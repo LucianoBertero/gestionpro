@@ -1,0 +1,8 @@
+{
+    "success": {
+        "deleted": "File deleted"
+    },
+    "error": {
+        "notFound": "File not found"
+    }
+}

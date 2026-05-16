@@ -3,6 +3,7 @@ import { TerminusModule } from '@nestjs/terminus';
 
 import { CommonModule } from 'src/common/common.module';
 import { AgendaModule } from 'src/modules/agenda/agenda.module';
+import { ArchivoModule } from 'src/modules/archivo/archivo.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { ClientesModule } from 'src/modules/clientes/clientes.module';
 import { ComunicacionModule } from 'src/modules/comunicacion/comunicacion.module';
@@ -40,6 +41,7 @@ import { HealthController } from './controllers/health.controller';
         AgendaModule,
         NotificacionesModule,
         ComunicacionModule,
+        ArchivoModule,
         EmailTemplatesModule,
         DashboardModule,
         FinancieroModule,

@@ -6,6 +6,14 @@ import type { TipoArchivo } from '../enums/tipo-archivo.enum';
 export class ArchivoRepository {
     constructor(private readonly db: DatabaseService) {}
 
+    findAll() {
+        return this.db.archivo.findMany({
+            where: { activo: true },
+            orderBy: { creadoEn: 'desc' },
+            include: { subidoPor: { select: { id: true, nombre: true } }, cliente: { select: { id: true, denominacion: true } } },
+        });
+    }
+
     findByClienteId(clienteId: number) {
         return this.db.archivo.findMany({
             where: { clienteId, activo: true },
