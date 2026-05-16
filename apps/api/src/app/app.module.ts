@@ -5,6 +5,7 @@ import { CommonModule } from 'src/common/common.module';
 import { AgendaModule } from 'src/modules/agenda/agenda.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { ClientesModule } from 'src/modules/clientes/clientes.module';
+import { ComunicacionModule } from 'src/modules/comunicacion/comunicacion.module';
 import { DashboardModule } from 'src/modules/dashboard/dashboard.module';
 import { EmailTemplatesModule } from 'src/modules/email-templates/email-templates.module';
 import { ExcelModule } from 'src/modules/excel/excel.module';
@@ -38,6 +39,7 @@ import { HealthController } from './controllers/health.controller';
         VencimientosModule,
         AgendaModule,
         NotificacionesModule,
+        ComunicacionModule,
         EmailTemplatesModule,
         DashboardModule,
         FinancieroModule,

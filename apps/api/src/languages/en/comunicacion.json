@@ -1,0 +1,8 @@
+{
+    "success": {
+        "deleted": "Communication deleted"
+    },
+    "error": {
+        "notFound": "Communication not found"
+    }
+}
