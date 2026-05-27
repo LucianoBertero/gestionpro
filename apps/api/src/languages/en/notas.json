@@ -1,0 +1,13 @@
+{
+  "success": {
+    "list": "Notas retrieved",
+    "retrieved": "Nota retrieved",
+    "created": "Nota created",
+    "updated": "Nota updated",
+    "deleted": "Nota deleted"
+  },
+  "error": {
+    "notFound": "Nota not found",
+    "notAuthorized": "You are not authorized to modify this nota"
+  }
+}

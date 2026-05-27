@@ -8,6 +8,7 @@ import { ClienteRepository } from './repositories/cliente.repository';
 import { ComunicacionRepository } from './repositories/comunicacion.repository';
 import { EmailTemplateRepository } from './repositories/email-template.repository';
 import { LiquidacionRepository } from './repositories/liquidacion.repository';
+import { NotaClienteRepository } from './repositories/nota-cliente.repository';
 import { NotificacionRepository } from './repositories/notificacion.repository';
 import { RefreshTokenRepository } from './repositories/refresh-token.repository';
 import { TareaRepository } from './repositories/tarea.repository';
@@ -29,6 +30,7 @@ import { DatabaseService } from './services/database.service';
         EmailTemplateRepository,
         ComunicacionRepository,
         ArchivoRepository,
+        NotaClienteRepository,
     ],
     exports: [
         DatabaseService,
@@ -43,6 +45,7 @@ import { DatabaseService } from './services/database.service';
         EmailTemplateRepository,
         ComunicacionRepository,
         ArchivoRepository,
+        NotaClienteRepository,
     ],
 })
 export class DatabaseModule {}

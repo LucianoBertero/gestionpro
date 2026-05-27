@@ -12,6 +12,7 @@ import { EmailTemplatesModule } from 'src/modules/email-templates/email-template
 import { ExcelModule } from 'src/modules/excel/excel.module';
 import { FinancieroModule } from 'src/modules/financiero/financiero.module';
 import { LiquidacionesModule } from 'src/modules/liquidaciones/liquidaciones.module';
+import { NotasModule } from 'src/modules/notas/notas.module';
 import { NotificacionesModule } from 'src/modules/notificaciones/notificaciones.module';
 import { TareasModule } from 'src/modules/tareas/tareas.module';
 import { UserModule } from 'src/modules/user/user.module';
@@ -37,6 +38,7 @@ import { HealthController } from './controllers/health.controller';
         ClientesModule,
         TareasModule,
         LiquidacionesModule,
+        NotasModule,
         VencimientosModule,
         AgendaModule,
         NotificacionesModule,
