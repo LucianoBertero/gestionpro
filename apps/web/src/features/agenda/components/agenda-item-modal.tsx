@@ -41,8 +41,8 @@ export function AgendaItemModal({
 }: AgendaItemModalProps) {
   const [titulo, setTitulo] = useState('');
   const [fecha, setFecha] = useState('');
-  const [hora, setHora] = useState('09:00');
-  const [duracionMin, setDuracionMin] = useState(60);
+  const [horaInicio, setHoraInicio] = useState('09:00');
+  const [horaFin, setHoraFin] = useState('10:00');
   const [tipo, setTipo] = useState<'PERSONAL' | 'ESTUDIO' | 'TAREA'>('PERSONAL');
   const [descripcion, setDescripcion] = useState('');
 
@@ -50,15 +50,17 @@ export function AgendaItemModal({
     if (item) {
       setTitulo(item.titulo);
       setFecha(item.fecha.slice(0, 10));
-      setHora(item.fecha.slice(11, 16));
-      setDuracionMin(item.duracionMin);
+      setHoraInicio(item.fecha.slice(11, 16));
+      const endDate = new Date(item.fecha);
+      endDate.setMinutes(endDate.getMinutes() + item.duracionMin);
+      setHoraFin(endDate.toISOString().slice(11, 16));
       setTipo(item.tipo as 'PERSONAL' | 'ESTUDIO' | 'TAREA');
       setDescripcion(item.descripcion ?? '');
     } else {
       setTitulo('');
       setFecha(defaultDate ?? new Date().toISOString().slice(0, 10));
-      setHora('09:00');
-      setDuracionMin(60);
+      setHoraInicio('09:00');
+      setHoraFin('10:00');
       setTipo('PERSONAL');
       setDescripcion('');
     }
@@ -66,7 +68,10 @@ export function AgendaItemModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const fechaISO = new Date(`${fecha}T${hora}:00`).toISOString();
+    const fechaISO = new Date(`${fecha}T${horaInicio}:00`).toISOString();
+    const [hFin, mFin] = horaFin.split(':').map(Number);
+    const [hInicio, mInicio] = horaInicio.split(':').map(Number);
+    const duracionMin = Math.max(15, (hFin * 60 + mFin) - (hInicio * 60 + mInicio));
 
     if (item) {
       onSave({
@@ -118,31 +123,6 @@ export function AgendaItemModal({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hora">Hora</Label>
-              <Input
-                id="hora"
-                type="time"
-                value={hora}
-                onChange={(e) => setHora(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="duracion">Duración (min)</Label>
-              <Input
-                id="duracion"
-                type="number"
-                value={duracionMin}
-                onChange={(e) => setDuracionMin(Number(e.target.value))}
-                min={15}
-                step={15}
-                required
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="tipo">Tipo</Label>
               <Select value={tipo} onValueChange={(v: 'PERSONAL' | 'ESTUDIO' | 'TAREA') => setTipo(v)}>
                 <SelectTrigger>
@@ -154,6 +134,29 @@ export function AgendaItemModal({
                   <SelectItem value="TAREA">Tarea</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="horaInicio">Hora de comienzo</Label>
+              <Input
+                id="horaInicio"
+                type="time"
+                value={horaInicio}
+                onChange={(e) => setHoraInicio(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="horaFin">Hora de fin</Label>
+              <Input
+                id="horaFin"
+                type="time"
+                value={horaFin}
+                onChange={(e) => setHoraFin(e.target.value)}
+                required
+              />
             </div>
           </div>
 
