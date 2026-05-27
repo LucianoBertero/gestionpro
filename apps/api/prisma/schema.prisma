@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,44 +6,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id             String         @id @default(uuid())
-  nombre         String
-  email          String         @unique
-  passwordHash   String         @map("password_hash")
-  telefono       String?
-  role           Role           @default(COLABORADOR)
-  emoji          String?        @default("👤")
-  telegramChatId String?        @map("telegram_chat_id")
-  estudioId      Int            @default(1) @map("estudio_id")
-  googleTokens   Json?          @map("google_tokens")
-  activo         Boolean        @default(true)
-  createdAt      DateTime       @default(now()) @map("created_at")
-  updatedAt      DateTime       @updatedAt @map("updated_at")
-  refreshTokens        RefreshToken[]
-  clientesEncargado    Cliente[]          @relation("Encargado")
-  clientesSupervisado  Cliente[]          @relation("Supervisor")
-  tareas               Tarea[]            @relation("TareaEncargado")
-  agendaItems          AgendaItem[]
-  notificaciones       Notificacion[]
-  liquidacionesCargadas Liquidacion[]     @relation("LiquidacionCargadoPor")
-  comunicaciones       Comunicacion[]     @relation("ComunicacionUsuario")
-  archivosSubidos      Archivo[]          @relation("ArchivoSubidoPor")
-
-  @@map("users")
-}
-
-model RefreshToken {
-  id         String   @id @default(uuid())
-  usuarioId  String   @map("usuario_id")
-  token      String   @unique
-  expira     DateTime
-  revocado   Boolean  @default(false) @map("revocado")
-  creadoEn   DateTime @default(now()) @map("creado_en")
-  usuario    User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-
-  @@map("refresh_tokens")
-}
+// ─── Enums ───────────────────────────────────────────────────────────────────
 
 enum Role {
   SOCIO
@@ -128,34 +88,91 @@ enum TipoArchivo {
   OTRO
 }
 
+enum TipoComunicacion {
+  EMAIL
+  WHATSAPP
+  LLAMADA
+  REUNION
+  OTRO
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id             String         @id @default(uuid())
+  nombre         String
+  email          String         @unique
+  passwordHash   String         @map("password_hash")
+  telefono       String?
+  role           Role           @default(COLABORADOR)
+  emoji          String?        @default("👤")
+  telegramChatId String?        @map("telegram_chat_id")
+  estudioId      Int            @default(1) @map("estudio_id")
+  googleTokens   Json?          @map("google_tokens")
+  activo         Boolean        @default(true)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  refreshTokens        RefreshToken[]
+  clientesEncargado    Cliente[]          @relation("Encargado")
+  clientesSupervisado  Cliente[]          @relation("Supervisor")
+  tareas               Tarea[]            @relation("TareaEncargado")
+  agendaItems          AgendaItem[]
+  notificaciones       Notificacion[]
+  liquidacionesCargadas Liquidacion[]     @relation("LiquidacionCargadoPor")
+  comunicaciones       Comunicacion[]     @relation("ComunicacionUsuario")
+  archivosSubidos      Archivo[]          @relation("ArchivoSubidoPor")
+  notasCreadas         NotaCliente[]      @relation("NotaCreadoPor")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  usuarioId  String   @map("usuario_id")
+  token      String   @unique
+  expira     DateTime
+  revocado   Boolean  @default(false) @map("revocado")
+  creadoEn   DateTime @default(now()) @map("creado_en")
+
+  usuario    User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId, revocado], name: "idx_refresh_tokens_usuario")
+  @@map("refresh_tokens")
+}
+
 model Cliente {
-  id           Int             @id @default(autoincrement())
-  estudioId    Int             @default(1) @map("estudio_id")
-  cuit         String          @unique
-  denominacion String
-  termino      Int             @default(0)
-  condicionIva String          @map("condicion_iva")
-  actividades  String[]
-  domicilio    String?
-  telefono     String?
-  email        String?
-  whatsapp     String?
-  encargadoId  String          @map("encargado_id")
-  supervisorId String?         @map("supervisor_id")
-  semaforo     EstadoSemaforo  @default(VERDE)
-  activo       Boolean         @default(true)
-  honorarioMensual Decimal?    @db.Decimal(10, 2) @map("honorario_mensual")
-  notas        String?
-  creadoEn     DateTime        @default(now()) @map("creado_en")
+  id               Int             @id @default(autoincrement())
+  estudioId        Int             @default(1) @map("estudio_id")
+  cuit             String          @unique
+  denominacion     String
+  termino          Int             @default(0)
+  condicionIva     String          @map("condicion_iva")
+  actividades      String[]
+  domicilio        String?
+  telefono         String?
+  email            String?
+  whatsapp         String?
+  encargadoId      String          @map("encargado_id")
+  supervisorId     String?         @map("supervisor_id")
+  semaforo         EstadoSemaforo  @default(VERDE)
+  activo           Boolean         @default(true)
+  honorarioMensual Decimal?        @db.Decimal(10, 2) @map("honorario_mensual")
+  creadoEn         DateTime        @default(now()) @map("creado_en")
+  actualizadoEn    DateTime        @updatedAt @map("actualizado_en")
 
-  encargado   User             @relation("Encargado", fields: [encargadoId], references: [id])
-  supervisor  User?            @relation("Supervisor", fields: [supervisorId], references: [id])
-  impuestos   ClienteImpuesto[]
-  tareas      Tarea[]
-  liquidaciones Liquidacion[]
-  comunicaciones Comunicacion[]
-  archivos    Archivo[]
+  encargado        User            @relation("Encargado", fields: [encargadoId], references: [id])
+  supervisor       User?           @relation("Supervisor", fields: [supervisorId], references: [id])
+  impuestos        ClienteImpuesto[]
+  tareas           Tarea[]
+  liquidaciones    Liquidacion[]
+  comunicaciones   Comunicacion[]
+  archivos         Archivo[]
+  notasCliente     NotaCliente[]
 
+  @@index([encargadoId], name: "idx_clientes_encargado")
+  @@index([activo, estudioId], name: "idx_clientes_activo_estudio")
+  @@index([semaforo, activo], name: "idx_clientes_semaforo")
   @@map("clientes")
 }
 
@@ -164,9 +181,11 @@ model ClienteImpuesto {
   clienteId Int           @map("cliente_id")
   tipo      TipoImpuesto
   activo    Boolean       @default(true)
+  creadoEn  DateTime      @default(now()) @map("creado_en")
 
   cliente   Cliente       @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
+  @@unique([clienteId, tipo], name: "uq_cliente_impuesto")
   @@map("cliente_impuestos")
 }
 
@@ -191,10 +210,13 @@ model Tarea {
   creadoEn      DateTime     @default(now()) @map("creado_en")
   actualizadoEn DateTime     @updatedAt @map("actualizado_en")
 
-  cliente       Cliente?     @relation(fields: [clienteId], references: [id])
+  cliente       Cliente?     @relation(fields: [clienteId], references: [id], onDelete: SetNull)
   encargado     User         @relation("TareaEncargado", fields: [encargadoId], references: [id])
   agendaItems   AgendaItem[]
 
+  @@index([clienteId, estado], name: "idx_tareas_cliente_estado")
+  @@index([encargadoId, estado], name: "idx_tareas_encargado_estado")
+  @@index([estado, vence], name: "idx_tareas_estado_vence")
   @@map("tareas")
 }
 
@@ -216,9 +238,12 @@ model Liquidacion {
   creadoEn      DateTime      @default(now()) @map("creado_en")
   actualizadoEn DateTime      @updatedAt @map("actualizado_en")
 
-  cliente       Cliente       @relation(fields: [clienteId], references: [id])
+  cliente       Cliente       @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   cargadoPor    User          @relation("LiquidacionCargadoPor", fields: [cargadoPorId], references: [id])
 
+  @@unique([clienteId, impuesto, periodo], name: "uq_liquidacion_cliente_periodo")
+  @@index([clienteId, impuesto, periodo], name: "idx_liquidaciones_cliente_impuesto_periodo")
+  @@index([periodo], name: "idx_liquidaciones_periodo")
   @@map("liquidaciones")
 }
 
@@ -241,6 +266,7 @@ model AgendaItem {
   usuario        User         @relation(fields: [usuarioId], references: [id])
   tarea          Tarea?       @relation(fields: [tareaId], references: [id])
 
+  @@index([usuarioId, fecha], name: "idx_agenda_usuario_fecha")
   @@map("agenda_items")
 }
 
@@ -253,7 +279,8 @@ model CalendarioVencimiento {
   fechaVence  DateTime     @map("fecha_vence")
   creadoEn    DateTime     @default(now()) @map("creado_en")
 
-  @@unique([impuesto, anio, mes, digitoCuit])
+  @@unique([impuesto, anio, mes, digitoCuit], name: "uq_calendario_vencimiento")
+  @@index([fechaVence], name: "idx_calendario_fecha_vence")
   @@map("calendario_vencimientos")
 }
 
@@ -266,9 +293,11 @@ model Notificacion {
   leida      Boolean           @default(false)
   enlace     String?
   creadoEn   DateTime          @default(now()) @map("creado_en")
+  actualizadoEn DateTime       @updatedAt @map("actualizado_en")
 
   usuario    User              @relation(fields: [usuarioId], references: [id])
 
+  @@index([usuarioId, leida, creadoEn], name: "idx_notificaciones_usuario_leida")
   @@map("notificaciones")
 }
 
@@ -287,18 +316,34 @@ model EmailTemplate {
 }
 
 model Comunicacion {
-  id          Int      @id @default(autoincrement())
-  clienteId   Int      @map("cliente_id")
-  usuarioId   String   @map("usuario_id")
-  tipo        String
-  asunto      String?
-  contenido   String?
-  creadoEn    DateTime @default(now()) @map("creado_en")
+  id            Int               @id @default(autoincrement())
+  clienteId     Int               @map("cliente_id")
+  usuarioId     String            @map("usuario_id")
+  tipo          TipoComunicacion
+  asunto        String?
+  contenido     String?
+  creadoEn      DateTime          @default(now()) @map("creado_en")
 
-  cliente     Cliente  @relation(fields: [clienteId], references: [id])
-  usuario     User     @relation("ComunicacionUsuario", fields: [usuarioId], references: [id])
+  cliente       Cliente           @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  usuario       User              @relation("ComunicacionUsuario", fields: [usuarioId], references: [id])
 
+  @@index([clienteId, creadoEn], name: "idx_comunicaciones_cliente_fecha")
   @@map("comunicaciones")
+}
+
+model NotaCliente {
+  id            Int      @id @default(autoincrement())
+  clienteId     Int      @map("cliente_id")
+  contenido     String
+  creadoPorId   String   @map("creado_por_id")
+  creadoEn      DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @updatedAt @map("actualizado_en")
+
+  cliente       Cliente  @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  creadoPor     User     @relation("NotaCreadoPor", fields: [creadoPorId], references: [id])
+
+  @@index([clienteId, creadoEn], name: "idx_notas_cliente_fecha")
+  @@map("notas_cliente")
 }
 
 model Archivo {
@@ -313,8 +358,9 @@ model Archivo {
   activo      Boolean    @default(true)
   creadoEn    DateTime   @default(now()) @map("creado_en")
 
-  cliente     Cliente    @relation(fields: [clienteId], references: [id])
+  cliente     Cliente    @relation(fields: [clienteId], references: [id], onDelete: Cascade)
   subidoPor   User       @relation("ArchivoSubidoPor", fields: [subidoPorId], references: [id])
 
+  @@index([clienteId, tipo], name: "idx_archivos_cliente_tipo")
   @@map("archivos")
 }
