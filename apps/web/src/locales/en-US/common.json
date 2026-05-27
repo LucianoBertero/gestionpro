@@ -126,7 +126,14 @@
     "impuestos": "Taxes",
     "confirmDelete": "Delete client {{name}}?",
     "detail": "Client Details",
-    "buscarAfip": "Search AFIP"
+    "buscarAfip": "Search AFIP",
+    "viewLegajo": "View file",
+    "sendWhatsApp": "Send WhatsApp",
+    "sendEmail": "Send email",
+    "deleteSuccess": "Client deleted successfully",
+    "deleteError": "Error deleting client",
+    "updateSuccess": "Client updated",
+    "updateError": "Error updating client"
   },
   "tarea": {
     "title": "Tasks",

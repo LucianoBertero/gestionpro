@@ -126,7 +126,14 @@
     "impuestos": "Impuestos",
     "confirmDelete": "¿Eliminar cliente {{name}}?",
     "detail": "Detalle del Cliente",
-    "buscarAfip": "Buscar en AFIP"
+    "buscarAfip": "Buscar en AFIP",
+    "viewLegajo": "Ver legajo",
+    "sendWhatsApp": "Enviar WhatsApp",
+    "sendEmail": "Enviar email",
+    "deleteSuccess": "Cliente eliminado correctamente",
+    "deleteError": "Error al eliminar el cliente",
+    "updateSuccess": "Cliente actualizado",
+    "updateError": "Error al actualizar el cliente"
   },
   "tarea": {
     "title": "Tareas",
