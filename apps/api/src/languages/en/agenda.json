@@ -1,0 +1,13 @@
+{
+  "success": {
+    "created": "Evento created",
+    "updated": "Evento updated",
+    "deleted": "Evento deleted",
+    "retrieved": "Evento retrieved",
+    "list": "Eventos retrieved"
+  },
+  "error": {
+    "notFound": "Evento not found",
+    "notAuthorized": "You are not authorized to modify this evento"
+  }
+}

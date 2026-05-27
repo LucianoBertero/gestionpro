@@ -1,0 +1,9 @@
+{
+  "success": {
+    "list": "Vencimientos retrieved",
+    "calculated": "Vencimiento calculated"
+  },
+  "error": {
+    "notFound": "Vencimiento not found"
+  }
+}

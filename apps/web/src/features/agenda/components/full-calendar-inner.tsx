@@ -5,6 +5,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import esLocale from '@fullcalendar/core/locales/es';
 import type { DateSelectArg, EventClickArg, EventContentArg } from '@fullcalendar/core';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -125,7 +126,13 @@ export default function FullCalendarInnerWrapper() {
           eventClick={handleEventClick}
           eventContent={renderEventContent}
           height="auto"
-          locale="es"
+          locale={esLocale}
+          buttonText={{
+            today: 'Hoy',
+            month: 'Mes',
+            week: 'Semana',
+            day: 'Día',
+          }}
         />
       </div>
 
