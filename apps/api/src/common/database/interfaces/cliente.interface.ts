@@ -17,7 +17,6 @@ export interface CreateClienteInput {
     whatsapp?: string | null;
     supervisorId?: string | null;
     semaforo?: EstadoSemaforo;
-    notas?: string | null;
     estudioId?: number;
 }
 
@@ -34,7 +33,6 @@ export interface UpdateClienteInput {
     whatsapp?: string | null;
     supervisorId?: string | null;
     semaforo?: EstadoSemaforo;
-    notas?: string | null;
     activo?: boolean;
 }
 

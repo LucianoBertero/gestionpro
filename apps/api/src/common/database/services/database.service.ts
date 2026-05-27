@@ -13,9 +13,31 @@ export class DatabaseService
     private readonly pool: Pool;
 
     constructor(configService: ConfigService) {
-        const pool = new Pool({
-            connectionString: configService.getOrThrow<string>('DATABASE_URL'),
-        });
+        // Prefer DIRECT_URL (direct Postgres) when available — useful when DATABASE_URL
+        // points to a pgbouncer pooler which may cause auth differences.
+        const rawUrl =
+            configService.get<string>('DIRECT_URL') ||
+            configService.getOrThrow<string>('DATABASE_URL');
+
+        // Mask password for safe logging (keep first/last char if possible)
+        const masked = (() => {
+            try {
+                const url = new URL(rawUrl);
+                if (url.password) {
+                    const pwd = decodeURIComponent(url.password);
+                    const visible = pwd.length > 2 ? `${pwd[0]}***${pwd[pwd.length - 1]}` : '***';
+                    url.password = visible;
+                }
+                return url.toString();
+            } catch {
+                return '<invalid-connection-string>';
+            }
+        })();
+
+        // eslint-disable-next-line no-console
+        console.debug(`[DatabaseService] connecting using: ${masked}`);
+
+        const pool = new Pool({ connectionString: rawUrl });
         super({ adapter: new PrismaPg(pool) });
         this.pool = pool;
     }

@@ -29,6 +29,8 @@ export class ClientesPublicController {
     @Get()
     @ApiEndpoint({
         summary: 'List clientes with optional filters',
+        serialization: ClienteResponseDto,
+        paginated: true,
         messageKey: 'clientes.success.list',
     })
     findAll(

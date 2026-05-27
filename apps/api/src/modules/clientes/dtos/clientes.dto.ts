@@ -8,10 +8,12 @@ import {
     IsEmail,
     IsEnum,
     IsInt,
+    IsNumber,
     IsOptional,
     IsString,
     IsUUID,
     MaxLength,
+    Min,
     MinLength,
 } from 'class-validator';
 
@@ -168,14 +170,14 @@ export class ClienteResponseDto {
     activo: boolean;
 
     @ApiProperty({
-        example: faker.lorem.sentence(),
+        example: 50000.00,
         required: false,
         nullable: true,
     })
     @Expose()
-    @IsString()
+    @IsNumber()
     @IsOptional()
-    notas: string | null;
+    honorarioMensual: number | null;
 
     @ApiProperty({
         example: faker.date.past().toISOString(),
@@ -302,12 +304,13 @@ export class CreateClienteDto {
     supervisorId?: string;
 
     @ApiProperty({
-        example: faker.lorem.sentence(),
+        example: 50000.00,
         required: false,
     })
-    @IsString()
+    @IsNumber()
     @IsOptional()
-    notas?: string;
+    @Min(0)
+    honorarioMensual?: number;
 
     @ApiProperty({
         enum: TipoImpuesto,
@@ -420,12 +423,13 @@ export class UpdateClienteDto {
     supervisorId?: string;
 
     @ApiProperty({
-        example: faker.lorem.sentence(),
+        example: 50000.00,
         required: false,
     })
-    @IsString()
+    @IsNumber()
     @IsOptional()
-    notas?: string;
+    @Min(0)
+    honorarioMensual?: number;
 
     @ApiProperty({
         enum: EstadoSemaforo,

@@ -9,7 +9,9 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+import { UserRole } from 'src/common/database/enums/role.enum';
 import { ApiEndpoint } from 'src/common/doc/decorators/doc.api-endpoint.decorator';
+import { AllowedRoles } from 'src/common/request/decorators/roles.decorator';
 import { ApiGenericResponseDto } from 'src/common/response/dtos/response.generic.dto';
 
 import {
@@ -21,6 +23,7 @@ import { ClienteService } from '../services/clientes.service';
 
 @ApiTags('admin.clientes')
 @ApiBearerAuth('accessToken')
+@AllowedRoles([UserRole.SOCIO])
 @Controller({ path: '/clientes', version: '1' })
 export class ClientesAdminController {
     constructor(private readonly clienteService: ClienteService) {}
