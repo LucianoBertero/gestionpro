@@ -1,10 +1,9 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { SemaforoBadge } from '@/components/ui/semaforo-badge';
 import { Icons } from '@/components/icons';
 import type { ClienteLegajo } from '../../api/types';
-import { SEMAFORO_OPTIONS } from '../clientes-table/options';
 
 interface ResumenTabProps {
   legajo: ClienteLegajo;
@@ -33,16 +32,6 @@ function FieldRow({
 }
 
 export function ResumenTab({ legajo }: ResumenTabProps) {
-  const semaforoOption = SEMAFORO_OPTIONS.find(
-    (o) => o.value === legajo.semaforo
-  );
-
-  const semaforoVariant: Record<string, 'default' | 'secondary' | 'destructive'> = {
-    VERDE: 'default',
-    AMARILLO: 'secondary',
-    ROJO: 'destructive',
-  };
-
   return (
     <div className='grid gap-6'>
       {/* Header Card */}
@@ -55,12 +44,7 @@ export function ResumenTab({ legajo }: ResumenTabProps) {
               <span className='font-mono'>{legajo.cuit}</span>
             </p>
           </div>
-          <Badge
-            variant={semaforoVariant[legajo.semaforo] ?? 'outline'}
-            className='text-sm px-3 py-1'
-          >
-            {semaforoOption?.label ?? legajo.semaforo}
-          </Badge>
+          <SemaforoBadge value={legajo.semaforo} className='text-sm px-3 py-1' />
         </CardHeader>
         <CardContent>
           <div className='grid grid-cols-2 gap-4 sm:grid-cols-3'>

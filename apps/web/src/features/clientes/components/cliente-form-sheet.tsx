@@ -13,6 +13,7 @@ import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import {
@@ -53,12 +54,15 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
       condicionIva: cliente?.condicionIva ?? '',
       termino: cliente?.termino ? String(cliente.termino) : '0',
       encargadoId: cliente?.encargadoId ?? '',
+      supervisorId: cliente?.supervisorId ?? '',
       tipoImpuesto: (cliente?.impuestos?.map(i => i.tipo) ?? []) as TipoImpuesto[],
+      actividades: cliente?.actividades ?? [],
       domicilio: cliente?.domicilio ?? '',
       telefono: cliente?.telefono ?? '',
       email: cliente?.email ?? '',
       whatsapp: cliente?.whatsapp ?? '',
       notas: cliente?.notas ?? '',
+      honorarioMensual: cliente?.honorarioMensual ?? undefined,
     },
   });
 
@@ -85,6 +89,8 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
       whatsapp: clean(values.whatsapp),
       domicilio: clean(values.domicilio),
       notas: clean(values.notas),
+      supervisorId: clean(values.supervisorId),
+      honorarioMensual: values.honorarioMensual || undefined,
     };
     if (isEdit) {
       updateMut.mutate({ id: cliente.id, values: payload as any });
@@ -150,14 +156,15 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
                 </FormItem>
               )} />
 
+              <FormField control={form.control} name='domicilio' render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Domicilio</FormLabel>
+                  <FormControl><Input {...field} placeholder='Dirección fiscal' /></FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
               <div className='grid grid-cols-2 gap-4'>
-                <FormField control={form.control} name='domicilio' render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Domicilio</FormLabel>
-                    <FormControl><Input {...field} placeholder='Dirección' /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
                 <FormField control={form.control} name='encargadoId' render={({ field }) => (
                   <FormItem>
                     <FormLabel>Encargado *</FormLabel>
@@ -166,6 +173,24 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
                         <SelectTrigger><SelectValue placeholder='Seleccionar...' /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        {encargadoOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                <FormField control={form.control} name='supervisorId' render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Supervisor</FormLabel>
+                    <Select 
+                      value={field.value || '__none__'} 
+                      onValueChange={(v) => field.onChange(v === '__none__' ? '' : v)}
+                    >
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder='Seleccionar...' /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='__none__'>Sin supervisor</SelectItem>
                         {encargadoOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                       </SelectContent>
                     </Select>
@@ -222,6 +247,32 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
                       );
                     })}
                   </div>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name='actividades' render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Actividades (AFIP)</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      {...field} 
+                      value={(field.value ?? []).join(', ')}
+                      onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+                      placeholder='Venta al por mayor, Servicios de consultoría...'
+                      rows={2}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
+              <FormField control={form.control} name='honorarioMensual' render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Honorario Mensual</FormLabel>
+                  <FormControl>
+                    <Input {...field} type='number' step='0.01' placeholder='50000.00' />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />

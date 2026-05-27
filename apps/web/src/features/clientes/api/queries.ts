@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import { getClientes, getCliente, getLegajo } from './service';
+import { getClientes, getCliente, getLegajo, getNotas } from './service';
 import { getActiveUsers } from '@/features/auth/api/service';
 import type { Cliente, ClienteFilters, ClienteLegajo } from './types';
 
@@ -29,6 +29,17 @@ export const legajoQueryOptions = (id: number) =>
   queryOptions({
     queryKey: clientesKeys.legajo(id),
     queryFn: () => getLegajo(id),
+  });
+
+export const notasKeys = {
+  all: ['notas'] as const,
+  byCliente: (clienteId: number) => [...notasKeys.all, 'cliente', clienteId] as const,
+};
+
+export const notasQueryOptions = (clienteId: number) =>
+  queryOptions({
+    queryKey: notasKeys.byCliente(clienteId),
+    queryFn: () => getNotas(clienteId),
   });
 
 export const activeUsersQueryOptions = () =>

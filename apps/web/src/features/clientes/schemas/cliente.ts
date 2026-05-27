@@ -27,6 +27,7 @@ export const clienteSchema = z.object({
   condicionIva: z.string().min(1, 'La condición de IVA es requerida'),
   termino: z.string().optional(),
   encargadoId: z.string().min(1, 'El encargado es requerido'),
+  supervisorId: z.string().optional(),
   tipoImpuesto: z.array(tipoImpuestoSchema).optional().default([]),
   actividades: z.array(z.string()).optional().default([]),
   domicilio: z.string().optional(),
@@ -34,6 +35,7 @@ export const clienteSchema = z.object({
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   whatsapp: z.string().optional(),
   notas: z.string().optional(),
+  honorarioMensual: z.coerce.number().min(0, 'El honorario debe ser positivo').optional(),
 });
 
 export type ClienteFormValues = z.infer<typeof clienteSchema>;

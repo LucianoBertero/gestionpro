@@ -22,16 +22,16 @@ export function ClienteLegajoTabs({ legajo }: ClienteLegajoTabsProps) {
         <TabsTrigger value='impuestos'>
           <Icons.fileText className='mr-1 h-4 w-4' /> Impuestos
         </TabsTrigger>
-        <TabsTrigger value='tareas' disabled>
+        <TabsTrigger value='tareas'>
           <Icons.checks className='mr-1 h-4 w-4' /> Tareas
         </TabsTrigger>
-        <TabsTrigger value='liquidaciones' disabled>
+        <TabsTrigger value='liquidaciones'>
           <Icons.trendingUp className='mr-1 h-4 w-4' /> Liquidaciones
         </TabsTrigger>
-        <TabsTrigger value='archivos' disabled>
+        <TabsTrigger value='archivos'>
           <Icons.upload className='mr-1 h-4 w-4' /> Archivos
         </TabsTrigger>
-        <TabsTrigger value='comunicaciones' disabled>
+        <TabsTrigger value='comunicaciones'>
           <Icons.chat className='mr-1 h-4 w-4' /> Comunicaciones
         </TabsTrigger>
         <TabsTrigger value='notas'>
@@ -64,7 +64,7 @@ export function ClienteLegajoTabs({ legajo }: ClienteLegajoTabsProps) {
       </TabsContent>
 
       <TabsContent value='notas' className='mt-4'>
-        <NotasTab notas={legajo.notas} />
+        <NotasTab clienteId={legajo.id} />
       </TabsContent>
     </Tabs>
   );

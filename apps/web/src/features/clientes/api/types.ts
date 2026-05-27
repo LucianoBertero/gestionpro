@@ -29,7 +29,7 @@ export interface Cliente {
   supervisorId: string | null;
   semaforo: EstadoSemaforo;
   activo: boolean;
-  notas: string | null;
+  honorarioMensual: number | null;
   creadoEn: string;
 }
 
@@ -65,7 +65,7 @@ export interface CreateClientePayload {
   email?: string;
   whatsapp?: string;
   supervisorId?: string;
-  notas?: string;
+  honorarioMensual?: number;
   tipoImpuesto: TipoImpuesto[];
 }
 
@@ -81,7 +81,7 @@ export interface UpdateClientePayload {
   email?: string;
   whatsapp?: string;
   supervisorId?: string;
-  notas?: string;
+  honorarioMensual?: number;
   semaforo?: EstadoSemaforo;
 }
 
@@ -91,4 +91,31 @@ export interface AfipResponse {
   domicilio: string;
   condicionIva: string;
   actividades: string[];
+}
+
+// ─── Notas ────────────────────────────────────────────────────────────
+
+export interface NotaCreador {
+  id: string;
+  nombre: string;
+  emoji: string | null;
+}
+
+export interface Nota {
+  id: number;
+  clienteId: number;
+  contenido: string;
+  creadoPorId: string;
+  creadoEn: string;
+  actualizadoEn: string;
+  creadoPor: NotaCreador;
+}
+
+export interface CreateNotaPayload {
+  clienteId: number;
+  contenido: string;
+}
+
+export interface UpdateNotaPayload {
+  contenido: string;
 }
