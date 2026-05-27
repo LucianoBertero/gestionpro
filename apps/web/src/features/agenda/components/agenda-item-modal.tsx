@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { format } from 'date-fns';
 import {
   Dialog,
   DialogContent,
@@ -20,6 +21,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Icons } from '@/components/icons';
+import { DatePicker } from '@/components/ui/date-picker';
+import { TimePicker } from '@/components/ui/time-picker';
 import type { AgendaItem, CreateAgendaPayload, UpdateAgendaPayload } from '../api/types';
 
 interface AgendaItemModalProps {
@@ -40,7 +43,7 @@ export function AgendaItemModal({
   onDelete,
 }: AgendaItemModalProps) {
   const [titulo, setTitulo] = useState('');
-  const [fecha, setFecha] = useState('');
+  const [fecha, setFecha] = useState<Date | undefined>(undefined);
   const [horaInicio, setHoraInicio] = useState('09:00');
   const [horaFin, setHoraFin] = useState('10:00');
   const [tipo, setTipo] = useState<'PERSONAL' | 'ESTUDIO' | 'TAREA'>('PERSONAL');
@@ -49,7 +52,7 @@ export function AgendaItemModal({
   useEffect(() => {
     if (item) {
       setTitulo(item.titulo);
-      setFecha(item.fecha.slice(0, 10));
+      setFecha(new Date(item.fecha.slice(0, 10) + 'T12:00:00'));
       setHoraInicio(item.fecha.slice(11, 16));
       const endDate = new Date(item.fecha);
       endDate.setMinutes(endDate.getMinutes() + item.duracionMin);
@@ -58,7 +61,7 @@ export function AgendaItemModal({
       setDescripcion(item.descripcion ?? '');
     } else {
       setTitulo('');
-      setFecha(defaultDate ?? new Date().toISOString().slice(0, 10));
+      setFecha(new Date((defaultDate ?? new Date().toISOString().slice(0, 10)) + 'T12:00:00'));
       setHoraInicio('09:00');
       setHoraFin('10:00');
       setTipo('PERSONAL');
@@ -68,7 +71,8 @@ export function AgendaItemModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const fechaISO = new Date(`${fecha}T${horaInicio}:00`).toISOString();
+    const fechaStr = fecha ? format(fecha, 'yyyy-MM-dd') : '';
+    const fechaISO = new Date(`${fechaStr}T${horaInicio}:00`).toISOString();
     const [hFin, mFin] = horaFin.split(':').map(Number);
     const [hInicio, mInicio] = horaInicio.split(':').map(Number);
     const duracionMin = Math.max(15, (hFin * 60 + mFin) - (hInicio * 60 + mInicio));
@@ -113,14 +117,8 @@ export function AgendaItemModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="fecha">Fecha</Label>
-              <Input
-                id="fecha"
-                type="date"
-                value={fecha}
-                onChange={(e) => setFecha(e.target.value)}
-                required
-              />
+              <Label>Fecha</Label>
+              <DatePicker value={fecha} onChange={setFecha} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="tipo">Tipo</Label>
@@ -139,24 +137,12 @@ export function AgendaItemModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="horaInicio">Hora de comienzo</Label>
-              <Input
-                id="horaInicio"
-                type="time"
-                value={horaInicio}
-                onChange={(e) => setHoraInicio(e.target.value)}
-                required
-              />
+              <Label>Hora de comienzo</Label>
+              <TimePicker value={horaInicio} onChange={setHoraInicio} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="horaFin">Hora de fin</Label>
-              <Input
-                id="horaFin"
-                type="time"
-                value={horaFin}
-                onChange={(e) => setHoraFin(e.target.value)}
-                required
-              />
+              <Label>Hora de fin</Label>
+              <TimePicker value={horaFin} onChange={setHoraFin} />
             </div>
           </div>
 
