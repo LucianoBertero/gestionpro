@@ -63,9 +63,6 @@ importers:
       '@sentry/node':
         specifier: ^10.51.0
         version: 10.53.1
-      '@types/express':
-        specifier: ^5.0.6
-        version: 5.0.6
       argon2:
         specifier: ^0.44.0
         version: 0.44.0
@@ -84,6 +81,9 @@ importers:
       dotenv:
         specifier: ^17.4.2
         version: 17.4.2
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -160,6 +160,9 @@ importers:
       '@types/compression':
         specifier: ^1.8.1
         version: 1.8.1
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0

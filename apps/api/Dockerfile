@@ -24,6 +24,10 @@ WORKDIR /app/apps/api
 RUN pnpm prisma generate
 RUN pnpm run build
 
+# Prune devDependencies so only production deps survive
+WORKDIR /app
+RUN pnpm prune --prod
+
 # ─── Stage 2: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS production
 
@@ -31,12 +35,12 @@ ENV NODE_ENV=production
 
 RUN apk upgrade --no-cache
 
-WORKDIR /app
-
 RUN addgroup -g 1001 -S nodejs \
  && adduser -S nestjs -u 1001 -G nodejs
 
-# Copy entire workspace with node_modules intact
+WORKDIR /app
+
+# Copy entire workspace after prune — symlinks in apps/api/node_modules must resolve
 COPY --from=builder /app /app
 
 # Set proper ownership
