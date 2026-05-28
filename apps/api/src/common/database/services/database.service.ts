@@ -13,10 +13,7 @@ export class DatabaseService
     private readonly pool: Pool;
 
     constructor(configService: ConfigService) {
-        // Prefer DIRECT_URL (direct Postgres) when available — useful when DATABASE_URL
-        // points to a pgbouncer pooler which may cause auth differences.
         const rawUrl =
-            configService.get<string>('DIRECT_URL') ||
             configService.getOrThrow<string>('DATABASE_URL');
 
         // Mask password for safe logging (keep first/last char if possible)
