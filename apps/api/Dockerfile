@@ -3,7 +3,8 @@ FROM node:20-alpine AS deps
 
 RUN apk upgrade --no-cache \
  && apk add --no-cache python3 make g++ \
- && npm install -g pnpm
+ && corepack enable \
+ && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
@@ -17,7 +18,8 @@ RUN pnpm install --frozen-lockfile
 FROM node:20-alpine AS builder
 
 RUN apk upgrade --no-cache \
- && npm install -g pnpm
+ && corepack enable \
+ && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
@@ -28,9 +30,8 @@ COPY . .
 
 WORKDIR /app/apps/api
 
-RUN npm run build \
- && npm prune --omit=dev \
- && npx prisma generate
+RUN pnpm prisma generate \
+ && pnpm run build
 
 # ─── Stage 3: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS production
