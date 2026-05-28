@@ -53,7 +53,7 @@ export class DatabaseService
 
     async isHealthy(): Promise<HealthIndicatorResult> {
         try {
-            await this.$queryRaw`SELECT 1`;
+            await this.pool.query('SELECT 1');
             return { prisma: { status: 'up' } };
         } catch {
             return { prisma: { status: 'down' } };
