@@ -1,8 +1,5 @@
 {
-  "projects": [
-    {
-      "path": "apps/web"
-    }
-  ],
-  "trailingSlash": false
+  "buildCommand": "pnpm build:web",
+  "devCommand": "pnpm dev:web",
+  "installCommand": "pnpm install"
 }

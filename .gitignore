@@ -55,3 +55,9 @@ config.yml
 # Cursor IDE
 .cursor/
 
+# Vercel
+.vercel/
+
+# Supabase local
+supabase/.temp/
+
