@@ -2,10 +2,8 @@
   "buildCommand": "pnpm build:web",
   "devCommand": "pnpm dev:web",
   "installCommand": "pnpm install",
-  "framework": "nextjs",
   "experimentalServices": {
     "web": {
-      "routePrefix": "/",
       "framework": "nextjs"
     }
   }

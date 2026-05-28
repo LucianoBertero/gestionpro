@@ -1,5 +1,0 @@
-{
-  "buildCommand": "pnpm build:web",
-  "devCommand": "pnpm dev:web",
-  "installCommand": "pnpm install"
-}
