@@ -1,71 +1,54 @@
-# ============================================
-# Stage 1: Install dependencies
-# ============================================
+# ─── Stage 1: Build ───────────────────────────────────────────────────────────
+FROM node:22-slim AS builder
 
-ARG NODE_VERSION=22-slim
-
-FROM node:${NODE_VERSION} AS dependencies
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Install bun to use bun.lock for dependency resolution
-RUN npm install -g bun
+# Copy workspace config
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json ./apps/web/
+COPY packages/types/package.json ./packages/types/
 
-# Copy package-related files to leverage Docker cache
-COPY package.json bun.lock* ./
+# Install ALL dependencies
+RUN pnpm install --frozen-lockfile
 
-# Install dependencies with frozen lockfile for reproducible builds
-RUN --mount=type=cache,target=/root/.bun/install/cache \
-    bun install --no-save --frozen-lockfile
-
-# ============================================
-# Stage 2: Build the Next.js application
-# ============================================
-
-FROM node:${NODE_VERSION} AS builder
-
-WORKDIR /app
-
-COPY --from=dependencies /app/node_modules ./node_modules
+# Copy source code
 COPY . .
 
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-
-# Build-time env vars — override these with --build-arg or in compose.yml
+# Build Next.js with standalone output
+WORKDIR /app/apps/web
 ARG NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_SENTRY_DISABLED=true
-
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 ENV BUILD_STANDALONE=true
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN pnpm run build
 
-RUN npm run build
-
-# ============================================
-# Stage 3: Production runner
-# ============================================
-
-FROM node:${NODE_VERSION} AS runner
-
+# Prune devDependencies
 WORKDIR /app
+RUN pnpm prune --prod
+
+# ─── Stage 2: Production ──────────────────────────────────────────────────────
+FROM node:22-slim AS runner
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+ENV HOSTNAME=0.0.0.0
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copy public assets
-COPY --from=builder --chown=node:node /app/public ./public
+RUN addgroup -g 1001 -S nodejs \
+ && adduser -S nextjs -u 1001 -G nodejs
 
-# Create .next dir with correct permissions for prerender cache
-RUN mkdir .next && chown node:node .next
+WORKDIR /app
 
-# Copy standalone output and static files
-COPY --from=builder --chown=node:node /app/.next/standalone ./
-COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+# Copy standalone output and static files from builder
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
 
-# Run as non-root user
-USER node
+RUN mkdir -p .next/cache && chown -R nextjs:nodejs /app
+
+USER nextjs
 
 EXPOSE 3000
 
