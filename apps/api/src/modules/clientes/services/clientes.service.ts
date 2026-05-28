@@ -171,25 +171,14 @@ export class ClienteService {
     // ─── Semáforo ────────────────────────────────────────────────────────
 
     async calcularSemaforo(clienteId: number): Promise<EstadoSemaforo> {
-        const ahora = new Date();
-        const en5Dias = new Date(ahora.getTime() + 5 * 24 * 60 * 60 * 1000);
+        // SQL: count overdue tasks (vence < now)
+        const vencidas = await this.tareaRepository.countVencidas(clienteId);
+        if (vencidas > 0) return EstadoSemaforo.ROJO;
 
-        // Check for overdue tasks
-        const tareasVencidas = await this.tareaRepository.findAll({
-            clienteId,
-            estado: 'PENDIENTE' as any,
-        });
-        const hasVencidas = tareasVencidas.some(
-            (t) => t.vence && new Date(t.vence) < ahora
-        );
+        // SQL: count tasks due within 5 days
+        const proximas = await this.tareaRepository.countProximasVencer(clienteId, 5);
+        if (proximas > 0) return EstadoSemaforo.AMARILLO;
 
-        // Check for tasks due in less than 5 days
-        const hasProximas = tareasVencidas.some(
-            (t) => t.vence && new Date(t.vence) >= ahora && new Date(t.vence) <= en5Dias
-        );
-
-        if (hasVencidas) return EstadoSemaforo.ROJO;
-        if (hasProximas) return EstadoSemaforo.AMARILLO;
         return EstadoSemaforo.VERDE;
     }
 

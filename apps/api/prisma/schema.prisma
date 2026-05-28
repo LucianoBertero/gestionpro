@@ -186,6 +186,7 @@ model ClienteImpuesto {
   cliente   Cliente       @relation(fields: [clienteId], references: [id], onDelete: Cascade)
 
   @@unique([clienteId, tipo], name: "uq_cliente_impuesto")
+  @@index([clienteId, activo], name: "idx_cliente_impuestos_cliente_activo")
   @@map("cliente_impuestos")
 }
 
@@ -217,6 +218,7 @@ model Tarea {
   @@index([clienteId, estado], name: "idx_tareas_cliente_estado")
   @@index([encargadoId, estado], name: "idx_tareas_encargado_estado")
   @@index([estado, vence], name: "idx_tareas_estado_vence")
+  @@index([estudioId, activo], name: "idx_tareas_estudio_activo")
   @@map("tareas")
 }
 

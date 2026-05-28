@@ -127,4 +127,36 @@ export class TareaRepository {
             },
         });
     }
+
+    /**
+     * Counts overdue tasks for a client (estado = PENDIENTE, activo = true, vence < now).
+     * Returns 0 if none found — does not throw.
+     */
+    async countVencidas(clienteId: number): Promise<number> {
+        return this.db.tarea.count({
+            where: {
+                clienteId,
+                estado: 'PENDIENTE',
+                activo: true,
+                vence: { lt: new Date() },
+            },
+        });
+    }
+
+    /**
+     * Counts tasks due within the next `days` window (estado = PENDIENTE, activo = true,
+     * vence between now and now + days). Returns 0 if none found.
+     */
+    async countProximasVencer(clienteId: number, days: number): Promise<number> {
+        const ahora = new Date();
+        const limite = new Date(ahora.getTime() + days * 24 * 60 * 60 * 1000);
+        return this.db.tarea.count({
+            where: {
+                clienteId,
+                estado: 'PENDIENTE',
+                activo: true,
+                vence: { gte: ahora, lte: limite },
+            },
+        });
+    }
 }

@@ -6,7 +6,7 @@ export const userSchema = z.object({
   emoji: z.string().optional(),
   telefono: z.string().optional(),
   role: z.enum(['SOCIO', 'COLABORADOR']),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres').optional(),
+  password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
 });
 
 export type UserFormValues = z.infer<typeof userSchema>;

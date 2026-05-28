@@ -3,14 +3,14 @@ export interface User {
   email: string;
   nombre: string;
   emoji: string | null;
-  rol: 'SOCIO' | 'COLABORADOR';
+  role: 'SOCIO' | 'COLABORADOR';
   activo: boolean;
   telefono: string | null;
-  creadoEn: string;
+  createdAt: string;
 }
 
 export interface UserFilters {
-  rol?: string;
+  role?: string;
   search?: string;
 }
 
@@ -19,10 +19,19 @@ export interface UsersResponse {
   total: number;
 }
 
-export interface UserMutationPayload {
+export interface CreateUserPayload {
   email: string;
   nombre: string;
   password: string;
+  role: 'SOCIO' | 'COLABORADOR';
+  emoji?: string;
+  telefono?: string;
+}
+
+export interface UpdateUserPayload {
+  email?: string;
+  nombre?: string;
+  role?: 'SOCIO' | 'COLABORADOR';
   emoji?: string;
   telefono?: string;
 }

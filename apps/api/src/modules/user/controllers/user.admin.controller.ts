@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { ApiEndpoint } from 'src/common/doc/decorators/doc.api-endpoint.decorator';
 import { ApiGenericResponseDto } from 'src/common/response/dtos/response.generic.dto';
 
 import { UserResponseDto } from '../dtos/user.dto';
+import { UserCreateDto } from '../dtos/user.create.dto';
 import { UserUpdateDto } from '../dtos/user.update.dto';
 import { UserService } from '../services/user.service';
 
@@ -30,6 +31,17 @@ export class UserAdminController {
     })
     findById(@Param('id') userId: string): Promise<UserResponseDto> {
         return this.userService.findById(userId);
+    }
+
+    @Post()
+    @ApiEndpoint({
+        summary: 'Create new user (SOCIO only)',
+        serialization: UserResponseDto,
+        httpStatus: HttpStatus.CREATED,
+        messageKey: 'user.success.created',
+    })
+    createUser(@Body() data: UserCreateDto): Promise<UserResponseDto> {
+        return this.userService.createUser(data);
     }
 
     @Patch(':id')

@@ -35,7 +35,7 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
       email: user?.email ?? '',
       emoji: user?.emoji ?? '👤',
       telefono: user?.telefono ?? '',
-      role: (user?.rol as 'SOCIO' | 'COLABORADOR') ?? 'COLABORADOR',
+      role: user?.role ?? 'COLABORADOR',
       password: '',
     },
   });

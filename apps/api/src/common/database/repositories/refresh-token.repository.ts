@@ -42,4 +42,19 @@ export class RefreshTokenRepository {
         });
         return result.count;
     }
+
+    /**
+     * Deletes revoked tokens older than `daysOld` days.
+     * Keeps recently revoked tokens for audit/debugging purposes.
+     */
+    async deleteRevokedOld(daysOld = 30): Promise<number> {
+        const cutoff = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000);
+        const result = await this.db.refreshToken.deleteMany({
+            where: {
+                revocado: true,
+                creadoEn: { lt: cutoff },
+            },
+        });
+        return result.count;
+    }
 }

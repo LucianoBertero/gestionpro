@@ -19,6 +19,7 @@ export interface CreateUserInput {
 export interface UpdateUserInput {
     email?: string;
     nombre?: string;
+    role?: UserRole;
     emoji?: string | null;
     telefono?: string | null;
     telegramChatId?: string | null;

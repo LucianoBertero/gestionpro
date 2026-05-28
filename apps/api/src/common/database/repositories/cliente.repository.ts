@@ -35,7 +35,11 @@ export class ClienteRepository {
             ];
         }
 
-        return this.db.cliente.findMany({ where, skip, take });
+        return this.db.cliente.findMany({
+            where,
+            skip: skip ?? 0,
+            take: take ?? 20,
+        });
     }
 
     async countAll(options?: ClienteFindAllOptions): Promise<number> {

@@ -18,6 +18,7 @@ export class AgendaRepository {
         return this.db.agendaItem.findMany({
             where,
             orderBy: { fecha: 'asc' },
+            take: 100,
             include: { usuario: { select: { id: true, nombre: true } }, tarea: { select: { id: true, titulo: true } } },
         });
     }

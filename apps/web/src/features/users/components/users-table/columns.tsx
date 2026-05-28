@@ -32,15 +32,15 @@ export const columns: ColumnDef<User>[] = [
     enableColumnFilter: true
   },
   {
-    accessorKey: 'rol',
+    accessorKey: 'role',
     header: ({ column }: { column: Column<User, unknown> }) => (
       <DataTableColumnHeader column={column} title='Rol' />
     ),
     cell: ({ cell }) => {
-      const rol = cell.getValue<User['rol']>();
+      const role = cell.getValue<User['role']>();
       return (
-        <Badge variant={rol === 'SOCIO' ? 'default' : 'outline'}>
-          {rol === 'SOCIO' ? 'Socio' : 'Colaborador'}
+        <Badge variant={role === 'SOCIO' ? 'default' : 'outline'}>
+          {role === 'SOCIO' ? 'Socio' : 'Colaborador'}
         </Badge>
       );
     },
