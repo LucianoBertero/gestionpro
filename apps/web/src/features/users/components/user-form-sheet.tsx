@@ -16,6 +16,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Icons } from '@/components/icons';
+import { COLABORADOR } from '@/constants';
 import { useMutation } from '@tanstack/react-query';
 import { createUserMutation, updateUserMutation } from '../api/mutations';
 import type { User } from '../api/types';
@@ -35,7 +36,7 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
       email: user?.email ?? '',
       emoji: user?.emoji ?? '👤',
       telefono: user?.telefono ?? '',
-      role: user?.role ?? 'COLABORADOR',
+      role: user?.role ?? COLABORADOR,
       password: '',
     },
   });

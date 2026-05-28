@@ -2,16 +2,10 @@
 // Clientes Types — Frontend
 // ============================================================
 
-export type TipoImpuesto =
-  | 'AUTONOMOS'
-  | 'IVA'
-  | 'IIBB_LOCAL'
-  | 'MUNICIPAL'
-  | 'SUELDOS'
-  | 'MONOTRIBUTO'
-  | 'GANANCIAS';
+import { TipoImpuesto, EstadoSemaforo } from '@/constants';
 
-export type EstadoSemaforo = 'VERDE' | 'AMARILLO' | 'ROJO';
+// Re-export for convenience — existing consumers import from here
+export type { TipoImpuesto, EstadoSemaforo };
 
 export interface Cliente {
   id: number;

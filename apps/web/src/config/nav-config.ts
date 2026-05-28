@@ -1,3 +1,4 @@
+import { SOCIO, COLABORADOR } from '@/constants';
 import type { NavGroup } from '@/types';
 
 export const navGroups: NavGroup[] = [
@@ -10,7 +11,7 @@ export const navGroups: NavGroup[] = [
         icon: 'dashboard',
         isActive: false,
         items: [],
-        roles: ['SOCIO', 'COLABORADOR'],
+        roles: [SOCIO, COLABORADOR],
       },
       {
         title: 'Clientes',
@@ -19,7 +20,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['c', 'c'],
         isActive: false,
         items: [],
-        roles: ['SOCIO', 'COLABORADOR'],
+        roles: [SOCIO, COLABORADOR],
       },
       {
         title: 'Tareas',
@@ -28,7 +29,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['t', 't'],
         isActive: false,
         items: [],
-        roles: ['SOCIO', 'COLABORADOR'],
+        roles: [SOCIO, COLABORADOR],
       },
       {
         title: 'Liquidaciones',
@@ -37,7 +38,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['l', 'l'],
         isActive: false,
         items: [],
-        roles: ['SOCIO', 'COLABORADOR'],
+        roles: [SOCIO, COLABORADOR],
       },
       {
         title: 'Vencimientos',
@@ -46,7 +47,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['v', 'v'],
         isActive: false,
         items: [],
-        roles: ['SOCIO', 'COLABORADOR'],
+        roles: [SOCIO, COLABORADOR],
       },
       {
         title: 'Agenda',
@@ -55,7 +56,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['a', 'a'],
         isActive: false,
         items: [],
-        roles: ['SOCIO', 'COLABORADOR'],
+        roles: [SOCIO, COLABORADOR],
       },
       {
         title: 'Comunicaciones',
@@ -64,7 +65,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['m', 'm'],
         isActive: false,
         items: [],
-        roles: ['SOCIO', 'COLABORADOR'],
+        roles: [SOCIO, COLABORADOR],
       },
       {
         title: 'Archivos',
@@ -73,7 +74,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['f', 'f'],
         isActive: false,
         items: [],
-        roles: ['SOCIO', 'COLABORADOR'],
+        roles: [SOCIO, COLABORADOR],
       },
       {
         title: 'Notificaciones',
@@ -82,7 +83,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['n', 'n'],
         isActive: false,
         items: [],
-        roles: ['SOCIO', 'COLABORADOR'],
+        roles: [SOCIO, COLABORADOR],
       },
       {
         title: 'Usuarios',
@@ -91,7 +92,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['u', 'u'],
         isActive: false,
         items: [],
-        roles: ['SOCIO'],
+        roles: [SOCIO],
       },
       {
         title: 'Plantillas Email',
@@ -100,7 +101,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['e', 'e'],
         isActive: false,
         items: [],
-        roles: ['SOCIO'],
+        roles: [SOCIO],
       },
       {
         title: 'Financiero',
@@ -109,7 +110,7 @@ export const navGroups: NavGroup[] = [
         shortcut: ['i', 'i'],
         isActive: false,
         items: [],
-        roles: ['SOCIO'],
+        roles: [SOCIO],
       },
     ],
   },

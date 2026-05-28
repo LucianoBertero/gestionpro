@@ -15,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Icons } from '@/components/icons';
+import { Badge } from '@/components/ui/badge';
+import { ROL_LABELS, ROL_BADGE_VARIANT } from '@/constants';
 
 export function UserNav() {
   const router = useRouter();
@@ -70,6 +72,9 @@ export function UserNav() {
           <span className='hidden text-sm font-medium md:inline-block'>
             {user.nombre}
           </span>
+          <Badge variant={ROL_BADGE_VARIANT[user.role]} className='ml-1 text-xs'>
+            {ROL_LABELS[user.role]}
+          </Badge>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className='w-56' align='end' sideOffset={8}>
@@ -79,6 +84,9 @@ export function UserNav() {
             <p className='text-xs leading-none text-muted-foreground'>
               {user.email}
             </p>
+            <Badge variant={ROL_BADGE_VARIANT[user.role]} className='mt-1 w-fit text-xs'>
+              {ROL_LABELS[user.role]}
+            </Badge>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

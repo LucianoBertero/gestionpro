@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -11,6 +10,12 @@ import {
 } from '@/components/ui/select';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { activeUsersQueryOptions } from '@/features/clientes/api/queries';
+import {
+  PRIORIDAD_VALUES,
+  PRIORIDAD_LABELS,
+  ESTADO_TAREA_VALUES,
+  ESTADO_TAREA_LABELS,
+} from '@/constants';
 import type { Table } from '@tanstack/react-table';
 
 interface TareasTableOptionsProps<TData> {
@@ -38,9 +43,6 @@ export function TareasTableOptions<TData>({
 }: TareasTableOptionsProps<TData>) {
   const { data: users } = useSuspenseQuery(activeUsersQueryOptions());
 
-  const estados = useMemo(() => ['PENDIENTE', 'EN_PROCESO', 'COMPLETADA', 'CANCELADA'], []);
-  const prioridades = useMemo(() => ['ALTA', 'MEDIA', 'BAJA'], []);
-
   return (
     <div className="flex flex-wrap items-center gap-3">
       <Input
@@ -55,9 +57,9 @@ export function TareasTableOptions<TData>({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos</SelectItem>
-          {estados.map((e) => (
+          {ESTADO_TAREA_VALUES.map((e) => (
             <SelectItem key={e} value={e}>
-              {e}
+              {ESTADO_TAREA_LABELS[e]}
             </SelectItem>
           ))}
         </SelectContent>
@@ -68,9 +70,9 @@ export function TareasTableOptions<TData>({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todas</SelectItem>
-          {prioridades.map((p) => (
+          {PRIORIDAD_VALUES.map((p) => (
             <SelectItem key={p} value={p}>
-              {p}
+              {PRIORIDAD_LABELS[p]}
             </SelectItem>
           ))}
         </SelectContent>

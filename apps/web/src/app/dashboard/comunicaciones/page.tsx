@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/table';
 import { Icons } from '@/components/icons';
 import { getQueryClient } from '@/lib/query-client';
+import { NULL_PLACEHOLDER } from '@/constants';
 import {
   comunicacionesQueryOptions,
   comunicacionKeys,
@@ -105,10 +106,10 @@ export default function ComunicacionesPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="max-w-xs truncate text-sm text-muted-foreground">
-                    {com.asunto || '—'}
+                    {com.asunto || NULL_PLACEHOLDER}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {com.usuario?.nombre ?? '—'}
+                    {com.usuario?.nombre ?? NULL_PLACEHOLDER}
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(com.creadoEn), { addSuffix: true, locale: es })}

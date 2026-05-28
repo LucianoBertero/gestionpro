@@ -1,6 +1,7 @@
 'use client';
 
 import type { NavItem, NavGroup } from '@/types';
+import { type Rol } from '@/constants';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 
 /**
@@ -13,7 +14,7 @@ import { useAuthStore } from '@/features/auth/store/auth.store';
  */
 function filterNavItemsByRole(
   items: NavItem[],
-  userRole: 'SOCIO' | 'COLABORADOR' | null
+  userRole: Rol | null
 ): NavItem[] {
   return items
     .filter((item) => {

@@ -21,6 +21,17 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
+import { useT } from '@/lib/i18n/client';
+import {
+  TIPO_TAREA_VALUES,
+  TIPO_TAREA_LABELS,
+  TIPO_IMPUESTO_VALUES,
+  TIPO_IMPUESTO_LABELS,
+  PRIORIDAD_VALUES,
+  PRIORIDAD_LABELS,
+  ESTADO_TAREA_VALUES,
+  ESTADO_TAREA_LABELS,
+} from '@/constants';
 import { createTareaMutation, updateTareaMutation } from '../api/mutations';
 import type { Tarea, CreateTareaPayload, UpdateTareaPayload } from '../api/types';
 
@@ -40,6 +51,7 @@ export function TareaFormSheet({
   clientes = [],
 }: TareaFormSheetProps) {
   const isEditing = !!tarea;
+  const t = useT();
   const createMutation = useMutation(createTareaMutation);
   const updateMutation = useMutation(updateTareaMutation);
 
@@ -131,11 +143,9 @@ export function TareaFormSheet({
               <Select value={tipo} onValueChange={setTipo}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="DDJJ">DDJJ</SelectItem>
-                  <SelectItem value="VEP">VEP</SelectItem>
-                  <SelectItem value="INTERNA">Interna</SelectItem>
-                  <SelectItem value="BALANCE">Balance</SelectItem>
-                  <SelectItem value="OTRO">Otro</SelectItem>
+                  {TIPO_TAREA_VALUES.map((v) => (
+                    <SelectItem key={v} value={v}>{TIPO_TAREA_LABELS[v]}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -145,13 +155,9 @@ export function TareaFormSheet({
                 <SelectTrigger><SelectValue placeholder="Ninguno" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Ninguno</SelectItem>
-                  <SelectItem value="IVA">IVA</SelectItem>
-                  <SelectItem value="GANANCIAS">Ganancias</SelectItem>
-                  <SelectItem value="AUTONOMOS">Autónomos</SelectItem>
-                  <SelectItem value="IIBB_LOCAL">IIBB Local</SelectItem>
-                  <SelectItem value="MUNICIPAL">Municipal</SelectItem>
-                  <SelectItem value="SUELDOS">Sueldos</SelectItem>
-                  <SelectItem value="MONOTRIBUTO">Monotributo</SelectItem>
+                  {TIPO_IMPUESTO_VALUES.map((v) => (
+                    <SelectItem key={v} value={v}>{TIPO_IMPUESTO_LABELS[v]}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -189,24 +195,23 @@ export function TareaFormSheet({
               <Select value={prioridad} onValueChange={setPrioridad}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALTA">Alta</SelectItem>
-                  <SelectItem value="MEDIA">Media</SelectItem>
-                  <SelectItem value="BAJA">Baja</SelectItem>
+                  {PRIORIDAD_VALUES.map((v) => (
+                    <SelectItem key={v} value={v}>{PRIORIDAD_LABELS[v]}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             {isEditing && (
               <div className="space-y-2">
                 <Label>Estado</Label>
-                <Select value={estado} onValueChange={setEstado}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="PENDIENTE">Pendiente</SelectItem>
-                    <SelectItem value="EN_PROCESO">En Proceso</SelectItem>
-                    <SelectItem value="COMPLETADA">Completada</SelectItem>
-                    <SelectItem value="CANCELADA">Cancelada</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <Select value={estado} onValueChange={setEstado}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {ESTADO_TAREA_VALUES.map((v) => (
+                        <SelectItem key={v} value={v}>{ESTADO_TAREA_LABELS[v]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
               </div>
             )}
             <div className="space-y-2">
@@ -238,10 +243,10 @@ export function TareaFormSheet({
 
           <div className="flex justify-end gap-3 pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button type="submit" disabled={isPending || !encargadoId || !titulo}>
-              {isPending ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear Tarea'}
+              {isPending ? t('common.loading') : isEditing ? t('common.save') : t('tarea.add')}
             </Button>
           </div>
         </form>

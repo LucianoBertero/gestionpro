@@ -1,4 +1,5 @@
 import { Icons } from '@/components/icons';
+import { type Rol } from '@/constants';
 
 export interface PermissionCheck {
   permission?: string;
@@ -20,7 +21,7 @@ export interface NavItem {
   isActive?: boolean;
   items?: NavItem[];
   access?: PermissionCheck;
-  roles?: ('SOCIO' | 'COLABORADOR')[];
+  roles?: Rol[];
 }
 
 export interface NavGroup {

@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/table';
 import { Icons } from '@/components/icons';
 import { getQueryClient } from '@/lib/query-client';
+import { useT } from '@/lib/i18n/client';
+import { getTipoTemplateBadgeVariant } from '@/constants';
 import {
   emailTemplatesQueryOptions,
   emailTemplateKeys,
@@ -23,14 +25,8 @@ import { deleteEmailTemplate, createEmailTemplate, updateEmailTemplate } from '@
 import { TemplateEditor } from '@/features/email-templates/components/template-editor';
 import type { EmailTemplate, CreateEmailTemplatePayload, UpdateEmailTemplatePayload } from '@/features/email-templates/api/types';
 
-const tipoBadge: Record<string, string> = {
-  VENCIMIENTO: 'bg-yellow-100 text-yellow-800',
-  LIQUIDACION: 'bg-blue-100 text-blue-800',
-  RECORDATORIO: 'bg-purple-100 text-purple-800',
-  GENERAL: 'bg-gray-100 text-gray-800',
-};
-
 export default function EmailTemplatesPage() {
+  const t = useT();
   const [editing, setEditing] = useState<EmailTemplate | null>(null);
   const [creating, setCreating] = useState(false);
   const { data: templates } = useSuspenseQuery(emailTemplatesQueryOptions());
@@ -109,7 +105,7 @@ export default function EmailTemplatesPage() {
                   <TableRow key={tpl.id}>
                     <TableCell className="font-medium">{tpl.nombre}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={tipoBadge[tpl.tipo] ?? ''}>
+                      <Badge variant={getTipoTemplateBadgeVariant(tpl.tipo)}>
                         {tpl.tipo}
                       </Badge>
                     </TableCell>
@@ -118,7 +114,7 @@ export default function EmailTemplatesPage() {
                     </TableCell>
                     <TableCell>
                       <Badge variant={tpl.activo ? 'default' : 'secondary'}>
-                        {tpl.activo ? 'Activo' : 'Inactivo'}
+                        {tpl.activo ? t('common.active') : t('common.inactive')}
                       </Badge>
                     </TableCell>
                     <TableCell>

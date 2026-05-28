@@ -23,16 +23,10 @@ import { Icons } from '@/components/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createClienteMutation, updateClienteMutation } from '../api/mutations';
 import { activeUsersQueryOptions } from '../api/queries';
-import type { Cliente, TipoImpuesto } from '../api/types';
+import type { Cliente } from '../api/types';
 import { toast } from 'sonner';
 import { clienteSchema, type ClienteFormValues } from '../schemas/cliente';
-
-const TIPO_IMPUESTO_LABELS: Record<TipoImpuesto, string> = {
-  AUTONOMOS: 'Autónomos', IVA: 'IVA', IIBB_LOCAL: 'IIBB Local',
-  MUNICIPAL: 'Municipal', SUELDOS: 'Sueldos', MONOTRIBUTO: 'Monotributo', GANANCIAS: 'Ganancias',
-};
-
-const TIPO_IMPUESTO_OPTIONS = ['AUTONOMOS', 'IVA', 'IIBB_LOCAL', 'MUNICIPAL', 'SUELDOS', 'MONOTRIBUTO', 'GANANCIAS'] as const;
+import { TIPO_IMPUESTO_VALUES, TIPO_IMPUESTO_LABELS, TipoImpuesto } from '@/constants';
 
 const TERMINO_OPTIONS = [
   { value: '0', label: '0 meses' },
@@ -228,7 +222,7 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
                 <FormItem>
                   <FormLabel>Impuestos</FormLabel>
                   <div className='grid grid-cols-2 gap-2'>
-                    {TIPO_IMPUESTO_OPTIONS.map(tipo => {
+                    {TIPO_IMPUESTO_VALUES.map(tipo => {
                       const checked = (field.value ?? []).includes(tipo);
                       return (
                         <div key={tipo} className='flex items-center gap-2'>

@@ -5,6 +5,7 @@ import { metricasQueryOptions, semaforosQueryOptions, tareasColaboradorQueryOpti
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Icons } from '@/components/icons';
+import { NULL_PLACEHOLDER } from '@/constants';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const COLORS = { VERDE: '#22c55e', AMARILLO: '#eab308', ROJO: '#ef4444' };
@@ -122,7 +123,7 @@ export function DashboardView() {
                     </span>
                   </div>
                   <Badge variant="outline" className="text-xs">
-                    {v.vence ? new Date(v.vence).toLocaleDateString('es-AR') : '—'}
+                    {v.vence ? new Date(v.vence).toLocaleDateString('es-AR') : NULL_PLACEHOLDER}
                   </Badge>
                 </div>
               ))}

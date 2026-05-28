@@ -1,5 +1,4 @@
-export type TipoImpuesto = 'AUTONOMOS' | 'IVA' | 'IIBB_LOCAL' | 'MUNICIPAL' | 'SUELDOS' | 'MONOTRIBUTO' | 'GANANCIAS';
-export type ResultadoLiq = 'A_PAGAR' | 'SALDO_A_FAVOR' | 'SIN_MOVIMIENTO';
+import { type TipoImpuesto, type ResultadoLiquidacion as ResultadoLiq } from '@/constants';
 
 export interface Liquidacion {
   id: number; estudioId: number; clienteId: number;

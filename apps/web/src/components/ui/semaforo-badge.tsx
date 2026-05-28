@@ -1,6 +1,7 @@
 'use client';
 
-import type { EstadoSemaforo } from '@/features/clientes/api/types';
+import { SEMAFORO_LABELS, getSemaforoBadgeVariant } from '@/constants';
+import type { EstadoSemaforo } from '@/constants';
 
 const semaforoClasses: Record<string, string> = {
   VERDE: 'bg-green-100 text-green-800 border-green-300 dark:bg-green-950 dark:text-green-300 dark:border-green-800',
@@ -15,19 +16,13 @@ const semaforoDot: Record<string, string> = {
   ROJO: 'bg-red-500',
 };
 
-const semaforoLabels: Record<string, string> = {
-  VERDE: 'Verde',
-  AMARILLO: 'Amarillo',
-  ROJO: 'Rojo',
-};
-
 interface SemaforoBadgeProps {
   value: EstadoSemaforo | string;
   className?: string;
 }
 
 function SemaforoBadge({ value, className = '' }: SemaforoBadgeProps) {
-  const label = semaforoLabels[value] ?? value;
+  const label = SEMAFORO_LABELS[value as EstadoSemaforo] ?? value;
   const classes = semaforoClasses[value] ?? 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-950 dark:text-gray-300 dark:border-gray-800';
   const dot = semaforoDot[value] ?? 'bg-gray-500';
 
@@ -41,4 +36,4 @@ function SemaforoBadge({ value, className = '' }: SemaforoBadgeProps) {
   );
 }
 
-export { SemaforoBadge, semaforoLabels, semaforoClasses, semaforoDot };
+export { SemaforoBadge, semaforoClasses, semaforoDot };

@@ -1,6 +1,7 @@
 'use client';
 import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
+import { ROL_LABELS, ROL_BADGE_VARIANT, ACTIVO_LABEL, INACTIVO_LABEL } from '@/constants';
 import type { User } from '../../api/types';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { Icons } from '@/components/icons';
@@ -39,8 +40,8 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ cell }) => {
       const role = cell.getValue<User['role']>();
       return (
-        <Badge variant={role === 'SOCIO' ? 'default' : 'outline'}>
-          {role === 'SOCIO' ? 'Socio' : 'Colaborador'}
+        <Badge variant={ROL_BADGE_VARIANT[role]}>
+          {ROL_LABELS[role]}
         </Badge>
       );
     },
@@ -58,7 +59,7 @@ export const columns: ColumnDef<User>[] = [
       const activo = cell.getValue<User['activo']>();
       return (
         <Badge variant={activo ? 'default' : 'secondary'}>
-          {activo ? 'Activo' : 'Inactivo'}
+          {activo ? ACTIVO_LABEL : INACTIVO_LABEL}
         </Badge>
       );
     }

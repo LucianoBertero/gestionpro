@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/table';
 import { Icons } from '@/components/icons';
 import { getQueryClient } from '@/lib/query-client';
+import { NULL_PLACEHOLDER } from '@/constants';
 import { archivosQueryOptions, archivosKeys } from '@/features/archivos/api/queries';
 import { deleteArchivo } from '@/features/archivos/api/service';
 import { UploadModal } from '@/features/archivos/components/upload-modal';
@@ -30,7 +31,7 @@ const tipoBadge: Record<string, string> = {
 };
 
 function formatFileSize(kb: number | null): string {
-  if (!kb) return '—';
+  if (!kb) return NULL_PLACEHOLDER;
   if (kb < 1024) return `${kb} KB`;
   return `${(kb / 1024).toFixed(1)} MB`;
 }
@@ -93,13 +94,13 @@ export default function ArchivosPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {arc.periodo || '—'}
+                    {arc.periodo || NULL_PLACEHOLDER}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {formatFileSize(arc.tamanioKb)}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {arc.subidoPor?.nombre ?? '—'}
+                    {arc.subidoPor?.nombre ?? NULL_PLACEHOLDER}
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(arc.creadoEn), { addSuffix: true, locale: es })}

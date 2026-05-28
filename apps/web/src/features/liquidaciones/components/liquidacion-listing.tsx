@@ -4,13 +4,8 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { liquidacionesQueryOptions } from '../api/queries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { RESULTADO_LABELS, getResultadoBadgeVariant } from '@/constants';
 import type { Liquidacion } from '../api/types';
-
-const resultadoBadge: Record<string, string> = {
-  A_PAGAR: 'bg-red-100 text-red-800',
-  SALDO_A_FAVOR: 'bg-green-100 text-green-800',
-  SIN_MOVIMIENTO: 'bg-gray-100 text-gray-600',
-};
 
 export function LiquidacionListing() {
   const { data } = useSuspenseQuery(liquidacionesQueryOptions());
@@ -32,9 +27,9 @@ export function LiquidacionListing() {
                   <span className="text-muted-foreground">{l.periodo}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className={resultadoBadge[l.resultado] ? `text-xs px-2 py-0.5 rounded ${resultadoBadge[l.resultado]}` : ''}>
-                    {l.resultado.replace('_', ' ')}
-                  </span>
+                  <Badge variant={getResultadoBadgeVariant(l.resultado)}>
+                    {RESULTADO_LABELS[l.resultado]}
+                  </Badge>
                   {l.importe != null && (
                     <span className="font-mono text-sm">${l.importe.toLocaleString('es-AR')}</span>
                   )}

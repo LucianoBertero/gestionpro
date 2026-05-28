@@ -1,15 +1,8 @@
 import * as z from 'zod';
 import { isValidCuit, formatCuit } from '@/lib/utils/cuit';
+import { TIPO_IMPUESTO_VALUES } from '@/constants';
 
-export const tipoImpuestoSchema = z.enum([
-  'AUTONOMOS',
-  'IVA',
-  'IIBB_LOCAL',
-  'MUNICIPAL',
-  'SUELDOS',
-  'MONOTRIBUTO',
-  'GANANCIAS',
-]);
+export const tipoImpuestoSchema = z.enum(TIPO_IMPUESTO_VALUES);
 
 export const terminoOptions = [
   { value: '0', label: '0 meses' },

@@ -1,11 +1,13 @@
+import { type Rol } from '@/constants';
+
 export interface User {
   id: string;
   email: string;
   nombre: string;
   emoji: string | null;
-  role: 'SOCIO' | 'COLABORADOR';
+  role: Rol;
   activo: boolean;
-  telefono: string | null;
+  telefono?: string | null;
   createdAt: string;
 }
 
@@ -23,7 +25,7 @@ export interface CreateUserPayload {
   email: string;
   nombre: string;
   password: string;
-  role: 'SOCIO' | 'COLABORADOR';
+  role: Rol;
   emoji?: string;
   telefono?: string;
 }
@@ -31,7 +33,7 @@ export interface CreateUserPayload {
 export interface UpdateUserPayload {
   email?: string;
   nombre?: string;
-  role?: 'SOCIO' | 'COLABORADOR';
+  role?: Rol;
   emoji?: string;
   telefono?: string;
 }

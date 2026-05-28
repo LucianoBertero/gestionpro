@@ -2,10 +2,7 @@
 // Tareas Types — Frontend
 // ============================================================
 
-export type TipoTarea = 'DDJJ' | 'VEP' | 'INTERNA' | 'BALANCE' | 'OTRO';
-export type Prioridad = 'ALTA' | 'MEDIA' | 'BAJA';
-export type EstadoTarea = 'PENDIENTE' | 'EN_PROCESO' | 'COMPLETADA' | 'CANCELADA';
-export type TipoImpuesto = 'AUTONOMOS' | 'IVA' | 'IIBB_LOCAL' | 'MUNICIPAL' | 'SUELDOS' | 'MONOTRIBUTO' | 'GANANCIAS';
+import type { TipoTarea, Prioridad, EstadoTarea, TipoImpuesto } from '@/constants';
 
 export interface TareaClienteMin {
   id: number;

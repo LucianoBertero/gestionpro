@@ -2,17 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import type { ClienteImpuesto, TipoImpuesto } from '../../api/types';
-
-const TIPO_IMPUESTO_LABELS: Record<TipoImpuesto, string> = {
-  AUTONOMOS: 'Autónomos',
-  IVA: 'IVA',
-  IIBB_LOCAL: 'IIBB Local',
-  MUNICIPAL: 'Municipal',
-  SUELDOS: 'Sueldos',
-  MONOTRIBUTO: 'Monotributo',
-  GANANCIAS: 'Ganancias',
-};
+import { TIPO_IMPUESTO_LABELS, ACTIVO_LABEL, INACTIVO_LABEL } from '@/constants';
+import type { ClienteImpuesto } from '../../api/types';
 
 interface ImpuestosTabProps {
   impuestos: ClienteImpuesto[];
@@ -52,7 +43,7 @@ export function ImpuestosTab({ impuestos }: ImpuestosTabProps) {
                 variant={imp.activo ? 'default' : 'secondary'}
                 className='text-xs'
               >
-                {imp.activo ? 'Activo' : 'Inactivo'}
+                {imp.activo ? ACTIVO_LABEL : INACTIVO_LABEL}
               </Badge>
             </div>
           ))}

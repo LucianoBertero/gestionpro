@@ -4,20 +4,14 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
+import {
+  getPrioridadBadgeVariant,
+  getEstadoBadgeVariant,
+  PRIORIDAD_LABELS,
+  ESTADO_TAREA_LABELS,
+  NULL_PLACEHOLDER,
+} from '@/constants';
 import type { Tarea } from '../../api/types';
-
-const prioridadColors: Record<string, string> = {
-  ALTA: 'bg-red-100 text-red-800 border-red-200',
-  MEDIA: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  BAJA: 'bg-green-100 text-green-800 border-green-200',
-};
-
-const estadoColors: Record<string, string> = {
-  PENDIENTE: 'bg-slate-100 text-slate-800 border-slate-200',
-  EN_PROCESO: 'bg-blue-100 text-blue-800 border-blue-200',
-  COMPLETADA: 'bg-green-100 text-green-800 border-green-200',
-  CANCELADA: 'bg-gray-100 text-gray-500 border-gray-200',
-};
 
 export const columns: ColumnDef<Tarea>[] = [
   {
@@ -55,7 +49,7 @@ export const columns: ColumnDef<Tarea>[] = [
       const cliente = row.original.cliente;
       return (
         <span className="text-sm text-muted-foreground">
-          {cliente?.denominacion ?? '—'}
+          {cliente?.denominacion ?? NULL_PLACEHOLDER}
         </span>
       );
     },
@@ -77,7 +71,7 @@ export const columns: ColumnDef<Tarea>[] = [
     cell: ({ row }) => {
       const encargado = row.original.encargado;
       return (
-        <span className="text-sm">{encargado?.nombre ?? '—'}</span>
+        <span className="text-sm">{encargado?.nombre ?? NULL_PLACEHOLDER}</span>
       );
     },
     enableSorting: false,
@@ -87,17 +81,17 @@ export const columns: ColumnDef<Tarea>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Est." />,
     cell: ({ row }) => {
       const min = row.getValue('tiempoEstMin') as number | null;
-      return <span className="text-sm">{min ? `${min}min` : '—'}</span>;
+      return <span className="text-sm">{min ? `${min}min` : NULL_PLACEHOLDER}</span>;
     },
   },
   {
     accessorKey: 'prioridad',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Prioridad" />,
     cell: ({ row }) => {
-      const prioridad = row.getValue('prioridad') as string;
+      const prioridad = row.getValue('prioridad') as keyof typeof PRIORIDAD_LABELS;
       return (
-        <Badge className={`border text-xs ${prioridadColors[prioridad] || ''}`} variant="outline">
-          {prioridad}
+        <Badge className="text-xs" variant={getPrioridadBadgeVariant(prioridad)}>
+          {PRIORIDAD_LABELS[prioridad]}
         </Badge>
       );
     },
@@ -107,10 +101,10 @@ export const columns: ColumnDef<Tarea>[] = [
     accessorKey: 'estado',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => {
-      const estado = row.getValue('estado') as string;
+      const estado = row.getValue('estado') as keyof typeof ESTADO_TAREA_LABELS;
       return (
-        <Badge className={`border text-xs ${estadoColors[estado] || ''}`} variant="outline">
-          {estado}
+        <Badge className="text-xs" variant={getEstadoBadgeVariant(estado)}>
+          {ESTADO_TAREA_LABELS[estado]}
         </Badge>
       );
     },
@@ -121,7 +115,7 @@ export const columns: ColumnDef<Tarea>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Vence" />,
     cell: ({ row }) => {
       const vence = row.getValue('vence') as string | null;
-      if (!vence) return <span className="text-sm text-muted-foreground">—</span>;
+      if (!vence) return <span className="text-sm text-muted-foreground">{NULL_PLACEHOLDER}</span>;
 
       const fecha = new Date(vence);
       const ahora = new Date();
