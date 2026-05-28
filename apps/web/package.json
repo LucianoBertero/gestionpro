@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "next build",
     "start": "next start",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix && bun format",
