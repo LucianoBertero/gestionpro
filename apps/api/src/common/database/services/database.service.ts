@@ -55,7 +55,8 @@ export class DatabaseService
         try {
             await this.pool.query('SELECT 1');
             return { prisma: { status: 'up' } };
-        } catch {
+        } catch (err) {
+            console.error('[DatabaseService] health check failed:', (err as Error).message);
             return { prisma: { status: 'down' } };
         }
     }
