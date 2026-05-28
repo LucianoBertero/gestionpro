@@ -18,9 +18,25 @@ export interface AgendaItem {
   actualizadoEn: string;
 }
 
+export interface AgendaUsuario {
+  id: string;
+  nombre: string;
+}
+
+export interface AgendaTareaMin {
+  id: number;
+  titulo: string;
+}
+
+export interface AgendaItemWithUsuario extends AgendaItem {
+  usuario?: AgendaUsuario;
+  tarea?: AgendaTareaMin | null;
+}
+
 export interface AgendaFilters {
   fechaDesde?: string;
   fechaHasta?: string;
+  usuarioId?: string;
 }
 
 export interface CreateAgendaPayload {
@@ -31,6 +47,7 @@ export interface CreateAgendaPayload {
   descripcion?: string;
   tareaId?: number;
   esEstudio?: boolean;
+  usuarioId?: string;
 }
 
 export interface UpdateAgendaPayload {

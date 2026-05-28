@@ -26,6 +26,14 @@ export function useBreadcrumbs() {
   const pathname = usePathname();
 
   const breadcrumbs = useMemo(() => {
+    if (/^\/dashboard\/clientes\/\d+$/.test(pathname)) {
+      return [
+        { title: 'Dashboard', link: '/dashboard' },
+        { title: 'Clientes', link: '/dashboard/clientes' },
+        { title: 'Legajo', link: pathname }
+      ];
+    }
+
     // Check if we have a custom mapping for this exact path
     if (routeMapping[pathname]) {
       return routeMapping[pathname];

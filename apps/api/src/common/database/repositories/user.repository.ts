@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 
 import type {
     CreateUserInput,
@@ -24,8 +25,18 @@ export class UserRepository {
         return this.db.user.findFirst({ where: { emoji } });
     }
 
-    findAll(): Promise<UserEntity[]> {
-        return this.db.user.findMany({ where: { activo: true } });
+    findAll(
+        options?: {
+            where?: Prisma.UserWhereInput;
+            select?: Prisma.UserSelect;
+            orderBy?: Prisma.UserOrderByWithRelationInput;
+        },
+    ) {
+        return this.db.user.findMany({
+            where: { activo: true, ...options?.where },
+            select: options?.select,
+            orderBy: options?.orderBy,
+        });
     }
 
     async existsById(id: string): Promise<boolean> {

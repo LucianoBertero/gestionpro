@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -18,19 +18,22 @@ import {
 import { Icons } from '@/components/icons';
 import { COLABORADOR } from '@/constants';
 import { useMutation } from '@tanstack/react-query';
+import { getQueryClient } from '@/lib/query-client';
 import { createUserMutation, updateUserMutation } from '../api/mutations';
+import { userKeys } from '../api/queries';
 import type { User } from '../api/types';
 import { toast } from 'sonner';
-import { userSchema, type UserFormValues } from '../schemas/user';
+import { createUserSchema, updateUserSchema, type UserFormValues } from '../schemas/user';
 import { ROLE_OPTIONS } from './users-table/options';
 
 interface Props { user?: User; open: boolean; onOpenChange: (o: boolean) => void; }
 
 export function UserFormSheet({ user, open, onOpenChange }: Props) {
   const isEdit = !!user;
+  const schema = isEdit ? updateUserSchema : createUserSchema;
 
   const form = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       nombre: user?.nombre ?? '',
       email: user?.email ?? '',
@@ -41,14 +44,36 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
     },
   });
 
+  useEffect(() => {
+    if (!open) return;
+
+    form.reset({
+      nombre: user?.nombre ?? '',
+      email: user?.email ?? '',
+      emoji: user?.emoji ?? '👤',
+      telefono: user?.telefono ?? '',
+      role: user?.role ?? COLABORADOR,
+      password: '',
+    });
+  }, [form, open, user]);
+
   const createMut = useMutation({
     ...createUserMutation,
-    onSuccess: () => { toast.success('Usuario creado'); onOpenChange(false); form.reset(); },
+    onSuccess: async () => {
+      await getQueryClient().invalidateQueries({ queryKey: userKeys.all });
+      toast.success('Usuario creado');
+      onOpenChange(false);
+      form.reset();
+    },
     onError: () => toast.error('Error al crear'),
   });
   const updateMut = useMutation({
     ...updateUserMutation,
-    onSuccess: () => { toast.success('Usuario actualizado'); onOpenChange(false); },
+    onSuccess: async () => {
+      await getQueryClient().invalidateQueries({ queryKey: userKeys.all });
+      toast.success('Usuario actualizado');
+      onOpenChange(false);
+    },
     onError: () => toast.error('Error al actualizar'),
   });
 

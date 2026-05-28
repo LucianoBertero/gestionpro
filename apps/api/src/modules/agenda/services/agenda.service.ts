@@ -1,18 +1,37 @@
 import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { AgendaRepository } from 'src/common/database/repositories/agenda.repository';
+import { UserRepository } from 'src/common/database/repositories/user.repository';
+import { UserRole } from 'src/common/database/enums/role.enum';
+import type { IAuthUser } from 'src/common/request/interfaces/request.interface';
 import { ApiGenericResponseDto } from 'src/common/response/dtos/response.generic.dto';
 
 @Injectable()
 export class AgendaService {
     private readonly logger = new Logger(AgendaService.name);
-    constructor(private readonly repo: AgendaRepository) {}
+    constructor(
+        private readonly repo: AgendaRepository,
+        private readonly userRepo: UserRepository,
+    ) {}
 
     findAll(options: { usuarioId?: string; fechaDesde?: Date; fechaHasta?: Date }) {
         return this.repo.findAll(options);
     }
 
-    findEquipo(fechaDesde?: Date, fechaHasta?: Date) {
-        return this.repo.findAll({ esEstudio: true, fechaDesde, fechaHasta });
+    findEquipo(options: { fechaDesde?: Date; fechaHasta?: Date; usuarioId?: string }) {
+        return this.repo.findAll({
+            esEstudio: true,
+            fechaDesde: options.fechaDesde,
+            fechaHasta: options.fechaHasta,
+            usuarioId: options.usuarioId,
+        });
+    }
+
+    async findUsuarios() {
+        return this.userRepo.findAll({
+            where: { activo: true },
+            select: { id: true, nombre: true },
+            orderBy: { nombre: 'asc' },
+        });
     }
 
     async findById(id: number) {
@@ -22,9 +41,22 @@ export class AgendaService {
     }
 
     create(data: any) { return this.repo.create(data); }
-    update(id: number, data: any) { return this.repo.update(id, data); }
 
-    async softDelete(id: number): Promise<ApiGenericResponseDto> {
+    async update(id: number, user: IAuthUser, data: any) {
+        const item = await this.repo.findById(id);
+        if (!item) throw new HttpException('agenda.error.notFound', HttpStatus.NOT_FOUND);
+        if (item.usuarioId !== user.userId && user.role !== UserRole.SOCIO) {
+            throw new HttpException('agenda.error.forbidden', HttpStatus.FORBIDDEN);
+        }
+        return this.repo.update(id, data);
+    }
+
+    async softDelete(id: number, user: IAuthUser): Promise<ApiGenericResponseDto> {
+        const item = await this.repo.findById(id);
+        if (!item) throw new HttpException('agenda.error.notFound', HttpStatus.NOT_FOUND);
+        if (item.usuarioId !== user.userId && user.role !== UserRole.SOCIO) {
+            throw new HttpException('agenda.error.forbidden', HttpStatus.FORBIDDEN);
+        }
         await this.repo.softDelete(id);
         return { success: true, message: 'agenda.success.deleted' };
     }

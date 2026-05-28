@@ -2,11 +2,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SemaforoBadge } from '@/components/ui/semaforo-badge';
+import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import type { ClienteLegajo } from '../../api/types';
 
 interface ResumenTabProps {
   legajo: ClienteLegajo;
+  onEdit?: () => void;
 }
 
 function FieldRow({
@@ -31,7 +33,7 @@ function FieldRow({
   );
 }
 
-export function ResumenTab({ legajo }: ResumenTabProps) {
+export function ResumenTab({ legajo, onEdit }: ResumenTabProps) {
   return (
     <div className='grid gap-6'>
       {/* Header Card */}
@@ -44,7 +46,15 @@ export function ResumenTab({ legajo }: ResumenTabProps) {
               <span className='font-mono'>{legajo.cuit}</span>
             </p>
           </div>
-          <SemaforoBadge value={legajo.semaforo} className='text-sm px-3 py-1' />
+          <div className='flex items-center gap-2'>
+            <SemaforoBadge value={legajo.semaforo} className='text-sm px-3 py-1' />
+            {onEdit && (
+              <Button type='button' variant='outline' size='sm' onClick={onEdit}>
+                <Icons.edit className='mr-2 h-4 w-4' />
+                Editar datos
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className='grid grid-cols-2 gap-4 sm:grid-cols-3'>

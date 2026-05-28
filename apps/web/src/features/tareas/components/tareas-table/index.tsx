@@ -1,44 +1,30 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useReactTable, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, ColumnFiltersState, VisibilityState } from '@tanstack/react-table';
-import { columns } from './columns';
-import { CellAction } from './cell-action';
-import { TareasTableOptions } from './options';
+import { useMemo } from 'react';
+import { useQueryStates, parseAsInteger } from 'nuqs';
+import { getSortingStateParser } from '@/lib/parsers';
+import { useDataTable } from '@/hooks/use-data-table';
 import { DataTable } from '@/components/ui/table/data-table';
+import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
+import { getColumns } from './columns';
+import { CellAction } from './cell-action';
 import type { Tarea } from '../../api/types';
+import type { ActiveUser } from '@/features/auth/api/types';
 
 interface TareasTableProps {
   data: Tarea[];
+  users: ActiveUser[];
   onEdit?: (tarea: Tarea) => void;
 }
 
-export function TareasTable({ data, onEdit }: TareasTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
+const columnIds = ['titulo', 'encargadoId', 'estado', 'actions'];
 
-  const [search, setSearch] = useState('');
-  const [estadoFilter, setEstadoFilter] = useState('all');
-  const [prioridadFilter, setPrioridadFilter] = useState('all');
-  const [encargadoFilter, setEncargadoFilter] = useState('all');
-
-  const filteredData = useMemo(() => {
-    let result = data;
-    if (search) {
-      const s = search.toLowerCase();
-      result = result.filter(
-        (t) =>
-          t.titulo.toLowerCase().includes(s) ||
-          (t.cliente?.denominacion?.toLowerCase().includes(s) ?? false)
-      );
-    }
-    if (estadoFilter !== 'all') result = result.filter((t) => t.estado === estadoFilter);
-    if (prioridadFilter !== 'all') result = result.filter((t) => t.prioridad === prioridadFilter);
-    if (encargadoFilter !== 'all') result = result.filter((t) => t.encargadoId === encargadoFilter);
-    return result;
-  }, [data, search, estadoFilter, prioridadFilter, encargadoFilter]);
+export function TareasTable({ data, users, onEdit }: TareasTableProps) {
+  const [params] = useQueryStates({
+    page: parseAsInteger.withDefault(1),
+    perPage: parseAsInteger.withDefault(10),
+    sort: getSortingStateParser(columnIds).withDefault([]),
+  });
 
   const actionColumn = useMemo(
     () => ({
@@ -48,36 +34,33 @@ export function TareasTable({ data, onEdit }: TareasTableProps) {
     [onEdit]
   );
 
-  const tableColumns = useMemo(() => [...columns, actionColumn], [actionColumn]);
+  const columns = useMemo(() => [...getColumns(users), actionColumn], [actionColumn, users]);
+  const pageCount = Math.max(1, Math.ceil(data.length / params.perPage));
 
-  const table = useReactTable({
-    data: filteredData,
-    columns: tableColumns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: { sorting, columnFilters, columnVisibility, rowSelection },
+  const { table } = useDataTable({
+    data,
+    columns,
+    pageCount,
+    shallow: true,
+    debounceMs: 500,
+    initialState: {
+      columnPinning: { right: ['actions'] },
+    },
   });
 
   return (
-    <div className="space-y-4">
-      <TareasTableOptions
-        table={table}
-        search={search}
-        setSearch={setSearch}
-        estadoFilter={estadoFilter}
-        setEstadoFilter={setEstadoFilter}
-        prioridadFilter={prioridadFilter}
-        setPrioridadFilter={setPrioridadFilter}
-        encargadoFilter={encargadoFilter}
-        setEncargadoFilter={setEncargadoFilter}
-      />
-      <DataTable table={table} />
+    <DataTable table={table}>
+      <DataTableToolbar table={table} />
+    </DataTable>
+  );
+}
+
+export function TareasTableSkeleton() {
+  return (
+    <div className='flex flex-1 animate-pulse flex-col gap-4'>
+      <div className='bg-muted h-10 w-full rounded' />
+      <div className='bg-muted h-96 w-full rounded-lg' />
+      <div className='bg-muted h-10 w-full rounded' />
     </div>
   );
 }

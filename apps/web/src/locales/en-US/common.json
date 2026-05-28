@@ -140,15 +140,57 @@
     "add": "New Task",
     "edit": "Edit Task",
     "delete": "Delete Task",
+    "formAddDescription": "Fill in the details to create a new task.",
+    "formEditDescription": "Modify the task fields.",
     "titulo": "Title",
     "descripcion": "Description",
     "cliente": "Client",
     "encargado": "Assignee",
     "tipo": "Type",
+    "impuesto": "Tax",
     "prioridad": "Priority",
     "estado": "Status",
+    "tiempoEstMin": "Estimated time (min)",
     "periodo": "Period",
     "vence": "Due Date",
+    "notas": "Notes",
+    "select": "Select",
+    "none": "None",
+    "withoutClient": "No client",
+    "placeholderTitulo": "Example: Submit VAT return for May",
+    "placeholderPeriodo": "2026-05",
+    "placeholderTiempoEstMin": "60",
+    "placeholderDescripcion": "Additional details...",
+    "placeholderNotas": "Internal notes...",
+    "options": {
+      "tipo": {
+        "DDJJ": "Return",
+        "VEP": "VEP",
+        "INTERNA": "Internal",
+        "BALANCE": "Balance",
+        "OTRO": "Other"
+      },
+      "impuesto": {
+        "AUTONOMOS": "Self-employed",
+        "IVA": "VAT",
+        "IIBB_LOCAL": "Local Gross Receipts",
+        "MUNICIPAL": "Municipal",
+        "SUELDOS": "Payroll",
+        "MONOTRIBUTO": "Simplified Tax",
+        "GANANCIAS": "Income Tax"
+      },
+      "prioridad": {
+        "ALTA": "High",
+        "MEDIA": "Medium",
+        "BAJA": "Low"
+      },
+      "estado": {
+        "PENDIENTE": "Pending",
+        "EN_PROCESO": "In progress",
+        "COMPLETADA": "Completed",
+        "CANCELADA": "Canceled"
+      }
+    },
     "confirmDelete": "Delete task {{title}}?"
   },
   "liquidacion": {

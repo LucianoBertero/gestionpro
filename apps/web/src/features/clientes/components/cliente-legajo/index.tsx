@@ -10,9 +10,10 @@ import type { ClienteLegajo } from '../../api/types';
 
 interface ClienteLegajoTabsProps {
   legajo: ClienteLegajo;
+  onEdit?: () => void;
 }
 
-export function ClienteLegajoTabs({ legajo }: ClienteLegajoTabsProps) {
+export function ClienteLegajoTabs({ legajo, onEdit }: ClienteLegajoTabsProps) {
   return (
     <Tabs defaultValue='resumen' className='w-full'>
       <TabsList className='w-full justify-start overflow-x-auto'>
@@ -40,7 +41,7 @@ export function ClienteLegajoTabs({ legajo }: ClienteLegajoTabsProps) {
       </TabsList>
 
       <TabsContent value='resumen' className='mt-4'>
-        <ResumenTab legajo={legajo} />
+        <ResumenTab legajo={legajo} onEdit={onEdit} />
       </TabsContent>
 
       <TabsContent value='impuestos' className='mt-4'>

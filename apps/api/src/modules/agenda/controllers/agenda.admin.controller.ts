@@ -16,10 +16,10 @@ export class AgendaAdminController {
 
     @Get('equipo')
     findEquipo(@Query('fechaDesde') fechaDesde?: string, @Query('fechaHasta') fechaHasta?: string) {
-        return this.service.findEquipo(
-            fechaDesde ? new Date(fechaDesde) : undefined,
-            fechaHasta ? new Date(fechaHasta) : undefined,
-        );
+        return this.service.findEquipo({
+            fechaDesde: fechaDesde ? new Date(fechaDesde) : undefined,
+            fechaHasta: fechaHasta ? new Date(fechaHasta) : undefined,
+        });
     }
 
     @Post()
@@ -28,12 +28,12 @@ export class AgendaAdminController {
     }
 
     @Patch(':id')
-    update(@Param('id', ParseIntPipe) id: number, @Body() body: any) {
-        return this.service.update(id, body);
+    update(@Param('id', ParseIntPipe) id: number, @Body() body: any, @AuthUser() user: IAuthUser) {
+        return this.service.update(id, user, body);
     }
 
     @Delete(':id')
-    delete(@Param('id', ParseIntPipe) id: number): Promise<ApiGenericResponseDto> {
-        return this.service.softDelete(id);
+    delete(@Param('id', ParseIntPipe) id: number, @AuthUser() user: IAuthUser): Promise<ApiGenericResponseDto> {
+        return this.service.softDelete(id, user);
     }
 }

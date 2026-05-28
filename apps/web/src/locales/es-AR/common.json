@@ -140,15 +140,57 @@
     "add": "Nueva Tarea",
     "edit": "Editar Tarea",
     "delete": "Eliminar Tarea",
+    "formAddDescription": "Completá los datos para crear una nueva tarea.",
+    "formEditDescription": "Modificá los campos de la tarea.",
     "titulo": "Título",
     "descripcion": "Descripción",
     "cliente": "Cliente",
     "encargado": "Encargado",
     "tipo": "Tipo",
+    "impuesto": "Impuesto",
     "prioridad": "Prioridad",
     "estado": "Estado",
+    "tiempoEstMin": "Tiempo est. (min)",
     "periodo": "Período",
     "vence": "Vence",
+    "notas": "Notas",
+    "select": "Seleccionar",
+    "none": "Ninguno",
+    "withoutClient": "Sin cliente",
+    "placeholderTitulo": "Ej: Presentar DDJJ IVA Mayo",
+    "placeholderPeriodo": "2026-05",
+    "placeholderTiempoEstMin": "60",
+    "placeholderDescripcion": "Detalles adicionales...",
+    "placeholderNotas": "Notas internas...",
+    "options": {
+      "tipo": {
+        "DDJJ": "DDJJ",
+        "VEP": "VEP",
+        "INTERNA": "Interna",
+        "BALANCE": "Balance",
+        "OTRO": "Otro"
+      },
+      "impuesto": {
+        "AUTONOMOS": "Autónomos",
+        "IVA": "IVA",
+        "IIBB_LOCAL": "IIBB Local",
+        "MUNICIPAL": "Municipal",
+        "SUELDOS": "Sueldos",
+        "MONOTRIBUTO": "Monotributo",
+        "GANANCIAS": "Ganancias"
+      },
+      "prioridad": {
+        "ALTA": "Alta",
+        "MEDIA": "Media",
+        "BAJA": "Baja"
+      },
+      "estado": {
+        "PENDIENTE": "Pendiente",
+        "EN_PROCESO": "En progreso",
+        "COMPLETADA": "Completada",
+        "CANCELADA": "Cancelada"
+      }
+    },
     "confirmDelete": "¿Eliminar tarea {{title}}?"
   },
   "liquidacion": {

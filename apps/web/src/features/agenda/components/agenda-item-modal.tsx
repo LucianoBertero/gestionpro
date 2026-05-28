@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -20,10 +20,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Icons } from '@/components/icons';
 import { DatePicker } from '@/components/ui/date-picker';
 import { TimePicker } from '@/components/ui/time-picker';
-import type { AgendaItem, CreateAgendaPayload, UpdateAgendaPayload } from '../api/types';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { agendaUsuariosQueryOptions } from '../api/queries';
+import { useAuthStore } from '@/features/auth/store/auth.store';
+import { SOCIO } from '@/constants';
+import type { AgendaItem, CreateAgendaPayload, UpdateAgendaPayload, AgendaUsuario } from '../api/types';
 
 interface AgendaItemModalProps {
   open: boolean;
@@ -48,6 +53,19 @@ export function AgendaItemModal({
   const [horaFin, setHoraFin] = useState('10:00');
   const [tipo, setTipo] = useState<'PERSONAL' | 'ESTUDIO' | 'TAREA'>('PERSONAL');
   const [descripcion, setDescripcion] = useState('');
+  const [esEstudio, setEsEstudio] = useState(false);
+  const [usuarioId, setUsuarioId] = useState('');
+
+  const user = useAuthStore((s) => s.user);
+  const isSocio = user?.role === SOCIO;
+  const { data: usuarios } = useSuspenseQuery(agendaUsuariosQueryOptions());
+
+  const handleEsEstudioChange = useCallback((checked: boolean) => {
+    setEsEstudio(checked);
+    if (checked) {
+      setTipo('ESTUDIO');
+    }
+  }, []);
 
   useEffect(() => {
     if (item) {
@@ -59,6 +77,7 @@ export function AgendaItemModal({
       setHoraFin(endDate.toISOString().slice(11, 16));
       setTipo(item.tipo as 'PERSONAL' | 'ESTUDIO' | 'TAREA');
       setDescripcion(item.descripcion ?? '');
+      setEsEstudio(item.esEstudio ?? false);
     } else {
       setTitulo('');
       setFecha(new Date((defaultDate ?? new Date().toISOString().slice(0, 10)) + 'T12:00:00'));
@@ -66,6 +85,8 @@ export function AgendaItemModal({
       setHoraFin('10:00');
       setTipo('PERSONAL');
       setDescripcion('');
+      setEsEstudio(false);
+      setUsuarioId('');
     }
   }, [item, defaultDate, open]);
 
@@ -85,15 +106,21 @@ export function AgendaItemModal({
         duracionMin,
         tipo,
         descripcion: descripcion || undefined,
+        esEstudio,
       });
     } else {
-      onSave({
+      const payload: CreateAgendaPayload = {
         titulo,
         fecha: fechaISO,
         duracionMin,
         tipo,
         descripcion: descripcion || undefined,
-      });
+        esEstudio,
+      };
+      if (isSocio && usuarioId && usuarioId !== user?.id) {
+        payload.usuarioId = usuarioId;
+      }
+      onSave(payload);
     }
   };
 
@@ -155,6 +182,37 @@ export function AgendaItemModal({
               placeholder="Descripción del evento (opcional)"
               rows={3}
             />
+          </div>
+
+          {!item && isSocio && (
+            <div className="space-y-2">
+              <Label>Asignar a usuario</Label>
+              <select
+                value={usuarioId || user?.id || ''}
+                onChange={(e) => setUsuarioId(e.target.value)}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+              >
+                <option value={user?.id ?? ''}>{user?.nombre ?? 'Yo'} (yo)</option>
+                {(usuarios ?? [])
+                  .filter((u: AgendaUsuario) => u.id !== user?.id)
+                  .map((u: AgendaUsuario) => (
+                    <option key={u.id} value={u.id}>
+                      {u.nombre}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="esEstudio"
+              checked={esEstudio}
+              onCheckedChange={handleEsEstudioChange}
+            />
+            <Label htmlFor="esEstudio" className="text-sm cursor-pointer">
+              Compartir con el estudio (visible para el equipo)
+            </Label>
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">
