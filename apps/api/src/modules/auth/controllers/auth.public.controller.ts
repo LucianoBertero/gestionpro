@@ -50,16 +50,18 @@ function extractRefreshToken(req: Request): string | null {
 function setRefreshCookie(res: Response, token: string): void {
     const maxAge = 7 * 24 * 60 * 60; // 7 days in seconds
     const secure = process.env.APP_ENV === 'production' ? '; Secure' : '';
+    const sameSite = process.env.APP_ENV === 'production' ? '; SameSite=None' : '; SameSite=Lax';
     res.setHeader(
         'Set-Cookie',
-        `refreshToken=${token}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Strict${secure}`
+        `refreshToken=${token}; HttpOnly; Path=/; Max-Age=${maxAge}${sameSite}${secure}`
     );
 }
 
 function clearRefreshCookie(res: Response): void {
+    const sameSite = process.env.APP_ENV === 'production' ? '; SameSite=None' : '; SameSite=Lax';
     res.setHeader(
         'Set-Cookie',
-        'refreshToken=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict'
+        `refreshToken=; HttpOnly; Path=/; Max-Age=0${sameSite}`
     );
 }
 
