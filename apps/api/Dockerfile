@@ -28,9 +28,9 @@ COPY . .
 
 WORKDIR /app/apps/api
 
-RUN npx prisma generate \
- && npm run build \
- && npm prune --omit=dev
+RUN npm run build \
+ && npm prune --omit=dev \
+ && npx prisma generate
 
 # ─── Stage 3: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS production
