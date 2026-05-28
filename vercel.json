@@ -3,5 +3,19 @@
   "outputDirectory": "apps/web/.next",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs",
-  "regions": ["gru1"]
+  "regions": [
+    "gru1"
+  ],
+  "experimentalServices": {
+    "api": {
+      "root": "apps/api",
+      "entrypoint": "src/main.ts",
+      "routePrefix": "/_/api"
+    },
+    "web": {
+      "root": "apps/web",
+      "routePrefix": "/",
+      "framework": "nextjs"
+    }
+  }
 }
