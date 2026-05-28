@@ -1,5 +1,5 @@
-# ─── Stage 1: Install dependencies ───────────────────────────────────────────
-FROM node:20-alpine AS deps
+# ─── Stage 1: Build ───────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
 
 RUN apk upgrade --no-cache \
  && apk add --no-cache python3 make g++ \
@@ -8,32 +8,26 @@ RUN apk upgrade --no-cache \
 
 WORKDIR /app
 
+# Copy workspace config
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY packages/types/package.json ./packages/types/
 
+# Install ALL dependencies
 RUN pnpm install --frozen-lockfile
 
-# ─── Stage 2: Build ───────────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
-
-RUN apk upgrade --no-cache \
- && corepack enable \
- && corepack prepare pnpm@latest --activate
-
-WORKDIR /app
-
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=deps /app/packages/types/node_modules ./packages/types/node_modules
+# Copy source code
 COPY . .
 
+# Generate Prisma client and build
 WORKDIR /app/apps/api
+RUN pnpm prisma generate
+RUN pnpm run build
 
-RUN pnpm prisma generate \
- && pnpm run build
+# Install production only dependencies
+RUN pnpm prune --prod
 
-# ─── Stage 3: Production ──────────────────────────────────────────────────────
+# ─── Stage 2: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS production
 
 ENV NODE_ENV=production
@@ -45,18 +39,16 @@ WORKDIR /app
 RUN addgroup -g 1001 -S nodejs \
  && adduser -S nestjs -u 1001 -G nodejs
 
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/dist         ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/package.json ./
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/prisma       ./prisma
-COPY --from=builder --chown=nestjs:nodejs /app/apps/api/docker-entrypoint.sh ./
-COPY --from=builder --chown=nestjs:nodejs /app/packages/types         ./packages/types
+# Copy entire workspace with node_modules intact
+COPY --from=builder /app /app
 
-RUN chmod +x docker-entrypoint.sh
+# Set proper ownership
+RUN chown -R nestjs:nodejs /app
+
+WORKDIR /app/apps/api
 
 USER nestjs
 
 EXPOSE 3001
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "dist/main"]
