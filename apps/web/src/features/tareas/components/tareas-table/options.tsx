@@ -45,51 +45,63 @@ export function TareasTableOptions<TData>({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Input
-        placeholder="Buscar tareas..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="h-9 w-[200px]"
-      />
-      <Select value={estadoFilter} onValueChange={setEstadoFilter}>
-        <SelectTrigger className="h-9 w-[150px]">
-          <SelectValue placeholder="Estado" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          {ESTADO_TAREA_VALUES.map((e) => (
-            <SelectItem key={e} value={e}>
-              {ESTADO_TAREA_LABELS[e]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Select value={prioridadFilter} onValueChange={setPrioridadFilter}>
-        <SelectTrigger className="h-9 w-[150px]">
-          <SelectValue placeholder="Prioridad" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todas</SelectItem>
-          {PRIORIDAD_VALUES.map((p) => (
-            <SelectItem key={p} value={p}>
-              {PRIORIDAD_LABELS[p]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Select value={encargadoFilter} onValueChange={setEncargadoFilter}>
-        <SelectTrigger className="h-9 w-[180px]">
-          <SelectValue placeholder="Encargado" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Todos</SelectItem>
-          {users?.map((u: { id: string; nombre: string }) => (
-            <SelectItem key={u.id} value={u.id}>
-              {u.nombre}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="relative">
+        <span className="text-xs text-muted-foreground mb-1 block">Buscar</span>
+        <Input
+          placeholder="Titulo, cliente..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-9 w-[200px]"
+        />
+      </div>
+      <div className="relative">
+        <span className="text-xs text-muted-foreground mb-1 block">Estado</span>
+        <Select value={estadoFilter} onValueChange={setEstadoFilter}>
+          <SelectTrigger className="h-9 w-[160px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            {ESTADO_TAREA_VALUES.map((e) => (
+              <SelectItem key={e} value={e}>
+                {ESTADO_TAREA_LABELS[e]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="relative">
+        <span className="text-xs text-muted-foreground mb-1 block">Prioridad</span>
+        <Select value={prioridadFilter} onValueChange={setPrioridadFilter}>
+          <SelectTrigger className="h-9 w-[160px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas</SelectItem>
+            {PRIORIDAD_VALUES.map((p) => (
+              <SelectItem key={p} value={p}>
+                {PRIORIDAD_LABELS[p]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="relative">
+        <span className="text-xs text-muted-foreground mb-1 block">Encargado</span>
+        <Select value={encargadoFilter} onValueChange={setEncargadoFilter}>
+          <SelectTrigger className="h-9 w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            {users?.map((u: { id: string; nombre: string }) => (
+              <SelectItem key={u.id} value={u.id}>
+                {u.nombre}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

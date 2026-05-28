@@ -14,7 +14,10 @@ export const tareasKeys = {
 export const tareasQueryOptions = (filters?: TareaFilters) =>
   queryOptions({
     queryKey: tareasKeys.list(filters),
-    queryFn: () => getTareas(filters ?? {}),
+    queryFn: async () => {
+      const tareas = await getTareas(filters ?? {});
+      return { data: tareas, total: tareas.length };
+    },
   });
 
 export const tareaQueryOptions = (id: number) =>

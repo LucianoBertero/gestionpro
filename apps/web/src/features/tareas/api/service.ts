@@ -8,9 +8,10 @@ import type {
 
 export async function getTareas(
   filters: TareaFilters
-): Promise<{ data: Tarea[]; total: number }> {
+): Promise<Tarea[]> {
   const { data } = await api.get('/v1/tareas', { params: filters });
-  return { data: data.data, total: data.data.length };
+  // API returns { statusCode, message, timestamp, data: Tarea[] }
+  return data.data ?? [];
 }
 
 export async function getTarea(id: number): Promise<Tarea> {
