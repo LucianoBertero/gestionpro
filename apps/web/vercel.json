@@ -1,8 +1,6 @@
 {
-  "experimentalServices": {
-    "web": {
-      "routePrefix": "/",
-      "framework": "nextjs"
-    }
-  }
+  " Framework": "Next.js",
+  "buildCommand": "pnpm build:web",
+  "devCommand": "pnpm dev:web",
+  "installCommand": "pnpm install"
 }
