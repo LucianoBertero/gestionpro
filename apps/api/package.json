@@ -11,7 +11,7 @@
     },
     "scripts": {
         "prepare": "husky",
-        "prebuild": "rimraf dist",
+        "prebuild": "rimraf dist && prisma generate",
         "build": "nest build",
         "start": "node dist/main",
         "dev": "nest start --watch",
@@ -123,3 +123,4 @@
         ]
     }
 }
+
