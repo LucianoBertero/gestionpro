@@ -12,7 +12,7 @@
     "scripts": {
         "prepare": "husky",
         "prebuild": "rimraf dist",
-        "build": "nest build",
+        "build": "prisma generate && nest build",
         "start": "node dist/main",
         "dev": "nest start --watch",
         "debug": "nest start --debug --watch",
