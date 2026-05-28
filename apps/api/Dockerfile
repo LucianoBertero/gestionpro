@@ -24,9 +24,6 @@ WORKDIR /app/apps/api
 RUN pnpm prisma generate
 RUN pnpm run build
 
-# Install production only dependencies
-RUN pnpm prune --prod
-
 # ─── Stage 2: Production ──────────────────────────────────────────────────────
 FROM node:20-alpine AS production
 
