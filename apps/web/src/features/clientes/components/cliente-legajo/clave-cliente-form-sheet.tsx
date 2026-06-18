@@ -25,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Icons } from '@/components/icons';
 import { getQueryClient } from '@/lib/query-client';
+import { useT } from '@/lib/i18n/client';
 import { clavesClienteKeys } from '../../api/queries-clave-cliente';
 import { createClaveCliente, updateClaveCliente } from '../../api/service-clave-cliente';
 import { claveClienteSchema, type ClaveClienteFormValues } from '../../schemas/clave-cliente';
@@ -38,6 +39,8 @@ interface Props {
 }
 
 export function ClaveClienteFormSheet({ clienteId, clave, open, onOpenChange }: Props) {
+  const t = useT();
+  const tr = (key: string, fallback: string) => t(key, { defaultValue: fallback });
   const isEdit = !!clave;
 
   const form = useForm<ClaveClienteFormValues>({
@@ -60,12 +63,12 @@ export function ClaveClienteFormSheet({ clienteId, clave, open, onOpenChange }: 
     mutationFn: (values: ClaveClienteFormValues) => createClaveCliente(clienteId, values),
     onSuccess: async () => {
       await getQueryClient().invalidateQueries({ queryKey: clavesClienteKeys.byCliente(clienteId) });
-      toast.success('Clave creada');
+      toast.success(tr('claveCliente.created', 'Clave creada'));
       onOpenChange(false);
       form.reset();
     },
     onError: (err: any) => {
-      const msg = err?.response?.data?.message ?? 'Error al crear clave';
+      const msg = err?.response?.data?.message ?? tr('claveCliente.createError', 'Error al crear clave');
       toast.error(msg);
     },
   });
@@ -74,11 +77,11 @@ export function ClaveClienteFormSheet({ clienteId, clave, open, onOpenChange }: 
     mutationFn: (values: ClaveClienteFormValues) => updateClaveCliente(clienteId, clave!.id, values),
     onSuccess: async () => {
       await getQueryClient().invalidateQueries({ queryKey: clavesClienteKeys.byCliente(clienteId) });
-      toast.success('Clave actualizada');
+      toast.success(tr('claveCliente.updated', 'Clave actualizada'));
       onOpenChange(false);
     },
     onError: (err: any) => {
-      const msg = err?.response?.data?.message ?? 'Error al actualizar clave';
+      const msg = err?.response?.data?.message ?? tr('claveCliente.updateError', 'Error al actualizar clave');
       toast.error(msg);
     },
   });
@@ -97,11 +100,13 @@ export function ClaveClienteFormSheet({ clienteId, clave, open, onOpenChange }: 
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='flex flex-col'>
         <SheetHeader>
-          <SheetTitle>{isEdit ? 'Editar Clave' : 'Nueva Clave'}</SheetTitle>
+          <SheetTitle>
+            {isEdit ? tr('claveCliente.edit', 'Editar Clave') : tr('claveCliente.add', 'Nueva Clave')}
+          </SheetTitle>
           <SheetDescription>
             {isEdit
-              ? 'Modificá los datos de la clave del cliente.'
-              : 'Agregá una nueva credencial para este cliente.'}
+              ? tr('claveCliente.formEditDescription', 'Modificá los datos de la clave del cliente.')
+              : tr('claveCliente.formAddDescription', 'Agregá una nueva credencial para este cliente.')}
           </SheetDescription>
         </SheetHeader>
 
@@ -113,11 +118,11 @@ export function ClaveClienteFormSheet({ clienteId, clave, open, onOpenChange }: 
                 name='entidad'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Entidad *</FormLabel>
+                    <FormLabel>{tr('claveCliente.entidad', 'Entidad')} *</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder='AFIP, Rentas CABA, ANSES...'
+                        placeholder={tr('claveCliente.entidadPlaceholder', 'AFIP, Rentas CABA, ANSES...')}
                         disabled={isEdit}
                       />
                     </FormControl>
@@ -131,12 +136,12 @@ export function ClaveClienteFormSheet({ clienteId, clave, open, onOpenChange }: 
                 name='clave'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contraseña *</FormLabel>
+                    <FormLabel>{tr('claveCliente.contrasena', 'Contraseña')} *</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         type='text'
-                        placeholder='Ingresá la contraseña'
+                        placeholder={tr('claveCliente.contrasenaPlaceholder', 'Ingresá la contraseña')}
                       />
                     </FormControl>
                     <FormMessage />
@@ -148,19 +153,12 @@ export function ClaveClienteFormSheet({ clienteId, clave, open, onOpenChange }: 
         </div>
 
         <SheetFooter>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={() => onOpenChange(false)}
-          >
-            Cancelar
+          <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>
+            {tr('common.cancel', 'Cancelar')}
           </Button>
-          <Button
-            onClick={form.handleSubmit(onSubmit)}
-            isLoading={isPending}
-          >
+          <Button onClick={form.handleSubmit(onSubmit)} isLoading={isPending}>
             <Icons.check className='mr-1 h-4 w-4' />
-            {isEdit ? 'Guardar' : 'Crear Clave'}
+            {isEdit ? tr('common.save', 'Guardar') : tr('claveCliente.createCta', 'Crear Clave')}
           </Button>
         </SheetFooter>
       </SheetContent>

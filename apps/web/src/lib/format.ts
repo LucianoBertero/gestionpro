@@ -48,3 +48,15 @@ export function formatDateLong(input: Date | string | undefined | null): string 
   const date = typeof input === 'string' ? new Date(input) : input;
   return format(date, "d 'de' MMMM yyyy", { locale: LOCALE });
 }
+
+/**
+ * Currency formatter in es-AR: $1.234,56
+ */
+export function formatCurrency(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '';
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    minimumFractionDigits: 2,
+  }).format(value);
+}

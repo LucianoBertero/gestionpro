@@ -21,6 +21,7 @@ import {
   TIPO_IMPUESTO_LABELS,
   type TipoImpuesto,
 } from '@/constants';
+import { useT } from '@/lib/i18n/client';
 
 import { clientesKeys, legajoQueryOptions } from '../api/queries';
 import { impuestosEstadoKeys } from '../api/queries-impuestos-estado';
@@ -36,11 +37,15 @@ interface GestionarImpuestosSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
+type Tr = (key: string, fallback: string, options?: Record<string, string>) => string;
+
 export function GestionarImpuestosSheet({
   clienteId,
   open,
   onOpenChange,
 }: GestionarImpuestosSheetProps) {
+  const t = useT();
+  const tr: Tr = (key, fallback, options) => t(key, { defaultValue: fallback, ...options });
   const queryClient = useQueryClient();
   const { data: legajo, isLoading } = useQuery({
     ...legajoQueryOptions(clienteId),
@@ -55,10 +60,11 @@ export function GestionarImpuestosSheet({
   const addMutation = useMutation({
     mutationFn: (tipo: TipoImpuesto) => addClienteImpuesto(clienteId, tipo),
     onSuccess: () => {
-      toast.success('Impuesto agregado');
+      toast.success(tr('impuestoCliente.gestionar.added', 'Impuesto agregado'));
       invalidate();
     },
-    onError: () => toast.error('No se pudo agregar el impuesto'),
+    onError: () =>
+      toast.error(tr('impuestoCliente.gestionar.addError', 'No se pudo agregar el impuesto')),
   });
 
   const toggleMutation = useMutation({
@@ -70,20 +76,26 @@ export function GestionarImpuestosSheet({
       activo: boolean;
     }) => toggleClienteImpuesto(clienteId, clienteImpuestoId, activo),
     onSuccess: (_, { activo }) => {
-      toast.success(activo ? 'Impuesto activado' : 'Impuesto desactivado');
+      toast.success(
+        activo
+          ? tr('impuestoCliente.gestionar.activated', 'Impuesto activado')
+          : tr('impuestoCliente.gestionar.deactivated', 'Impuesto desactivado'),
+      );
       invalidate();
     },
-    onError: () => toast.error('No se pudo cambiar el estado'),
+    onError: () =>
+      toast.error(tr('impuestoCliente.gestionar.toggleError', 'No se pudo cambiar el estado')),
   });
 
   const removeMutation = useMutation({
     mutationFn: (clienteImpuestoId: number) =>
       removeClienteImpuesto(clienteId, clienteImpuestoId),
     onSuccess: () => {
-      toast.success('Impuesto eliminado');
+      toast.success(tr('impuestoCliente.gestionar.removed', 'Impuesto eliminado'));
       invalidate();
     },
-    onError: () => toast.error('No se pudo eliminar el impuesto'),
+    onError: () =>
+      toast.error(tr('impuestoCliente.gestionar.removeError', 'No se pudo eliminar el impuesto')),
   });
 
   // Mapa: tipo -> ClienteImpuesto del backend (puede ser undefined si no existe)
@@ -99,10 +111,13 @@ export function GestionarImpuestosSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side='right' className='flex flex-col sm:max-w-md'>
         <SheetHeader>
-          <SheetTitle>Gestionar Impuestos</SheetTitle>
+          <SheetTitle>
+            {tr('impuestoCliente.gestionar.title', 'Gestionar Impuestos')}
+          </SheetTitle>
           <SheetDescription>
-            Activá o desactivá los impuestos que el cliente declara.
-            Los impuestos desactivados no se muestran en el legajo pero su historial se conserva.
+            {tr('impuestoCliente.gestionar.description', 'Activá o desactivá los impuestos que el cliente declara.')}
+            {' '}
+            {tr('impuestoCliente.gestionar.descriptionHint', 'Los impuestos desactivados no se muestran en el legajo pero su historial se conserva.')}
           </SheetDescription>
         </SheetHeader>
 
@@ -130,7 +145,7 @@ export function GestionarImpuestosSheet({
                       <span className='font-medium'>{label}</span>
                       {exists && !isActive && (
                         <Badge variant='secondary' className='w-fit text-xs'>
-                          Desactivado
+                          {tr('impuestoCliente.gestionar.desactivado', 'Desactivado')}
                         </Badge>
                       )}
                     </div>
@@ -152,19 +167,27 @@ export function GestionarImpuestosSheet({
                           <Button
                             variant='ghost'
                             size='icon'
-                            className='h-8 w-8 text-destructive hover:text-destructive'
+                            className='text-destructive hover:text-destructive h-8 w-8'
                             disabled={isPending}
                             onClick={() => {
                               if (!current) return;
                               if (
                                 confirm(
-                                  `¿Eliminar "${label}"? El historial de liquidaciones se conserva.`
+                                  tr(
+                                    'impuestoCliente.gestionar.confirmRemove',
+                                    '¿Eliminar "{{label}}"? El historial de liquidaciones se conserva.',
+                                    { label },
+                                  ),
                                 )
                               ) {
                                 removeMutation.mutate(current.id);
                               }
                             }}
-                            aria-label={`Eliminar ${label}`}
+                            aria-label={tr(
+                              'impuestoCliente.gestionar.removeLabel',
+                              'Eliminar {{label}}',
+                              { label },
+                            )}
                           >
                             <Icons.trash className='h-4 w-4' />
                           </Button>
@@ -181,7 +204,7 @@ export function GestionarImpuestosSheet({
                           ) : (
                             <Icons.add className='mr-1 h-3.5 w-3.5' />
                           )}
-                          Agregar
+                          {tr('impuestoCliente.gestionar.agregar', 'Agregar')}
                         </Button>
                       )}
                     </div>
@@ -194,7 +217,7 @@ export function GestionarImpuestosSheet({
 
         <SheetFooter>
           <Button variant='outline' onClick={() => onOpenChange(false)}>
-            Cerrar
+            {tr('common.close', 'Cerrar')}
           </Button>
         </SheetFooter>
       </SheetContent>

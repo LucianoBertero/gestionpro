@@ -338,6 +338,18 @@
   "claveCliente": {
     "title": "Claves del Cliente",
     "add": "Nueva Clave",
+    "edit": "Editar Clave",
+    "formAddDescription": "Agregá una nueva credencial para este cliente.",
+    "formEditDescription": "Modificá los datos de la clave del cliente.",
+    "entidad": "Entidad",
+    "entidadPlaceholder": "AFIP, Rentas CABA, ANSES...",
+    "contrasena": "Contraseña",
+    "contrasenaPlaceholder": "Ingresá la contraseña",
+    "createCta": "Crear Clave",
+    "created": "Clave creada",
+    "updated": "Clave actualizada",
+    "createError": "Error al crear clave",
+    "updateError": "Error al actualizar clave",
     "noResults": "No hay claves registradas para este cliente.",
     "column": {
       "entidad": "Entidad",
@@ -359,7 +371,29 @@
   "impuestoCliente": {
     "vence": "Vence",
     "noResults": "Este cliente no tiene impuestos registrados.",
-    "sinFecha": "Sin fecha"
+    "sinFecha": "Sin fecha",
+    "historial": {
+      "title": "Historial",
+      "description": "Liquidaciones registradas para este impuesto.",
+      "empty": "No hay liquidaciones registradas para este impuesto.",
+      "creado": "Creado"
+    },
+    "gestionar": {
+      "title": "Gestionar Impuestos",
+      "description": "Activá o desactivá los impuestos que el cliente declara.",
+      "descriptionHint": "Los impuestos desactivados no se muestran en el legajo pero su historial se conserva.",
+      "agregar": "Agregar",
+      "desactivado": "Desactivado",
+      "confirmRemove": "¿Eliminar \"{{label}}\"? El historial de liquidaciones se conserva.",
+      "removeLabel": "Eliminar {{label}}",
+      "added": "Impuesto agregado",
+      "activated": "Impuesto activado",
+      "deactivated": "Impuesto desactivado",
+      "removed": "Impuesto eliminado",
+      "addError": "No se pudo agregar el impuesto",
+      "toggleError": "No se pudo cambiar el estado",
+      "removeError": "No se pudo eliminar el impuesto"
+    }
   },
   "emailTemplate": {
     "title": "Plantillas de Email",

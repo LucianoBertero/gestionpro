@@ -338,6 +338,18 @@
   "claveCliente": {
     "title": "Client Credentials",
     "add": "New Credential",
+    "edit": "Edit Credential",
+    "formAddDescription": "Add a new credential for this client.",
+    "formEditDescription": "Modify the client's credential data.",
+    "entidad": "Entity",
+    "entidadPlaceholder": "AFIP, Rentas CABA, ANSES...",
+    "contrasena": "Password",
+    "contrasenaPlaceholder": "Enter the password",
+    "createCta": "Create Credential",
+    "created": "Credential created",
+    "updated": "Credential updated",
+    "createError": "Error creating credential",
+    "updateError": "Error updating credential",
     "noResults": "No credentials registered for this client.",
     "column": {
       "entidad": "Entity",
@@ -359,7 +371,29 @@
   "impuestoCliente": {
     "vence": "Due",
     "noResults": "This client has no registered taxes.",
-    "sinFecha": "No due date"
+    "sinFecha": "No due date",
+    "historial": {
+      "title": "History",
+      "description": "Settlements registered for this tax.",
+      "empty": "No settlements registered for this tax.",
+      "creado": "Created"
+    },
+    "gestionar": {
+      "title": "Manage Taxes",
+      "description": "Enable or disable the taxes the client declares.",
+      "descriptionHint": "Disabled taxes are hidden from the file but their history is kept.",
+      "agregar": "Add",
+      "desactivado": "Disabled",
+      "confirmRemove": "Delete \"{{label}}\"? The settlements history will be kept.",
+      "removeLabel": "Delete {{label}}",
+      "added": "Tax added",
+      "activated": "Tax activated",
+      "deactivated": "Tax deactivated",
+      "removed": "Tax removed",
+      "addError": "Could not add the tax",
+      "toggleError": "Could not change the status",
+      "removeError": "Could not delete the tax"
+    }
   },
   "emailTemplate": {
     "title": "Email Templates",
