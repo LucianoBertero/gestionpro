@@ -77,6 +77,15 @@ export const navGroups: NavGroup[] = [
         roles: [SOCIO, COLABORADOR],
       },
       {
+        title: 'Claves',
+        url: '/dashboard/claves',
+        icon: 'key',
+        shortcut: ['k', 'k'],
+        isActive: false,
+        items: [],
+        roles: [SOCIO, COLABORADOR],
+      },
+      {
         title: 'Notificaciones',
         url: '/dashboard/notificaciones',
         icon: 'notification',
