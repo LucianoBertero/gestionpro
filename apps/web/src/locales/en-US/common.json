@@ -83,7 +83,22 @@
     "total": "Total",
     "itemsPerPage": "Items per page",
     "rowsPerPage": "Rows per page",
-    "selected": "Selected"
+    "selected": "Selected",
+    "soon": "Coming soon"
+  },
+  "nota": {
+    "title": "Notes",
+    "add": "Add note",
+    "placeholder": "Write a note...",
+    "noResults": "No notes for this client.",
+    "confirmDelete": "Delete this note?",
+    "created": "Note created",
+    "updated": "Note updated",
+    "deleted": "Note deleted",
+    "createError": "Could not create the note",
+    "updateError": "Could not update the note",
+    "deleteError": "Could not delete the note",
+    "edited": "edited"
   },
   "theme": {
     "light": "Light",
@@ -110,6 +125,22 @@
     "add": "Add Client",
     "edit": "Edit Client",
     "delete": "Delete Client",
+    "editDatos": "Edit details",
+    "contacto": "Contact",
+    "actividades": "Activities",
+    "field": {
+      "cuit": "Tax ID",
+      "condicionIva": "VAT Status",
+      "termino": "Term",
+      "encargado": "Assignee",
+      "supervisor": "Supervisor",
+      "domicilioFiscal": "Fiscal Address",
+      "telefono": "Phone",
+      "email": "Email",
+      "whatsapp": "WhatsApp"
+    },
+    "terminoUnit": "months",
+    "whatsappGreeting": "Hi",
     "cuit": "Tax ID",
     "denominacion": "Business Name",
     "condicionIva": "VAT Condition",
@@ -303,6 +334,32 @@
     "ddjj": "Tax Return",
     "contrato": "Contract",
     "confirmDelete": "Delete file {{name}}?"
+  },
+  "claveCliente": {
+    "title": "Client Credentials",
+    "add": "New Credential",
+    "noResults": "No credentials registered for this client.",
+    "column": {
+      "entidad": "Entity",
+      "credencial": "Credential",
+      "creado": "Created",
+      "searchPlaceholder": "Search by entity..."
+    },
+    "copied": "Copied",
+    "copyDescription": "Credential copied to clipboard",
+    "copyError": "Error copying",
+    "show": "Show credential",
+    "hide": "Hide credential",
+    "copy": "Copy credential",
+    "actionsMenu": "Open menu",
+    "actions": "Actions",
+    "deleted": "Credential deleted",
+    "deleteError": "Error deleting credential"
+  },
+  "impuestoCliente": {
+    "vence": "Due",
+    "noResults": "This client has no registered taxes.",
+    "sinFecha": "No due date"
   },
   "emailTemplate": {
     "title": "Email Templates",

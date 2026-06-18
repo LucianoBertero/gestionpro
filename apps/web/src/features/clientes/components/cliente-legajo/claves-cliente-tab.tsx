@@ -22,6 +22,8 @@ import { useClavesCliente, clavesClienteKeys } from '../../api/queries-clave-cli
 import { deleteClaveCliente } from '../../api/service-clave-cliente';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { getQueryClient } from '@/lib/query-client';
+import { useT } from '@/lib/i18n/client';
+import { formatDate } from '@/lib/format';
 import { ClaveClienteFormSheet } from './clave-cliente-form-sheet';
 import type { ClaveCliente } from '../../api/types-clave-cliente';
 
@@ -29,48 +31,47 @@ interface ClavesClienteTabProps {
   clienteId: number;
 }
 
-function ClaveCell({ value }: { value: string }) {
+const OBSCURED_KEY = '•'.repeat(12);
+
+type Tr = (key: string, fallback: string) => string;
+
+function ClaveCell({ value, tr }: { value: string; tr: Tr }) {
   const [visible, setVisible] = useState(false);
-  const obscured = '•'.repeat(12);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(value);
-      toast.success('Copiado', {
-        description: 'Clave copiada al portapapeles',
+      toast.success(tr('claveCliente.copied', 'Copiado'), {
+        description: tr('claveCliente.copyDescription', 'Clave copiada al portapapeles'),
         duration: 2000,
       });
     } catch {
-      toast.error('Error al copiar');
+      toast.error(tr('claveCliente.copyError', 'Error al copiar'));
     }
   };
 
   return (
     <div className='flex items-center gap-1'>
-      <span className='font-mono text-sm tracking-widest text-muted-foreground min-w-[96px]'>
-        {visible ? value : obscured}
+      <span className='text-muted-foreground min-w-[96px] font-mono text-sm tracking-widest'>
+        {visible ? value : OBSCURED_KEY}
       </span>
       <Button
         type='button'
         variant='ghost'
         size='icon'
-        className='h-7 w-7 text-muted-foreground hover:text-foreground'
+        className='text-muted-foreground hover:text-foreground h-7 w-7'
         onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? 'Ocultar clave' : 'Mostrar clave'}
+        aria-label={visible ? tr('claveCliente.hide', 'Ocultar clave') : tr('claveCliente.show', 'Mostrar clave')}
       >
-        {visible ? (
-          <Icons.eyeOff className='h-3.5 w-3.5' />
-        ) : (
-          <Icons.eye className='h-3.5 w-3.5' />
-        )}
+        {visible ? <Icons.eyeOff className='h-3.5 w-3.5' /> : <Icons.eye className='h-3.5 w-3.5' />}
       </Button>
       <Button
         type='button'
         variant='ghost'
         size='icon'
-        className='h-7 w-7 text-muted-foreground hover:text-foreground'
+        className='text-muted-foreground hover:text-foreground h-7 w-7'
         onClick={handleCopy}
-        aria-label='Copiar clave'
+        aria-label={tr('claveCliente.copy', 'Copiar clave')}
       >
         <Icons.copy className='h-3.5 w-3.5' />
       </Button>
@@ -78,20 +79,28 @@ function ClaveCell({ value }: { value: string }) {
   );
 }
 
-function CellAction({ data, clienteId, isSocio }: { data: ClaveCliente; clienteId: number; isSocio: boolean }) {
+function CellAction({
+  data,
+  clienteId,
+  isSocio,
+  tr,
+}: {
+  data: ClaveCliente;
+  clienteId: number;
+  isSocio: boolean;
+  tr: Tr;
+}) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteClaveCliente(clienteId, data.id),
     onSuccess: () => {
-      toast.success('Clave eliminada');
+      toast.success(tr('claveCliente.deleted', 'Clave eliminada'));
       setDeleteOpen(false);
       getQueryClient().invalidateQueries({ queryKey: clavesClienteKeys.byCliente(clienteId) });
     },
-    onError: () => {
-      toast.error('Error al eliminar clave');
-    },
+    onError: () => toast.error(tr('claveCliente.deleteError', 'Error al eliminar clave')),
   });
 
   return (
@@ -112,17 +121,17 @@ function CellAction({ data, clienteId, isSocio }: { data: ClaveCliente; clienteI
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant='ghost' className='h-8 w-8 p-0'>
-              <span className='sr-only'>Abrir menú</span>
+              <span className='sr-only'>{tr('claveCliente.actionsMenu', 'Abrir menú')}</span>
               <Icons.ellipsis className='h-4 w-4' />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+            <DropdownMenuLabel>{tr('claveCliente.actions', 'Acciones')}</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => setEditOpen(true)}>
-              <Icons.edit className='mr-2 h-4 w-4' /> Editar
+              <Icons.edit className='mr-2 h-4 w-4' /> {tr('common.edit', 'Editar')}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setDeleteOpen(true)}>
-              <Icons.trash className='mr-2 h-4 w-4' /> Eliminar
+              <Icons.trash className='mr-2 h-4 w-4' /> {tr('common.delete', 'Eliminar')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -132,6 +141,8 @@ function CellAction({ data, clienteId, isSocio }: { data: ClaveCliente; clienteI
 }
 
 export function ClavesClienteTab({ clienteId }: ClavesClienteTabProps) {
+  const t = useT();
+  const tr: Tr = (key, fallback) => t(key, { defaultValue: fallback });
   const { data, isLoading } = useClavesCliente(clienteId);
   const user = useAuthStore((s) => s.user);
   const isSocio = user?.role === 'SOCIO';
@@ -142,17 +153,17 @@ export function ClavesClienteTab({ clienteId }: ClavesClienteTabProps) {
       id: 'entidad',
       accessorKey: 'entidad',
       header: ({ column }: { column: Column<ClaveCliente, unknown> }) => (
-        <DataTableColumnHeader column={column} title='Entidad' />
+        <DataTableColumnHeader column={column} title={tr('claveCliente.column.entidad', 'Entidad')} />
       ),
       cell: ({ row }) => (
         <div className='flex items-center gap-2'>
-          <Icons.key className='h-4 w-4 text-muted-foreground' />
+          <Icons.key className='text-muted-foreground h-4 w-4' />
           <span className='font-medium'>{row.original.entidad}</span>
         </div>
       ),
       meta: {
-        label: 'Entidad',
-        placeholder: 'Buscar por entidad...',
+        label: tr('claveCliente.column.entidad', 'Entidad'),
+        placeholder: tr('claveCliente.column.searchPlaceholder', 'Buscar por entidad...'),
         variant: 'text' as const,
         icon: Icons.text,
       },
@@ -162,32 +173,35 @@ export function ClavesClienteTab({ clienteId }: ClavesClienteTabProps) {
       id: 'clave',
       accessorKey: 'clave',
       header: ({ column }: { column: Column<ClaveCliente, unknown> }) => (
-        <DataTableColumnHeader column={column} title='Credencial' />
+        <DataTableColumnHeader
+          column={column}
+          title={tr('claveCliente.column.credencial', 'Credencial')}
+        />
       ),
-      cell: ({ row }) => <ClaveCell value={row.original.clave} />,
+      cell: ({ row }) => <ClaveCell value={row.original.clave} tr={tr} />,
     },
     {
       accessorKey: 'creadoEn',
       header: ({ column }: { column: Column<ClaveCliente, unknown> }) => (
-        <DataTableColumnHeader column={column} title='Creado' />
+        <DataTableColumnHeader
+          column={column}
+          title={tr('claveCliente.column.creado', 'Creado')}
+        />
       ),
       cell: ({ cell }) => {
         const date = cell.getValue<ClaveCliente['creadoEn']>();
-        return (
-          <span className='text-muted-foreground text-sm'>
-            {new Date(date).toLocaleDateString('es-AR', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            })}
-          </span>
-        );
+        return <span className='text-muted-foreground text-sm'>{formatDate(date)}</span>;
       },
     },
     {
       id: 'actions',
       cell: ({ row }) => (
-        <CellAction data={row.original} clienteId={clienteId} isSocio={isSocio} />
+        <CellAction
+          data={row.original}
+          clienteId={clienteId}
+          isSocio={isSocio}
+          tr={tr}
+        />
       ),
     },
   ];
@@ -206,13 +220,19 @@ export function ClavesClienteTab({ clienteId }: ClavesClienteTabProps) {
     },
   });
 
+  if (isLoading) {
+    return null; // table handles its own loading
+  }
+
   return (
     <div className='flex flex-1 flex-col space-y-4'>
       <div className='flex items-center justify-between'>
-        <h3 className='text-lg font-semibold'>Claves del Cliente ({data?.length ?? 0})</h3>
+        <h3 className='text-lg font-semibold'>
+          {tr('claveCliente.title', 'Claves del Cliente')} ({data?.length ?? 0})
+        </h3>
         {isSocio && (
           <Button size='sm' onClick={() => setFormOpen(true)}>
-            <Icons.add className='mr-1 h-4 w-4' /> Nueva Clave
+            <Icons.add className='mr-1 h-4 w-4' /> {tr('claveCliente.add', 'Nueva Clave')}
           </Button>
         )}
       </div>
@@ -223,7 +243,7 @@ export function ClavesClienteTab({ clienteId }: ClavesClienteTabProps) {
         </DataTable>
       ) : (
         <div className='text-muted-foreground flex h-32 items-center justify-center rounded-lg border text-sm'>
-          No hay claves registradas para este cliente.
+          {tr('claveCliente.noResults', 'No hay claves registradas para este cliente.')}
         </div>
       )}
 

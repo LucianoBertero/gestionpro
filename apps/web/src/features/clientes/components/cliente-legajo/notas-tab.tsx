@@ -11,22 +11,16 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Icons } from '@/components/icons';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useT } from '@/lib/i18n/client';
+import { formatDateTimeShort } from '@/lib/format';
+import { toast } from 'sonner';
 import type { Nota } from '../../api/types';
 
 interface NotasTabProps {
   clienteId: number;
 }
 
-function formatFecha(iso: string) {
-  const date = new Date(iso);
-  return date.toLocaleDateString('es-AR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
+type Tr = (key: string, fallback: string) => string;
 
 function NotaCard({
   nota,
@@ -39,6 +33,7 @@ function NotaCard({
   onCancelEdit,
   isSaving,
   isOwnerOrSocio,
+  tr,
 }: {
   nota: Nota;
   onEdit: () => void;
@@ -50,6 +45,7 @@ function NotaCard({
   onCancelEdit: () => void;
   isSaving: boolean;
   isOwnerOrSocio: boolean;
+  tr: Tr;
 }) {
   if (isEditing) {
     return (
@@ -63,11 +59,11 @@ function NotaCard({
           />
           <div className='mt-2 flex justify-end gap-2'>
             <Button variant='outline' size='sm' onClick={onCancelEdit} disabled={isSaving}>
-              Cancelar
+              {tr('common.cancel', 'Cancelar')}
             </Button>
             <Button size='sm' onClick={onSaveEdit} disabled={isSaving || !editContent.trim()}>
               {isSaving ? <Icons.spinner className='h-4 w-4 animate-spin' /> : null}
-              Guardar
+              {tr('common.save', 'Guardar')}
             </Button>
           </div>
         </CardContent>
@@ -79,15 +75,15 @@ function NotaCard({
     <Card>
       <CardContent className='pt-4'>
         <div className='mb-2 flex items-center justify-between'>
-          <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+          <div className='text-muted-foreground flex items-center gap-2 text-sm'>
             <span className='text-base'>{nota.creadoPor.emoji || '👤'}</span>
-            <span className='font-medium text-foreground'>{nota.creadoPor.nombre}</span>
+            <span className='text-foreground font-medium'>{nota.creadoPor.nombre}</span>
             <span>&middot;</span>
-            <span>{formatFecha(nota.creadoEn)}</span>
+            <span>{formatDateTimeShort(nota.creadoEn)}</span>
             {nota.actualizadoEn !== nota.creadoEn && (
               <>
                 <span>&middot;</span>
-                <span className='italic'>editado</span>
+                <span className='italic'>{tr('nota.edited', 'editado')}</span>
               </>
             )}
           </div>
@@ -96,19 +92,26 @@ function NotaCard({
               <Button variant='ghost' size='icon' className='h-7 w-7' onClick={onEdit}>
                 <Icons.edit className='h-3.5 w-3.5' />
               </Button>
-              <Button variant='ghost' size='icon' className='h-7 w-7 text-destructive' onClick={onDelete}>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='text-destructive h-7 w-7'
+                onClick={onDelete}
+              >
                 <Icons.trash className='h-3.5 w-3.5' />
               </Button>
             </div>
           )}
         </div>
-        <p className='whitespace-pre-wrap text-sm leading-relaxed'>{nota.contenido}</p>
+        <p className='text-sm leading-relaxed whitespace-pre-wrap'>{nota.contenido}</p>
       </CardContent>
     </Card>
   );
 }
 
 export function NotasTab({ clienteId }: NotasTabProps) {
+  const t = useT();
+  const tr: Tr = (key, fallback) => t(key, { defaultValue: fallback });
   const { data: notas, isLoading } = useQuery(notasQueryOptions(clienteId));
   const user = useAuthStore((s) => s.user);
 
@@ -123,7 +126,9 @@ export function NotasTab({ clienteId }: NotasTabProps) {
       setNuevoContenido('');
       setShowForm(false);
       getQueryClient().invalidateQueries({ queryKey: notasKeys.byCliente(clienteId) });
+      toast.success(tr('nota.created', 'Nota creada'));
     },
+    onError: () => toast.error(tr('nota.createError', 'No se pudo crear la nota')),
   });
 
   const updateMutation = useMutation({
@@ -132,14 +137,18 @@ export function NotasTab({ clienteId }: NotasTabProps) {
       setEditingId(null);
       setEditContent('');
       getQueryClient().invalidateQueries({ queryKey: notasKeys.byCliente(clienteId) });
+      toast.success(tr('nota.updated', 'Nota actualizada'));
     },
+    onError: () => toast.error(tr('nota.updateError', 'No se pudo actualizar la nota')),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteNota(id),
     onSuccess: () => {
       getQueryClient().invalidateQueries({ queryKey: notasKeys.byCliente(clienteId) });
+      toast.success(tr('nota.deleted', 'Nota eliminada'));
     },
+    onError: () => toast.error(tr('nota.deleteError', 'No se pudo eliminar la nota')),
   });
 
   const isOwnerOrSocio = (nota: Nota) => {
@@ -151,7 +160,7 @@ export function NotasTab({ clienteId }: NotasTabProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className='text-lg'>Notas</CardTitle>
+          <CardTitle className='text-lg'>{tr('nota.title', 'Notas')}</CardTitle>
         </CardHeader>
         <CardContent className='space-y-4'>
           <Skeleton className='h-24 w-full' />
@@ -164,10 +173,12 @@ export function NotasTab({ clienteId }: NotasTabProps) {
   return (
     <div className='space-y-4'>
       <div className='flex items-center justify-between'>
-        <h3 className='text-lg font-semibold'>Notas ({notas?.length ?? 0})</h3>
+        <h3 className='text-lg font-semibold'>
+          {tr('nota.title', 'Notas')} ({notas?.length ?? 0})
+        </h3>
         <Button size='sm' onClick={() => setShowForm(!showForm)}>
           <Icons.add className='mr-1 h-4 w-4' />
-          Agregar nota
+          {tr('nota.add', 'Agregar nota')}
         </Button>
       </div>
 
@@ -177,7 +188,7 @@ export function NotasTab({ clienteId }: NotasTabProps) {
             <Textarea
               value={nuevoContenido}
               onChange={(e) => setNuevoContenido(e.target.value)}
-              placeholder='Escribí una nota...'
+              placeholder={tr('nota.placeholder', 'Escribí una nota...')}
               className='min-h-[100px]'
               disabled={createMutation.isPending}
             />
@@ -185,18 +196,23 @@ export function NotasTab({ clienteId }: NotasTabProps) {
               <Button
                 variant='outline'
                 size='sm'
-                onClick={() => { setShowForm(false); setNuevoContenido(''); }}
+                onClick={() => {
+                  setShowForm(false);
+                  setNuevoContenido('');
+                }}
                 disabled={createMutation.isPending}
               >
-                Cancelar
+                {tr('common.cancel', 'Cancelar')}
               </Button>
               <Button
                 size='sm'
                 onClick={() => createMutation.mutate()}
                 disabled={createMutation.isPending || !nuevoContenido.trim()}
               >
-                {createMutation.isPending ? <Icons.spinner className='h-4 w-4 animate-spin' /> : null}
-                Guardar
+                {createMutation.isPending ? (
+                  <Icons.spinner className='h-4 w-4 animate-spin' />
+                ) : null}
+                {tr('common.save', 'Guardar')}
               </Button>
             </div>
           </CardContent>
@@ -205,8 +221,8 @@ export function NotasTab({ clienteId }: NotasTabProps) {
 
       {(!notas || notas.length === 0) && !showForm ? (
         <Card>
-          <CardContent className='py-8 text-center text-muted-foreground'>
-            No hay notas para este cliente.
+          <CardContent className='text-muted-foreground py-8 text-center'>
+            {tr('nota.noResults', 'No hay notas para este cliente.')}
           </CardContent>
         </Card>
       ) : (
@@ -216,14 +232,25 @@ export function NotasTab({ clienteId }: NotasTabProps) {
               key={nota.id}
               nota={nota}
               isOwnerOrSocio={isOwnerOrSocio(nota)}
-              onEdit={() => { setEditingId(nota.id); setEditContent(nota.contenido); }}
-              onDelete={() => { if (confirm('¿Eliminar esta nota?')) deleteMutation.mutate(nota.id); }}
+              onEdit={() => {
+                setEditingId(nota.id);
+                setEditContent(nota.contenido);
+              }}
+              onDelete={() => {
+                if (confirm(tr('nota.confirmDelete', '¿Eliminar esta nota?'))) {
+                  deleteMutation.mutate(nota.id);
+                }
+              }}
               isEditing={editingId === nota.id}
               editContent={editingId === nota.id ? editContent : ''}
               onEditContentChange={setEditContent}
               onSaveEdit={() => updateMutation.mutate()}
-              onCancelEdit={() => { setEditingId(null); setEditContent(''); }}
+              onCancelEdit={() => {
+                setEditingId(null);
+                setEditContent('');
+              }}
               isSaving={updateMutation.isPending}
+              tr={tr}
             />
           ))}
         </div>

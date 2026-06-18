@@ -83,7 +83,22 @@
     "total": "Total",
     "itemsPerPage": "Items por página",
     "rowsPerPage": "Filas por página",
-    "selected": "Seleccionados"
+    "selected": "Seleccionados",
+    "soon": "Próximamente"
+  },
+  "nota": {
+    "title": "Notas",
+    "add": "Agregar nota",
+    "placeholder": "Escribí una nota...",
+    "noResults": "No hay notas para este cliente.",
+    "confirmDelete": "¿Eliminar esta nota?",
+    "created": "Nota creada",
+    "updated": "Nota actualizada",
+    "deleted": "Nota eliminada",
+    "createError": "No se pudo crear la nota",
+    "updateError": "No se pudo actualizar la nota",
+    "deleteError": "No se pudo eliminar la nota",
+    "edited": "editado"
   },
   "theme": {
     "light": "Claro",
@@ -110,6 +125,22 @@
     "add": "Agregar Cliente",
     "edit": "Editar Cliente",
     "delete": "Eliminar Cliente",
+    "editDatos": "Editar datos",
+    "contacto": "Contacto",
+    "actividades": "Actividades",
+    "field": {
+      "cuit": "CUIT",
+      "condicionIva": "Condición IVA",
+      "termino": "Término",
+      "encargado": "Encargado",
+      "supervisor": "Supervisor",
+      "domicilioFiscal": "Domicilio Fiscal",
+      "telefono": "Teléfono",
+      "email": "Email",
+      "whatsapp": "WhatsApp"
+    },
+    "terminoUnit": "meses",
+    "whatsappGreeting": "Hola",
     "cuit": "CUIT",
     "denominacion": "Denominación",
     "condicionIva": "Condición IVA",
@@ -303,6 +334,32 @@
     "ddjj": "DDJJ",
     "contrato": "Contrato",
     "confirmDelete": "¿Eliminar archivo {{name}}?"
+  },
+  "claveCliente": {
+    "title": "Claves del Cliente",
+    "add": "Nueva Clave",
+    "noResults": "No hay claves registradas para este cliente.",
+    "column": {
+      "entidad": "Entidad",
+      "credencial": "Credencial",
+      "creado": "Creado",
+      "searchPlaceholder": "Buscar por entidad..."
+    },
+    "copied": "Copiado",
+    "copyDescription": "Clave copiada al portapapeles",
+    "copyError": "Error al copiar",
+    "show": "Mostrar clave",
+    "hide": "Ocultar clave",
+    "copy": "Copiar clave",
+    "actionsMenu": "Abrir menú",
+    "actions": "Acciones",
+    "deleted": "Clave eliminada",
+    "deleteError": "Error al eliminar clave"
+  },
+  "impuestoCliente": {
+    "vence": "Vence",
+    "noResults": "Este cliente no tiene impuestos registrados.",
+    "sinFecha": "Sin fecha"
   },
   "emailTemplate": {
     "title": "Plantillas de Email",

@@ -1,14 +1,13 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { TIPO_IMPUESTO_LABELS } from '@/constants';
+import { TIPO_IMPUESTO_LABELS, SOCIO } from '@/constants';
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import { SOCIO } from '@/constants';
+import { useT } from '@/lib/i18n/client';
+import { formatDateLong } from '@/lib/format';
 
 import { impuestosConEstadoQueryOptions } from '../../api/queries-impuestos-estado';
 import type { ImpuestoConEstado } from '../../api/types-impuestos-estado';
@@ -19,17 +18,21 @@ interface ImpuestosTabProps {
   clienteId: number;
 }
 
-function formatVencimiento(iso: string | null): string {
-  if (!iso) return 'Sin fecha';
-  return format(new Date(iso), "d 'de' MMMM yyyy", { locale: es });
+type Tr = (key: string, fallback: string) => string;
+
+function formatVencimiento(iso: string | null, tr: Tr): string {
+  if (!iso) return tr('impuestoCliente.sinFecha', 'Sin fecha');
+  return formatDateLong(iso);
 }
 
 export function ImpuestosTab({ clienteId }: ImpuestosTabProps) {
+  const t = useT();
+  const tr: Tr = (key, fallback) => t(key, { defaultValue: fallback });
   const user = useAuthStore((s) => s.user);
   const isSocio = user?.role === SOCIO;
 
   const { data: impuestos, isLoading } = useQuery(
-    impuestosConEstadoQueryOptions(clienteId)
+    impuestosConEstadoQueryOptions(clienteId),
   );
 
   if (isLoading) {
@@ -45,8 +48,8 @@ export function ImpuestosTab({ clienteId }: ImpuestosTabProps) {
   if (!impuestos || impuestos.length === 0) {
     return (
       <Card>
-        <CardContent className='py-8 text-center text-muted-foreground'>
-          Este cliente no tiene impuestos registrados.
+        <CardContent className='text-muted-foreground py-8 text-center'>
+          {tr('impuestoCliente.noResults', 'Este cliente no tiene impuestos registrados.')}
         </CardContent>
       </Card>
     );
@@ -60,6 +63,7 @@ export function ImpuestosTab({ clienteId }: ImpuestosTabProps) {
           clienteId={clienteId}
           impuesto={imp}
           isSocio={isSocio}
+          tr={tr}
         />
       ))}
     </div>
@@ -70,18 +74,21 @@ interface ImpuestoRowProps {
   clienteId: number;
   impuesto: ImpuestoConEstado;
   isSocio: boolean;
+  tr: Tr;
 }
 
-function ImpuestoRow({ clienteId, impuesto, isSocio }: ImpuestoRowProps) {
+function ImpuestoRow({ clienteId, impuesto, isSocio, tr }: ImpuestoRowProps) {
   const label = TIPO_IMPUESTO_LABELS[impuesto.tipo] ?? impuesto.tipo;
-  const venceTexto = formatVencimiento(impuesto.proximoVencimiento);
+  const venceTexto = formatVencimiento(impuesto.proximoVencimiento, tr);
 
   return (
-    <div className='flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-accent/30'>
+    <div className='hover:bg-accent/30 flex items-center justify-between rounded-lg border p-3 transition-colors'>
       <div className='flex min-w-0 flex-col gap-0.5'>
         <div className='flex items-center gap-3'>
           <span className='font-medium'>{label}</span>
-          <span className='text-xs text-muted-foreground'>Vence: {venceTexto}</span>
+          <span className='text-muted-foreground text-xs'>
+            {tr('impuestoCliente.vence', 'Vence')}: {venceTexto}
+          </span>
         </div>
       </div>
 
