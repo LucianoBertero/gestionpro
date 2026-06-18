@@ -7,7 +7,7 @@ import type { CreateUserPayload, UpdateUserPayload } from './types';
 export const createUserMutation = mutationOptions({
   mutationFn: (data: CreateUserPayload) => createUser(data),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: userKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: userKeys.all, refetchType: 'active' });
   }
 });
 
@@ -15,13 +15,13 @@ export const updateUserMutation = mutationOptions({
   mutationFn: ({ id, values }: { id: string; values: UpdateUserPayload }) =>
     updateUser(id, values),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: userKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: userKeys.all, refetchType: 'active' });
   }
 });
 
 export const deleteUserMutation = mutationOptions({
   mutationFn: (id: string) => deleteUser(id),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: userKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: userKeys.all, refetchType: 'active' });
   }
 });

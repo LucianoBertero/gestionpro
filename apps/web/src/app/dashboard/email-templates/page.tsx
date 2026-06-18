@@ -29,7 +29,7 @@ export default function EmailTemplatesPage() {
   const createMutation = useMutation({
     mutationFn: (data: CreateEmailTemplatePayload) => createEmailTemplate(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all, refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all, refetchType: 'active' });
       setCreating(false);
     },
   });
@@ -38,7 +38,7 @@ export default function EmailTemplatesPage() {
     mutationFn: ({ id, values }: { id: number; values: UpdateEmailTemplatePayload }) =>
       updateEmailTemplate(id, values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all, refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all, refetchType: 'active' });
       setEditing(null);
     },
   });
@@ -46,7 +46,7 @@ export default function EmailTemplatesPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteEmailTemplate(id),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all, refetchType: 'all' }),
+      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all, refetchType: 'active' }),
   });
 
   const items = templates ?? [];

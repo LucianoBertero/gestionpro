@@ -38,7 +38,7 @@ export default function NotificacionesPage() {
   const markReadMutation = useMutation({
     mutationFn: (id: number) => marcarLeida(id),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: notificacionesKeys.all, refetchType: 'all' }),
+      queryClient.invalidateQueries({ queryKey: notificacionesKeys.all, refetchType: 'active' }),
   });
 
   const notificaciones: Notificacion[] = data?.data ?? [];

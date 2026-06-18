@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,93 +17,87 @@ import type { Notificacion } from '@/features/notificaciones/api/types';
 import { useRouter } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import {
+  notificacionesKeys,
+  notificacionesQueryOptions,
+} from '@/features/notificaciones/api/queries';
+import { marcarLeida, marcarTodasLeidas, getNotificaciones } from '@/features/notificaciones/api/service';
+import { getQueryClient } from '@/lib/query-client';
+
+const POLL_INTERVAL_MS = 30_000;
 
 export function NotificationsDropdown() {
   const router = useRouter();
-  const [items, setItems] = useState<Notificacion[]>([]);
-  const [noLeidas, setNoLeidas] = useState(0);
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const api = (await import('@/lib/auth/axios-instance')).default;
-      const { data: listData } = await api.get('/v1/notificaciones', { params: { skip: 0, take: 5 } });
-      setItems(listData?.data ?? []);
-      const noLeidas = listData?.meta?.noLeidas ?? 0;
-      if (!noLeidas) {
-        const { data: countRes } = await api.get('/v1/notificaciones/no-leidas');
-        setNoLeidas(countRes?.data ?? 0);
-      } else {
-        setNoLeidas(noLeidas);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
+  // React Query handles polling + pause when tab is in background +
+  // invalidation on mutations + dedup. Way better than setInterval.
+  const { data } = useQuery({
+    ...notificacionesQueryOptions(0, 5),
+    enabled: open, // only fetch when the dropdown is open
+    refetchInterval: open ? POLL_INTERVAL_MS : false,
+  });
 
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, [fetchData]);
+  const items: Notificacion[] = (data as { data?: Notificacion[] } | undefined)?.data ?? [];
+  const noLeidas = items.filter((n) => !n.leida).length;
+
+  const markReadMutation = useMutation({
+    mutationFn: (id: number) => marcarLeida(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: notificacionesKeys.all });
+    },
+  });
+
+  const markAllReadMutation = useMutation({
+    mutationFn: () => marcarTodasLeidas(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: notificacionesKeys.all });
+    },
+  });
 
   const handleMarkRead = useCallback(
-    async (id: number, enlace?: string | null) => {
-      try {
-        const api = (await import('@/lib/auth/axios-instance')).default;
-        await api.post(`/v1/notificaciones/${id}/leer`);
-        setItems((prev) =>
-          prev.map((n) => (n.id === id ? { ...n, leida: true } : n))
-        );
-        setNoLeidas((prev) => Math.max(0, prev - 1));
-        if (enlace) router.push(enlace);
-      } catch {
-        // ignore
-      }
+    (id: number, enlace?: string | null) => {
+      markReadMutation.mutate(id);
+      if (enlace) router.push(enlace);
     },
-    [router]
+    [markReadMutation, router]
   );
 
-  const handleMarkAllRead = useCallback(async () => {
-    try {
-      const api = (await import('@/lib/auth/axios-instance')).default;
-      await api.post('/v1/notificaciones/leer-todas');
-      setItems((prev) => prev.map((n) => ({ ...n, leida: true })));
-      setNoLeidas(0);
-    } catch {
-      // ignore
-    }
-  }, []);
+  const handleMarkAllRead = useCallback(() => {
+    markAllReadMutation.mutate();
+  }, [markAllReadMutation]);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-8 w-8">
-          <Icons.notification className="h-4 w-4" />
+        <Button variant='ghost' size='icon' className='relative h-8 w-8'>
+          <Icons.notification className='h-4 w-4' />
           {noLeidas > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
+            <span className='absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground'>
               {Math.min(noLeidas, 99)}
             </span>
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
-        <DropdownMenuLabel className="flex items-center justify-between">
+      <DropdownMenuContent align='end' className='w-80'>
+        <DropdownMenuLabel className='flex items-center justify-between'>
           <span>Notificaciones</span>
           {items.length > 0 && (
             <button
               onClick={handleMarkAllRead}
-              className="text-xs text-muted-foreground hover:text-foreground"
+              className='text-xs text-muted-foreground hover:text-foreground'
             >
               Marcar todas leídas
             </button>
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <ScrollArea className="h-[300px]">
+        <ScrollArea className='h-[300px]'>
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <Icons.notification className="mb-2 h-8 w-8 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">No tenés notificaciones nuevas</p>
+            <div className='flex flex-col items-center justify-center py-8 text-center'>
+              <Icons.notification className='mb-2 h-8 w-8 text-muted-foreground/50' />
+              <p className='text-sm text-muted-foreground'>No tenés notificaciones nuevas</p>
             </div>
           ) : (
             items.map((notif) => (
@@ -111,12 +106,12 @@ export function NotificationsDropdown() {
                 className={`flex cursor-pointer flex-col items-start gap-1 py-3 ${!notif.leida ? 'bg-muted/50' : ''}`}
                 onClick={() => handleMarkRead(notif.id, notif.enlace)}
               >
-                <div className="flex w-full items-center justify-between">
-                  <span className="text-sm font-medium">{notif.titulo}</span>
-                  {!notif.leida && <span className="h-2 w-2 rounded-full bg-destructive" />}
+                <div className='flex w-full items-center justify-between'>
+                  <span className='text-sm font-medium'>{notif.titulo}</span>
+                  {!notif.leida && <span className='h-2 w-2 rounded-full bg-destructive' />}
                 </div>
-                <p className="line-clamp-2 text-xs text-muted-foreground">{notif.mensaje}</p>
-                <span className="text-[10px] text-muted-foreground">
+                <p className='line-clamp-2 text-xs text-muted-foreground'>{notif.mensaje}</p>
+                <span className='text-[10px] text-muted-foreground'>
                   {formatDistanceToNow(new Date(notif.creadoEn), { addSuffix: true, locale: es })}
                 </span>
               </DropdownMenuItem>
@@ -125,7 +120,7 @@ export function NotificationsDropdown() {
         </ScrollArea>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="justify-center text-sm font-medium"
+          className='justify-center text-sm font-medium'
           onClick={() => router.push('/dashboard/notificaciones')}
         >
           Ver todas las notificaciones

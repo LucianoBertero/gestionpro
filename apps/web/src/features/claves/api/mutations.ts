@@ -7,7 +7,7 @@ import type { CreateClavePayload, UpdateClavePayload } from './types';
 export const createClaveMutation = mutationOptions({
   mutationFn: (data: CreateClavePayload) => createClave(data),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: claveKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: claveKeys.all, refetchType: 'active' });
   },
 });
 
@@ -15,13 +15,13 @@ export const updateClaveMutation = mutationOptions({
   mutationFn: ({ id, values }: { id: string; values: UpdateClavePayload }) =>
     updateClave(id, values),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: claveKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: claveKeys.all, refetchType: 'active' });
   },
 });
 
 export const deleteClaveMutation = mutationOptions({
   mutationFn: (id: string) => deleteClave(id),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: claveKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: claveKeys.all, refetchType: 'active' });
   },
 });

@@ -5,10 +5,13 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // Keep data fresh for 0ms by default — mutations explicitly invalidate,
-        // and we want navigations to always revalidate against the server.
-        staleTime: 0,
+        // Data is considered fresh for 30s by default. Mutations explicitly
+        // invalidate, so CRUD stays instant. Navigations within that window
+        // reuse the cache instead of hammering the backend.
+        staleTime: 30 * 1000,
+        // Pause polling/refetching when the tab is in the background.
         refetchOnWindowFocus: false,
+        refetchIntervalInBackground: false,
       },
       dehydrate: {
         shouldDehydrateQuery: (query) =>

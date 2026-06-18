@@ -43,7 +43,7 @@ export default function ComunicacionesPage() {
   const createMutation = useMutation({
     mutationFn: (data: CreateComunicacionPayload) => createComunicacion(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all, refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all, refetchType: 'active' });
       setCreating(false);
     },
   });
@@ -52,7 +52,7 @@ export default function ComunicacionesPage() {
     mutationFn: ({ id, values }: { id: number; values: UpdateComunicacionPayload }) =>
       updateComunicacion(id, values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all, refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all, refetchType: 'active' });
       setEditing(null);
     },
   });
@@ -60,7 +60,7 @@ export default function ComunicacionesPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteComunicacion(id),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all, refetchType: 'all' }),
+      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all, refetchType: 'active' }),
   });
 
   const comunicaciones = items ?? [];

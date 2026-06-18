@@ -63,7 +63,11 @@ export function AgendaItemModal({
 
   const user = useAuthStore((s) => s.user);
   const isSocio = user?.role === SOCIO;
-  const { data: usuarios = [] } = useQuery(agendaUsuariosQueryOptions());
+  // Only fetch the active users list when the modal is open.
+  const { data: usuarios = [] } = useQuery({
+    ...agendaUsuariosQueryOptions(),
+    enabled: open,
+  });
 
   const handleEsEstudioChange = useCallback((checked: boolean) => {
     setEsEstudio(checked);

@@ -7,7 +7,7 @@ import type { CreateTareaPayload, UpdateTareaPayload } from './types';
 export const createTareaMutation = mutationOptions({
   mutationFn: (data: CreateTareaPayload) => createTarea(data),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: tareasKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: tareasKeys.all, refetchType: 'active' });
   },
 });
 
@@ -20,20 +20,20 @@ export const updateTareaMutation = mutationOptions({
     values: UpdateTareaPayload;
   }) => updateTarea(id, values),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: tareasKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: tareasKeys.all, refetchType: 'active' });
   },
 });
 
 export const completarTareaMutation = mutationOptions({
   mutationFn: (id: number) => completarTarea(id),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: tareasKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: tareasKeys.all, refetchType: 'active' });
   },
 });
 
 export const deleteTareaMutation = mutationOptions({
   mutationFn: (id: number) => deleteTarea(id),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: tareasKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: tareasKeys.all, refetchType: 'active' });
   },
 });

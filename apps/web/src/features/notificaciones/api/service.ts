@@ -14,11 +14,6 @@ export async function getNoLeidas(): Promise<{ data: Notificacion[] }> {
   return data;
 }
 
-export async function countNoLeidas(): Promise<number> {
-  const { data } = await api.get('/v1/notificaciones/no-leidas');
-  return data.data ?? 0;
-}
-
 export async function marcarLeida(id: number): Promise<void> {
   await api.post(`/v1/notificaciones/${id}/leer`);
 }

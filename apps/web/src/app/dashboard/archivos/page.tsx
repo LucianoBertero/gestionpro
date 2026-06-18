@@ -44,7 +44,7 @@ export default function ArchivosPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteArchivo(id),
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: archivosKeys.all, refetchType: 'all' }),
+      queryClient.invalidateQueries({ queryKey: archivosKeys.all, refetchType: 'active' }),
   });
 
   const archivos: Archivo[] = items ?? [];

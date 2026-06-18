@@ -39,7 +39,13 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
   const t = useT();
   const tr: Tr = (key, fallback) => t(key, { defaultValue: fallback });
   const isEdit = !!cliente;
-  const { data: users = [] } = useQuery(activeUsersQueryOptions());
+  // Only fetch the active users list when the sheet is open — the form is
+  // mounted by the legajo view even while closed, so this saves a request
+  // on every cliente detail view.
+  const { data: users = [] } = useQuery({
+    ...activeUsersQueryOptions(),
+    enabled: open,
+  });
 
   const terminoOptions = [
     { value: '0', label: tr('cliente.terminoOptions.0', '0 meses') },

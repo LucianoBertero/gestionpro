@@ -8,7 +8,7 @@ import type { CreateClientePayload, UpdateClientePayload, CreateNotaPayload, Upd
 export const createClienteMutation = mutationOptions({
   mutationFn: (data: CreateClientePayload) => createCliente(data),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: clientesKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: clientesKeys.all, refetchType: 'active' });
   },
 });
 
@@ -21,17 +21,17 @@ export const updateClienteMutation = mutationOptions({
     values: UpdateClientePayload;
   }) => updateCliente(id, values),
   onSuccess: (_data, variables) => {
-    getQueryClient().invalidateQueries({ queryKey: clientesKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: clientesKeys.all, refetchType: 'active' });
     // Invalida también el legajo específico y el estado de impuestos
-    getQueryClient().invalidateQueries({ queryKey: clientesKeys.legajo(variables.id), refetchType: 'all' });
-    getQueryClient().invalidateQueries({ queryKey: impuestosEstadoKeys.byCliente(variables.id), refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: clientesKeys.legajo(variables.id), refetchType: 'active' });
+    getQueryClient().invalidateQueries({ queryKey: impuestosEstadoKeys.byCliente(variables.id), refetchType: 'active' });
   },
 });
 
 export const deleteClienteMutation = mutationOptions({
   mutationFn: (id: number) => deleteCliente(id),
   onSuccess: () => {
-    getQueryClient().invalidateQueries({ queryKey: clientesKeys.all, refetchType: 'all' });
+    getQueryClient().invalidateQueries({ queryKey: clientesKeys.all, refetchType: 'active' });
   },
 });
 

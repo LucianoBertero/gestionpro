@@ -57,7 +57,10 @@ export function TareaFormSheet({
   const updateMutation = useMutation(updateTareaMutation);
   const { data: fetchedUsers = [] } = useQuery({
     ...activeUsersQueryOptions(),
-    enabled: !encargados?.length,
+    // Only fetch the active users list when the form is open AND the
+    // caller didn't pass a pre-fetched list. Saves a request when the
+    // sheet is rendered but closed.
+    enabled: open && !encargados?.length,
   });
 
   const [titulo, setTitulo] = useState(tarea?.titulo ?? '');
