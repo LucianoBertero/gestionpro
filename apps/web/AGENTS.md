@@ -256,3 +256,66 @@ bun run build
 5. No poner `@Expose()` en DTOs del backend → el frontend recibe campos vacíos
 6. Olvidar el prefijo `/v1/` en las llamadas a la API
 7. Formato de respuesta: el backend envía `{ data: T, meta?: PaginationMeta }` — siempre destructurar `{ data }`
+
+---
+
+## Estandarización de Código
+
+> **Reglas obligatorias** para todo código nuevo. Aplican también al refactor de código existente.
+
+### 1. i18n — Todo texto visible va a i18n
+
+- **Prohibido** hardcodear strings visibles al usuario en componentes.
+- Usar `const t = useT()` desde `@/lib/i18n/client` y llamar `t('key')`.
+- Las keys viven en `src/locales/{lang}/{namespace}.json`. **Default language: `es-AR`**.
+- **Convención de naming**: `<dominio>.<entidad>.<campo>` en snake/camel según contexto.
+  - `common.cancel`, `common.save`, `common.delete` para acciones genéricas
+  - `tarea.title`, `tarea.add`, `tarea.confirmDelete` para dominio específico
+  - `tarea.options.estado.PENDIENTE` para labels de enums
+  - `tarea.placeholderTitulo` para placeholders
+- **Toast messages** también van a i18n: `toast.success(t('tarea.created'))`.
+- Si la key no existe, `useT` recibe un fallback como segundo arg: `t('foo.bar', { defaultValue: 'Fallback' })`.
+
+### 2. Constants — Una sola fuente de verdad
+
+- **Valores de enums** (e.g. `PRIORIDAD_VALUES`, `ESTADO_TAREA_VALUES`) → `@/constants` (re-export de `@/constants/tareas.ts`).
+- **Labels de enums** (e.g. `PRIORIDAD_LABELS`, `ESTADO_TAREA_LABELS`) → mismo lugar, no hardcodear.
+- **Badge variants** → funciones `getXxxBadgeVariant(value)` desde `@/constants/badges.ts`.
+- **Mappings de color/clase Tailwind por dominio** → constantes en `@/constants/<dominio>.ts` (e.g. `PRIORIDAD_DOT_CLASS`).
+- **Prohibido** definir el mismo array/objeto dos veces en distintos archivos.
+
+### 3. Utils — Lógica reutilizable
+
+- **Formateo de fechas** → `src/lib/format.ts` (`formatDate`, `formatDateShort`, `formatDateTime`, `formatRelative`). **Nunca** `new Date().toLocaleDateString(...)` inline.
+- **Manejo de className** → `cn()` de `src/lib/utils.ts`.
+- **Formateo específico de dominio** (e.g. fecha de vencimiento con fallback "Sin fecha") → función en `src/lib/format.ts` con su key i18n correspondiente.
+- **Prohibido** duplicar helpers de formato en archivos de feature.
+
+### 4. Estructura de carpetas
+
+- `src/constants/` — valores, labels, badges, enums, mappings de UI
+- `src/lib/` — utilidades puras (format, utils, parsers, query-client, i18n)
+- `src/locales/` — archivos de traducción
+- `src/components/ui/` — shadcn (no modificar)
+- `src/features/<name>/` — cada feature con `api/`, `components/`, `schemas/`
+
+### 5. Toasts
+
+- Mensaje siempre desde i18n: `toast.success(t('tarea.created'))`.
+- Errores: `toast.error(t('error.generic'))` o específico si existe.
+- **Prohibido** strings hardcodeados en `toast.success('Tarea creada')`.
+
+### 6. Estilo de imports
+
+- Orden: React → third-party → `@/...` → relativos.
+- Tipos: `import type { ... }` separado de imports de valor cuando son puros.
+- Constantes: importar desde `@/constants` (barrel), nunca desde archivos internos.
+- Iconos: `import { Icons } from '@/components/icons'`, nunca directo de `@tabler/icons-react`.
+
+### 7. Componentes de feature
+
+- `'use client'` solo si usan hooks/browser APIs.
+- `useQuery` para fetch, `useMutation` para write — siempre con `mutationOptions`/`queryOptions` del archivo `api/`.
+- Invalidaciones de cache después de mutations: `getQueryClient().invalidateQueries({ queryKey: <key> })`.
+- Loading: `Skeleton` de `@/components/ui/skeleton`, no spinners inline.
+- Errores: dejar que el `ResponseExceptionFilter` del backend los muestre, no duplicar.

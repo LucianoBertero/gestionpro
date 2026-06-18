@@ -162,6 +162,21 @@
     "placeholderTiempoEstMin": "60",
     "placeholderDescripcion": "Detalles adicionales...",
     "placeholderNotas": "Notas internas...",
+    "placeholderAdd": "Añadir nueva tarea...",
+    "pending": "Pendientes",
+    "pendingEmpty": "No hay tareas pendientes para este cliente",
+    "pendingEmptyHint": "Agregá una tarea usando el campo de arriba",
+    "completed": "Completadas",
+    "sinFecha": "Sin fecha",
+    "markComplete": "Marcar como completada",
+    "created": "Tarea creada",
+    "updated": "Tarea actualizada",
+    "completed_toast": "Tarea completada",
+    "deleted": "Tarea eliminada",
+    "createError": "No se pudo crear la tarea",
+    "updateError": "No se pudo actualizar la tarea",
+    "completeError": "No se pudo completar la tarea",
+    "deleteError": "No se pudo eliminar la tarea",
     "options": {
       "tipo": {
         "DDJJ": "DDJJ",
@@ -191,7 +206,7 @@
         "CANCELADA": "Cancelada"
       }
     },
-    "confirmDelete": "¿Eliminar tarea {{title}}?"
+    "confirmDelete": "¿Eliminar esta tarea?"
   },
   "liquidacion": {
     "title": "Liquidaciones",

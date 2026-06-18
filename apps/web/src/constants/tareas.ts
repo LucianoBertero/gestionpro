@@ -14,6 +14,13 @@ export const PRIORIDAD_LABELS: Record<Prioridad, string> = {
   BAJA: 'Baja',
 };
 
+/** Tailwind class for the priority indicator dot. */
+export const PRIORIDAD_DOT_CLASS: Record<Prioridad, string> = {
+  ALTA: 'bg-destructive',
+  MEDIA: 'bg-amber-500',
+  BAJA: 'bg-muted-foreground/40',
+};
+
 // ─── EstadoTarea ─────────────────────────
 
 export const ESTADO_TAREA_VALUES = [

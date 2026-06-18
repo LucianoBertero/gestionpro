@@ -40,31 +40,18 @@ import {
 import { Label } from '@/components/ui/label';
 import { Icons } from '@/components/icons';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useT } from '@/lib/i18n/client';
 import {
   PRIORIDAD_VALUES,
   PRIORIDAD_LABELS,
-  ESTADO_TAREA_LABELS,
+  PRIORIDAD_DOT_CLASS,
   getEstadoBadgeVariant,
+  type Prioridad,
+  type EstadoTarea,
 } from '@/constants';
-import type { Prioridad, EstadoTarea } from '@/constants';
+import { formatDateShort } from '@/lib/format';
 import type { Tarea } from '@/features/tareas/api/types';
 import { toast } from 'sonner';
-
-// ─── Helpers ───────────────────────────────────
-
-function formatVence(iso: string | null): string {
-  if (!iso) return 'Sin fecha';
-  return new Date(iso).toLocaleDateString('es-AR', {
-    day: 'numeric',
-    month: 'short',
-  });
-}
-
-function prioridadDot(p: Prioridad): string {
-  if (p === 'ALTA') return 'bg-destructive';
-  if (p === 'MEDIA') return 'bg-amber-500';
-  return 'bg-muted-foreground/40';
-}
 
 // ─── Props ─────────────────────────────────────
 
@@ -83,6 +70,9 @@ function EditTareaSheet({
   onOpenChange: (open: boolean) => void;
   tarea: Tarea | null;
 }) {
+  const t = useT();
+  const tr = (key: string, fallback: string) => t(key, { defaultValue: fallback });
+
   const [titulo, setTitulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [prioridad, setPrioridad] = useState<Prioridad>('MEDIA');
@@ -103,10 +93,10 @@ function EditTareaSheet({
   const updateMutation = useMutation({
     ...updateTareaMutation,
     onSuccess: () => {
-      toast.success('Tarea actualizada');
+      toast.success(tr('tarea.updated', 'Tarea actualizada'));
       onOpenChange(false);
     },
-    onError: () => toast.error('No se pudo actualizar la tarea'),
+    onError: () => toast.error(tr('tarea.updateError', 'No se pudo actualizar la tarea')),
   });
 
   const handleSave = () => {
@@ -127,45 +117,50 @@ function EditTareaSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='w-[400px] overflow-y-auto sm:w-[480px]'>
         <SheetHeader>
-          <SheetTitle>Editar Tarea</SheetTitle>
-          <SheetDescription>Modificá los campos de la tarea.</SheetDescription>
+          <SheetTitle>{tr('tarea.edit', 'Editar Tarea')}</SheetTitle>
+          <SheetDescription>
+            {tr('tarea.formEditDescription', 'Modificá los campos de la tarea.')}
+          </SheetDescription>
         </SheetHeader>
         <div className='mt-6 space-y-4'>
           <div className='space-y-2'>
-            <Label>Título</Label>
+            <Label>{tr('tarea.titulo', 'Título')}</Label>
             <Input
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
-              placeholder='Título de la tarea'
+              placeholder={tr('tarea.placeholderTitulo', 'Título de la tarea')}
             />
           </div>
           <div className='grid grid-cols-2 gap-4'>
             <div className='space-y-2'>
-              <Label>Prioridad</Label>
+              <Label>{tr('tarea.prioridad', 'Prioridad')}</Label>
               <Select value={prioridad} onValueChange={(v) => setPrioridad(v as Prioridad)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {PRIORIDAD_VALUES.map((p) => (
-                    <SelectItem key={p} value={p}>{PRIORIDAD_LABELS[p]}</SelectItem>
+                    <SelectItem key={p} value={p}>
+                      {PRIORIDAD_LABELS[p]}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className='space-y-2'>
-              <Label>Estado</Label>
+              <Label>{tr('tarea.estado', 'Estado')}</Label>
               <Select value={estado} onValueChange={(v) => setEstado(v as EstadoTarea)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='PENDIENTE'>Pendiente</SelectItem>
-                  <SelectItem value='EN_PROCESO'>En progreso</SelectItem>
-                  <SelectItem value='COMPLETADA'>Completada</SelectItem>
-                  <SelectItem value='CANCELADA'>Cancelada</SelectItem>
+                  {(['PENDIENTE', 'EN_PROCESO', 'COMPLETADA', 'CANCELADA'] as EstadoTarea[]).map((e) => (
+                    <SelectItem key={e} value={e}>
+                      {tr(`tarea.options.estado.${e}`, e)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className='space-y-2'>
-            <Label>Vence</Label>
+            <Label>{tr('tarea.vence', 'Vence')}</Label>
             <Input
               type='date'
               value={vence}
@@ -173,26 +168,23 @@ function EditTareaSheet({
             />
           </div>
           <div className='space-y-2'>
-            <Label>Descripción</Label>
+            <Label>{tr('tarea.descripcion', 'Descripción')}</Label>
             <Textarea
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              placeholder='Detalles adicionales...'
+              placeholder={tr('tarea.placeholderDescripcion', 'Detalles adicionales...')}
               rows={3}
             />
           </div>
           <div className='flex justify-end gap-3 pt-4'>
             <Button variant='outline' onClick={() => onOpenChange(false)}>
-              Cancelar
+              {tr('common.cancel', 'Cancelar')}
             </Button>
-            <Button
-              onClick={handleSave}
-              disabled={updateMutation.isPending}
-            >
+            <Button onClick={handleSave} disabled={updateMutation.isPending}>
               {updateMutation.isPending ? (
                 <Icons.spinner className='h-4 w-4 animate-spin' />
               ) : null}
-              Guardar
+              {tr('common.save', 'Guardar')}
             </Button>
           </div>
         </div>
@@ -204,6 +196,8 @@ function EditTareaSheet({
 // ─── Main Component ─────────────────────────────
 
 export function TareasTab({ clienteId }: TareasTabProps) {
+  const t = useT();
+  const tr = (key: string, fallback: string) => t(key, { defaultValue: fallback });
   const user = useAuthStore((s) => s.user);
   const { data: tareasData, isLoading } = useQuery(
     tareasQueryOptions({ clienteId }),
@@ -218,29 +212,27 @@ export function TareasTab({ clienteId }: TareasTabProps) {
     onSuccess: () => {
       setTitulo('');
       getQueryClient().invalidateQueries({ queryKey: tareasKeys.list({ clienteId }) });
-      toast.success('Tarea creada');
+      toast.success(tr('tarea.created', 'Tarea creada'));
     },
-    onError: () => {
-      toast.error('No se pudo crear la tarea');
-    },
+    onError: () => toast.error(tr('tarea.createError', 'No se pudo crear la tarea')),
   });
 
   const completeMutation = useMutation({
     ...completarTareaMutation,
     onSuccess: () => {
       getQueryClient().invalidateQueries({ queryKey: tareasKeys.list({ clienteId }) });
-      toast.success('Tarea completada');
+      toast.success(tr('tarea.completed_toast', 'Tarea completada'));
     },
-    onError: () => toast.error('No se pudo completar la tarea'),
+    onError: () => toast.error(tr('tarea.completeError', 'No se pudo completar la tarea')),
   });
 
   const deleteMutation = useMutation({
     ...deleteTareaMutation,
     onSuccess: () => {
       getQueryClient().invalidateQueries({ queryKey: tareasKeys.list({ clienteId }) });
-      toast.success('Tarea eliminada');
+      toast.success(tr('tarea.deleted', 'Tarea eliminada'));
     },
-    onError: () => toast.error('No se pudo eliminar la tarea'),
+    onError: () => toast.error(tr('tarea.deleteError', 'No se pudo eliminar la tarea')),
   });
 
   const handleSubmit = () => {
@@ -265,7 +257,7 @@ export function TareasTab({ clienteId }: TareasTabProps) {
 
   const handleComplete = (id: number) => completeMutation.mutate(id);
   const handleDelete = (id: number) => {
-    if (confirm('¿Eliminar esta tarea?')) {
+    if (confirm(tr('tarea.confirmDelete', '¿Eliminar esta tarea?'))) {
       deleteMutation.mutate(id);
     }
   };
@@ -282,7 +274,7 @@ export function TareasTab({ clienteId }: TareasTabProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className='text-lg'>Tareas</CardTitle>
+          <CardTitle className='text-lg'>{tr('tarea.title', 'Tareas')}</CardTitle>
         </CardHeader>
         <CardContent className='space-y-4'>
           <Skeleton className='h-10 w-full' />
@@ -296,7 +288,7 @@ export function TareasTab({ clienteId }: TareasTabProps) {
     <div className='space-y-4'>
       <div className='flex items-center justify-between'>
         <h3 className='text-lg font-semibold'>
-          Tareas ({pendientes.length})
+          {tr('tarea.title', 'Tareas')} ({pendientes.length})
         </h3>
       </div>
 
@@ -308,7 +300,7 @@ export function TareasTab({ clienteId }: TareasTabProps) {
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder='Añadir nueva tarea...'
+              placeholder={tr('tarea.placeholderAdd', 'Añadir nueva tarea...')}
               className='flex-1'
               disabled={createMutation.isPending}
             />
@@ -336,7 +328,7 @@ export function TareasTab({ clienteId }: TareasTabProps) {
               {createMutation.isPending ? (
                 <Icons.spinner className='h-4 w-4 animate-spin' />
               ) : (
-                'Agregar'
+                tr('common.add', 'Agregar')
               )}
             </Button>
           </div>
@@ -350,10 +342,10 @@ export function TareasTab({ clienteId }: TareasTabProps) {
             <Icons.tasks className='text-muted-foreground h-12 w-12' />
             <div>
               <p className='text-lg font-semibold text-muted-foreground'>
-                No hay tareas pendientes para este cliente
+                {tr('tarea.pendingEmpty', 'No hay tareas pendientes para este cliente')}
               </p>
               <p className='text-muted-foreground text-sm'>
-                Agregá una tarea usando el campo de arriba
+                {tr('tarea.pendingEmptyHint', 'Agregá una tarea usando el campo de arriba')}
               </p>
             </div>
           </CardContent>
@@ -372,14 +364,14 @@ export function TareasTab({ clienteId }: TareasTabProps) {
                     onClick={() => handleComplete(tarea.id)}
                     disabled={completeMutation.isPending}
                     className='hover:bg-muted shrink-0 rounded-full p-0.5 transition-colors'
-                    title='Marcar como completada'
+                    title={tr('tarea.markComplete', 'Marcar como completada')}
                   >
                     <Icons.circle className='text-muted-foreground/50 h-5 w-5 hover:text-green-500' />
                   </button>
 
                   {/* Priority dot */}
                   <span
-                    className={`h-2 w-2 shrink-0 rounded-full ${prioridadDot(tarea.prioridad)}`}
+                    className={`h-2 w-2 shrink-0 rounded-full ${PRIORIDAD_DOT_CLASS[tarea.prioridad]}`}
                   />
 
                   {/* Title + metadata */}
@@ -391,14 +383,11 @@ export function TareasTab({ clienteId }: TareasTabProps) {
                       {tarea.titulo}
                     </button>
                     <div className='text-muted-foreground flex items-center gap-2 text-xs'>
-                      <span>{formatVence(tarea.vence)}</span>
-                      <span>&middot;</span>
-                      <Badge
-                        variant={getEstadoBadgeVariant(tarea.estado)}
-                        className='px-1 py-0 text-[10px] leading-none'
-                      >
-                        {ESTADO_TAREA_LABELS[tarea.estado]}
-                      </Badge>
+                      <span>
+                        {tarea.vence
+                          ? formatDateShort(tarea.vence)
+                          : tr('tarea.sinFecha', 'Sin fecha')}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -421,11 +410,11 @@ export function TareasTab({ clienteId }: TareasTabProps) {
                     <DropdownMenuContent align='end' className='w-40'>
                       <DropdownMenuItem onClick={() => setEditingTarea(tarea)}>
                         <Icons.edit className='mr-2 h-3.5 w-3.5' />
-                        Editar
+                        {tr('common.edit', 'Editar')}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleComplete(tarea.id)}>
                         <Icons.check className='mr-2 h-3.5 w-3.5' />
-                        Completar
+                        {tr('tarea.options.estado.COMPLETADA', 'Completada')}
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -433,7 +422,7 @@ export function TareasTab({ clienteId }: TareasTabProps) {
                         className='text-destructive'
                       >
                         <Icons.trash className='mr-2 h-3.5 w-3.5' />
-                        Eliminar
+                        {tr('common.delete', 'Eliminar')}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -448,7 +437,7 @@ export function TareasTab({ clienteId }: TareasTabProps) {
       {completadas.length > 0 && (
         <details className='group'>
           <summary className='text-muted-foreground hover:text-foreground cursor-pointer text-sm font-medium transition-colors'>
-            Completadas ({completadas.length})
+            {tr('tarea.completed', 'Completadas')} ({completadas.length})
           </summary>
           <Card className='mt-2'>
             <CardContent className='divide-y pt-2'>
@@ -464,7 +453,7 @@ export function TareasTab({ clienteId }: TareasTabProps) {
                     </span>
                   </div>
                   <span className='text-muted-foreground shrink-0 text-xs'>
-                    {formatVence(tarea.vence)}
+                    {tarea.vence ? formatDateShort(tarea.vence) : tr('tarea.sinFecha', 'Sin fecha')}
                   </span>
                 </div>
               ))}

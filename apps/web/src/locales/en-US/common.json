@@ -162,6 +162,21 @@
     "placeholderTiempoEstMin": "60",
     "placeholderDescripcion": "Additional details...",
     "placeholderNotas": "Internal notes...",
+    "placeholderAdd": "Add new task...",
+    "pending": "Pending",
+    "pendingEmpty": "No pending tasks for this client",
+    "pendingEmptyHint": "Add a task using the field above",
+    "completed": "Completed",
+    "sinFecha": "No due date",
+    "markComplete": "Mark as completed",
+    "created": "Task created",
+    "updated": "Task updated",
+    "completed_toast": "Task completed",
+    "deleted": "Task deleted",
+    "createError": "Could not create the task",
+    "updateError": "Could not update the task",
+    "completeError": "Could not complete the task",
+    "deleteError": "Could not delete the task",
     "options": {
       "tipo": {
         "DDJJ": "Return",
@@ -191,7 +206,7 @@
         "CANCELADA": "Canceled"
       }
     },
-    "confirmDelete": "Delete task {{title}}?"
+    "confirmDelete": "Delete this task?"
   },
   "liquidacion": {
     "title": "Settlements",
