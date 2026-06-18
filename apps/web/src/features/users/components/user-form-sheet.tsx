@@ -19,6 +19,7 @@ import { Icons } from '@/components/icons';
 import { COLABORADOR } from '@/constants';
 import { useMutation } from '@tanstack/react-query';
 import { getQueryClient } from '@/lib/query-client';
+import { useT } from '@/lib/i18n/client';
 import { createUserMutation, updateUserMutation } from '../api/mutations';
 import { userKeys } from '../api/queries';
 import type { User } from '../api/types';
@@ -26,9 +27,13 @@ import { toast } from 'sonner';
 import { createUserSchema, updateUserSchema, type UserFormValues } from '../schemas/user';
 import { ROLE_OPTIONS } from './users-table/options';
 
+type Tr = (key: string, fallback: string) => string;
+
 interface Props { user?: User; open: boolean; onOpenChange: (o: boolean) => void; }
 
 export function UserFormSheet({ user, open, onOpenChange }: Props) {
+  const t = useT();
+  const tr: Tr = (key, fallback) => t(key, { defaultValue: fallback });
   const isEdit = !!user;
   const schema = isEdit ? updateUserSchema : createUserSchema;
 
@@ -61,20 +66,20 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
     ...createUserMutation,
     onSuccess: async () => {
       await getQueryClient().invalidateQueries({ queryKey: userKeys.all });
-      toast.success('Usuario creado');
+      toast.success(tr('user.created', 'Usuario creado'));
       onOpenChange(false);
       form.reset();
     },
-    onError: () => toast.error('Error al crear'),
+    onError: () => toast.error(tr('user.createError', 'Error al crear')),
   });
   const updateMut = useMutation({
     ...updateUserMutation,
     onSuccess: async () => {
       await getQueryClient().invalidateQueries({ queryKey: userKeys.all });
-      toast.success('Usuario actualizado');
+      toast.success(tr('user.updated', 'Usuario actualizado'));
       onOpenChange(false);
     },
-    onError: () => toast.error('Error al actualizar'),
+    onError: () => toast.error(tr('user.updateError', 'Error al actualizar')),
   });
 
   const isPending = createMut.isPending || updateMut.isPending;
@@ -92,9 +97,13 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='flex flex-col'>
         <SheetHeader>
-          <SheetTitle>{isEdit ? 'Editar Usuario' : 'Nuevo Usuario'}</SheetTitle>
+          <SheetTitle>
+            {isEdit ? tr('user.editUser', 'Editar Usuario') : tr('user.addUser', 'Agregar Usuario')}
+          </SheetTitle>
           <SheetDescription>
-            {isEdit ? 'Modificá los datos del usuario.' : 'Completá los datos para crear un nuevo usuario.'}
+            {isEdit
+              ? tr('user.formEditDescription', 'Modificá los datos del usuario.')
+              : tr('user.formAddDescription', 'Completá los datos para crear un nuevo usuario.')}
           </SheetDescription>
         </SheetHeader>
 
@@ -104,15 +113,19 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
               <div className='grid grid-cols-2 gap-4'>
                 <FormField control={form.control} name='nombre' render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre *</FormLabel>
-                    <FormControl><Input {...field} placeholder='Ernesto' /></FormControl>
+                    <FormLabel>{tr('user.name', 'Nombre')} *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder={tr('user.placeholder.nombre', 'Ernesto')} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name='emoji' render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Emoji</FormLabel>
-                    <FormControl><Input {...field} placeholder='👤' /></FormControl>
+                    <FormLabel>{tr('user.emoji', 'Emoji')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder={tr('user.placeholder.emoji', '👤')} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
@@ -120,26 +133,36 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
 
               <FormField control={form.control} name='email' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email *</FormLabel>
-                  <FormControl><Input {...field} type='email' placeholder='ernesto@estudiobb.com' /></FormControl>
+                  <FormLabel>{tr('user.email', 'Email')} *</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type='email'
+                      placeholder={tr('user.placeholder.email', 'ernesto@estudiobb.com')}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
 
               <FormField control={form.control} name='telefono' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Teléfono</FormLabel>
-                  <FormControl><Input {...field} placeholder='+54 11 5555-1234' /></FormControl>
+                  <FormLabel>{tr('user.phone', 'Teléfono')}</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder={tr('user.placeholder.telefono', '+54 11 5555-1234')} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
 
               <FormField control={form.control} name='role' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Rol *</FormLabel>
+                  <FormLabel>{tr('user.role', 'Rol')} *</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger><SelectValue placeholder='Seleccionar rol' /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder={tr('user.placeholder.role', 'Seleccionar rol')} />
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {ROLE_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
@@ -152,8 +175,14 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
               {!isEdit && (
                 <FormField control={form.control} name='password' render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contraseña *</FormLabel>
-                    <FormControl><Input {...field} type='password' placeholder='Mínimo 6 caracteres' /></FormControl>
+                    <FormLabel>{tr('user.password', 'Contraseña')} *</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        type='password'
+                        placeholder={tr('user.placeholder.password', 'Mínimo 6 caracteres')}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
@@ -163,9 +192,12 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
         </div>
 
         <SheetFooter>
-          <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>
+            {tr('common.cancel', 'Cancelar')}
+          </Button>
           <Button onClick={form.handleSubmit(onSubmit)} isLoading={isPending}>
-            <Icons.check className='mr-1 h-4 w-4' /> {isEdit ? 'Guardar' : 'Crear Usuario'}
+            <Icons.check className='mr-1 h-4 w-4' />
+            {isEdit ? tr('common.save', 'Guardar') : tr('user.create', 'Crear Usuario')}
           </Button>
         </SheetFooter>
       </SheetContent>
@@ -174,10 +206,15 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
 }
 
 export function UserFormSheetTrigger() {
+  const t = useT();
+  const tr: Tr = (key, fallback) => t(key, { defaultValue: fallback });
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Button onClick={() => setOpen(true)}><Icons.add className='mr-2 h-4 w-4' /> Nuevo Usuario</Button>
+      <Button onClick={() => setOpen(true)}>
+        <Icons.add className='mr-2 h-4 w-4' />
+        {tr('user.newUser', 'Nuevo Usuario')}
+      </Button>
       <UserFormSheet open={open} onOpenChange={setOpen} />
     </>
   );

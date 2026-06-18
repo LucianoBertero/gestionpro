@@ -1,4 +1,4 @@
-// @ts-nocheck — pre-existing TanStack Form type inference issue
+// @ts-nocheck — pre-existing TanStack Form / zodResolver type inference issue
 'use client';
 
 import { useState } from 'react';
@@ -18,25 +18,33 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Icons } from '@/components/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { TIPO_IMPUESTO_VALUES, TIPO_IMPUESTO_LABELS } from '@/constants';
 import { createClienteMutation, updateClienteMutation } from '../api/mutations';
 import { activeUsersQueryOptions } from '../api/queries';
 import type { Cliente } from '../api/types';
 import { toast } from 'sonner';
+import { useT } from '@/lib/i18n/client';
 import { clienteSchema, type ClienteFormValues } from '../schemas/cliente';
 
-const TERMINO_OPTIONS = [
-  { value: '0', label: '0 meses' },
-  { value: '3', label: '3 meses' },
-  { value: '6', label: '6 meses' },
-];
+type Tr = (key: string, fallback: string) => string;
 
 interface Props { cliente?: Cliente; open: boolean; onOpenChange: (o: boolean) => void; }
 
 export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
+  const t = useT();
+  const tr: Tr = (key, fallback) => t(key, { defaultValue: fallback });
   const isEdit = !!cliente;
   const { data: users = [] } = useQuery(activeUsersQueryOptions());
+
+  const terminoOptions = [
+    { value: '0', label: tr('cliente.terminoOptions.0', '0 meses') },
+    { value: '3', label: tr('cliente.terminoOptions.3', '3 meses') },
+    { value: '6', label: tr('cliente.terminoOptions.6', '6 meses') },
+  ];
 
   const form = useForm<ClienteFormValues>({
     resolver: zodResolver(clienteSchema),
@@ -58,13 +66,20 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
 
   const createMut = useMutation({
     ...createClienteMutation,
-    onSuccess: () => { toast.success('Cliente creado'); onOpenChange(false); form.reset(); },
-    onError: () => toast.error('Error al crear'),
+    onSuccess: () => {
+      toast.success(tr('cliente.created', 'Cliente creado'));
+      onOpenChange(false);
+      form.reset();
+    },
+    onError: () => toast.error(tr('cliente.createError', 'Error al crear')),
   });
   const updateMut = useMutation({
     ...updateClienteMutation,
-    onSuccess: () => { toast.success('Cliente actualizado'); onOpenChange(false); },
-    onError: () => toast.error('Error al actualizar'),
+    onSuccess: () => {
+      toast.success(tr('cliente.updated', 'Cliente actualizado'));
+      onOpenChange(false);
+    },
+    onError: () => toast.error(tr('cliente.updateError', 'Error al actualizar')),
   });
 
   const isPending = createMut.isPending || updateMut.isPending;
@@ -94,9 +109,13 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className='flex flex-col sm:max-w-lg'>
         <SheetHeader>
-          <SheetTitle>{isEdit ? 'Editar Cliente' : 'Nuevo Cliente'}</SheetTitle>
+          <SheetTitle>
+            {isEdit ? tr('cliente.edit', 'Editar Cliente') : tr('cliente.add', 'Agregar Cliente')}
+          </SheetTitle>
           <SheetDescription>
-            {isEdit ? 'Modificá los datos del cliente.' : 'Completá los datos para crear un nuevo cliente.'}
+            {isEdit
+              ? tr('cliente.formEditDescription', 'Modificá los datos del cliente.')
+              : tr('cliente.formAddDescription', 'Completá los datos para crear un nuevo cliente.')}
           </SheetDescription>
         </SheetHeader>
 
@@ -105,7 +124,7 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
             <Alert className='mb-4'>
               <Icons.info className='h-4 w-4' />
               <AlertDescription>
-                Los impuestos se gestionan desde el legajo del cliente una vez creado.
+                {tr('cliente.impuestosHint', 'Los impuestos se gestionan desde el legajo del cliente una vez creado.')}
               </AlertDescription>
             </Alert>
           )}
@@ -114,22 +133,22 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
               <div className='grid grid-cols-2 gap-4'>
                 <FormField control={form.control} name='cuit' render={({ field }) => (
                   <FormItem>
-                    <FormLabel>CUIT *</FormLabel>
+                    <FormLabel>{tr('cliente.field.cuit', 'CUIT')} *</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder='30-12345678-9' />
+                      <Input {...field} placeholder={tr('cliente.placeholder.cuit', '30-12345678-9')} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name='termino' render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Término</FormLabel>
+                    <FormLabel>{tr('cliente.field.termino', 'Término')}</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder='Seleccionar...' /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={tr('cliente.placeholder.termino', 'Seleccionar...')} /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {TERMINO_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                        {terminoOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -139,24 +158,30 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
 
               <FormField control={form.control} name='denominacion' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Denominación *</FormLabel>
-                  <FormControl><Input {...field} placeholder='Razón Social o Nombre' /></FormControl>
+                  <FormLabel>{tr('cliente.field.denominacion', 'Denominación')} *</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder={tr('cliente.placeholder.denominacion', 'Razón Social o Nombre')} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
 
               <FormField control={form.control} name='condicionIva' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Condición IVA *</FormLabel>
-                  <FormControl><Input {...field} placeholder='Responsable Inscripto' /></FormControl>
+                  <FormLabel>{tr('cliente.field.condicionIva', 'Condición IVA')} *</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder={tr('cliente.placeholder.condicionIva', 'Responsable Inscripto')} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
 
               <FormField control={form.control} name='domicilio' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Domicilio</FormLabel>
-                  <FormControl><Input {...field} placeholder='Dirección fiscal' /></FormControl>
+                  <FormLabel>{tr('cliente.field.domicilio', 'Domicilio')}</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder={tr('cliente.placeholder.domicilio', 'Dirección fiscal')} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
@@ -164,10 +189,12 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
               <div className='grid grid-cols-2 gap-4'>
                 <FormField control={form.control} name='encargadoId' render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Encargado *</FormLabel>
+                    <FormLabel>{tr('cliente.field.encargado', 'Encargado')} *</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder='Seleccionar...' /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder={tr('cliente.placeholder.selectEncargado', 'Seleccionar...')} />
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {encargadoOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
@@ -178,16 +205,18 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
                 )} />
                 <FormField control={form.control} name='supervisorId' render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Supervisor</FormLabel>
-                    <Select 
-                      value={field.value || '__none__'} 
+                    <FormLabel>{tr('cliente.field.supervisor', 'Supervisor')}</FormLabel>
+                    <Select
+                      value={field.value || '__none__'}
                       onValueChange={(v) => field.onChange(v === '__none__' ? '' : v)}
                     >
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder='Seleccionar...' /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder={tr('cliente.placeholder.selectSupervisor', 'Seleccionar...')} />
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='__none__'>Sin supervisor</SelectItem>
+                        <SelectItem value='__none__'>{tr('cliente.placeholder.sinSupervisor', 'Sin supervisor')}</SelectItem>
                         {encargadoOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
                       </SelectContent>
                     </Select>
@@ -199,15 +228,19 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
               <div className='grid grid-cols-2 gap-4'>
                 <FormField control={form.control} name='telefono' render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Teléfono</FormLabel>
-                    <FormControl><Input {...field} placeholder='(011) 4567-8900' /></FormControl>
+                    <FormLabel>{tr('cliente.field.telefono', 'Teléfono')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder={tr('cliente.placeholder.telefono', '(011) 4567-8900')} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name='email' render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl><Input {...field} type='email' placeholder='cliente@email.com' /></FormControl>
+                    <FormLabel>{tr('cliente.field.email', 'Email')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} type='email' placeholder={tr('cliente.placeholder.email', 'cliente@email.com')} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
@@ -215,15 +248,17 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
 
               <FormField control={form.control} name='whatsapp' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>WhatsApp</FormLabel>
-                  <FormControl><Input {...field} placeholder='5491123456789' /></FormControl>
+                  <FormLabel>{tr('cliente.field.whatsapp', 'WhatsApp')}</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder={tr('cliente.placeholder.whatsapp', '5491123456789')} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
 
               <FormField control={form.control} name='tipoImpuesto' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Impuestos</FormLabel>
+                  <FormLabel>{tr('cliente.field.impuestos', 'Impuestos')}</FormLabel>
                   <div className='grid grid-cols-2 gap-2'>
                     {TIPO_IMPUESTO_VALUES.map(tipo => {
                       const checked = (field.value ?? []).includes(tipo);
@@ -250,13 +285,13 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
 
               <FormField control={form.control} name='actividades' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Actividades (AFIP)</FormLabel>
+                  <FormLabel>{tr('cliente.field.actividadesAfip', 'Actividades (AFIP)')}</FormLabel>
                   <FormControl>
-                    <Textarea 
-                      {...field} 
+                    <Textarea
+                      {...field}
                       value={(field.value ?? []).join(', ')}
                       onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
-                      placeholder='Venta al por mayor, Servicios de consultoría...'
+                      placeholder={tr('cliente.placeholder.actividades', 'Venta al por mayor, Servicios de consultoría...')}
                       rows={2}
                     />
                   </FormControl>
@@ -266,9 +301,9 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
 
               <FormField control={form.control} name='honorarioMensual' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Honorario Mensual</FormLabel>
+                  <FormLabel>{tr('cliente.field.honorarioMensual', 'Honorario Mensual')}</FormLabel>
                   <FormControl>
-                    <Input {...field} type='number' step='0.01' placeholder='50000.00' />
+                    <Input {...field} type='number' step='0.01' placeholder={tr('cliente.placeholder.honorarioMensual', '50000.00')} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -276,8 +311,10 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
 
               <FormField control={form.control} name='notas' render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notas</FormLabel>
-                  <FormControl><Input {...field} placeholder='Notas internas...' /></FormControl>
+                  <FormLabel>{tr('cliente.field.notas', 'Notas')}</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder={tr('cliente.placeholder.notas', 'Notas internas...')} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )} />
@@ -286,9 +323,12 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
         </div>
 
         <SheetFooter>
-          <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button type='button' variant='outline' onClick={() => onOpenChange(false)}>
+            {tr('common.cancel', 'Cancelar')}
+          </Button>
           <Button onClick={form.handleSubmit(onSubmit)} isLoading={isPending}>
-            <Icons.check className='mr-1 h-4 w-4' /> {isEdit ? 'Guardar' : 'Crear Cliente'}
+            <Icons.check className='mr-1 h-4 w-4' />
+            {isEdit ? tr('common.save', 'Guardar') : tr('cliente.create', 'Crear Cliente')}
           </Button>
         </SheetFooter>
       </SheetContent>
@@ -297,10 +337,15 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
 }
 
 export function ClienteFormSheetTrigger() {
+  const t = useT();
+  const tr: Tr = (key, fallback) => t(key, { defaultValue: fallback });
   const [open, setOpen] = useState(false);
   return (
     <>
-      <Button onClick={() => setOpen(true)}><Icons.add className='mr-2 h-4 w-4' /> Nuevo Cliente</Button>
+      <Button onClick={() => setOpen(true)}>
+        <Icons.add className='mr-2 h-4 w-4' />
+        {tr('cliente.newButton', 'Nuevo Cliente')}
+      </Button>
       <ClienteFormSheet open={open} onOpenChange={setOpen} />
     </>
   );
