@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AgendaRepository } from './repositories/agenda.repository';
 import { ArchivoRepository } from './repositories/archivo.repository';
+import { ClaveClienteRepository } from './repositories/clave-cliente.repository';
 import { ClaveEstudioRepository } from './repositories/clave-estudio.repository';
 import { CalendarioVencimientoRepository } from './repositories/calendario-vencimiento.repository';
 import { ClienteRepository } from './repositories/cliente.repository';
@@ -26,6 +27,7 @@ import { DatabaseService } from './services/database.service';
         TareaRepository,
         LiquidacionRepository,
         CalendarioVencimientoRepository,
+        ClaveClienteRepository,
         ClaveEstudioRepository,
         AgendaRepository,
         NotificacionRepository,
@@ -42,6 +44,7 @@ import { DatabaseService } from './services/database.service';
         TareaRepository,
         LiquidacionRepository,
         CalendarioVencimientoRepository,
+        ClaveClienteRepository,
         ClaveEstudioRepository,
         AgendaRepository,
         NotificacionRepository,

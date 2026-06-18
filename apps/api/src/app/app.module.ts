@@ -12,6 +12,7 @@ import { DashboardModule } from 'src/modules/dashboard/dashboard.module';
 import { EmailTemplatesModule } from 'src/modules/email-templates/email-templates.module';
 import { ExcelModule } from 'src/modules/excel/excel.module';
 import { FinancieroModule } from 'src/modules/financiero/financiero.module';
+import { ImpuestosEstadoModule } from 'src/modules/impuestos-estado/impuestos-estado.module';
 import { LiquidacionesModule } from 'src/modules/liquidaciones/liquidaciones.module';
 import { NotasModule } from 'src/modules/notas/notas.module';
 import { NotificacionesModule } from 'src/modules/notificaciones/notificaciones.module';
@@ -50,6 +51,7 @@ import { HealthController } from './controllers/health.controller';
         DashboardModule,
         FinancieroModule,
         ExcelModule,
+        ImpuestosEstadoModule,
     ],
     controllers: [HealthController],
 })

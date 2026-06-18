@@ -19,7 +19,7 @@ export class CalendarioVencimientoRepository {
 
     findVencimiento(impuesto: TipoImpuesto, anio: number, mes: number, digitoCuit: number) {
         return this.db.calendarioVencimiento.findUnique({
-            where: { impuesto_anio_mes_digitoCuit: { impuesto, anio, mes, digitoCuit } },
+            where: { uq_calendario_vencimiento: { impuesto, anio, mes, digitoCuit } },
         });
     }
 
@@ -32,7 +32,7 @@ export class CalendarioVencimientoRepository {
     }) {
         return this.db.calendarioVencimiento.upsert({
             where: {
-                impuesto_anio_mes_digitoCuit: {
+                uq_calendario_vencimiento: {
                     impuesto: data.impuesto,
                     anio: data.anio,
                     mes: data.mes,
