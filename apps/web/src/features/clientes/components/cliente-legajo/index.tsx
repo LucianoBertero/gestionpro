@@ -6,6 +6,7 @@ import { ResumenTab } from './resumen-tab';
 import { ImpuestosTab } from './impuestos-tab';
 import { PlaceholderTab } from './placeholder-tab';
 import { NotasTab } from './notas-tab';
+import { ClavesClienteTab } from './claves-cliente-tab';
 import type { ClienteLegajo } from '../../api/types';
 
 interface ClienteLegajoTabsProps {
@@ -15,7 +16,7 @@ interface ClienteLegajoTabsProps {
 
 export function ClienteLegajoTabs({ legajo, onEdit }: ClienteLegajoTabsProps) {
   return (
-    <Tabs defaultValue='resumen' className='w-full'>
+    <Tabs defaultValue='resumen' className='flex-1 w-full'>
       <TabsList className='w-full justify-start overflow-x-auto'>
         <TabsTrigger value='resumen'>
           <Icons.info className='mr-1 h-4 w-4' /> Resumen
@@ -38,6 +39,9 @@ export function ClienteLegajoTabs({ legajo, onEdit }: ClienteLegajoTabsProps) {
         <TabsTrigger value='notas'>
           <Icons.post className='mr-1 h-4 w-4' /> Notas
         </TabsTrigger>
+        <TabsTrigger value='claves'>
+          <Icons.lock className='mr-1 h-4 w-4' /> Claves
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value='resumen' className='mt-4'>
@@ -45,7 +49,7 @@ export function ClienteLegajoTabs({ legajo, onEdit }: ClienteLegajoTabsProps) {
       </TabsContent>
 
       <TabsContent value='impuestos' className='mt-4'>
-        <ImpuestosTab impuestos={legajo.impuestos} />
+        <ImpuestosTab clienteId={legajo.id} />
       </TabsContent>
 
       <TabsContent value='tareas' className='mt-4'>
@@ -66,6 +70,10 @@ export function ClienteLegajoTabs({ legajo, onEdit }: ClienteLegajoTabsProps) {
 
       <TabsContent value='notas' className='mt-4'>
         <NotasTab clienteId={legajo.id} />
+      </TabsContent>
+
+      <TabsContent value='claves' className='mt-4 flex flex-col'>
+        <ClavesClienteTab clienteId={legajo.id} />
       </TabsContent>
     </Tabs>
   );
