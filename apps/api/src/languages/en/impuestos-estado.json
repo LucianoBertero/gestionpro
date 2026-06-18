@@ -1,0 +1,11 @@
+{
+    "success": {
+        "list": "Impuestos con estado retrieved",
+        "markedPresented": "Impuesto marked as presented",
+        "historial": "Historial retrieved"
+    },
+    "error": {
+        "clienteImpuestoNotFound": "Cliente impuesto not found",
+        "unexpected": "Unexpected error computing impuesto estado"
+    }
+}

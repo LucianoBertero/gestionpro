@@ -95,40 +95,43 @@ export class ClienteRepository {
         return this.db.cliente.create({ data: data as any });
     }
 
-    async createWithImpuestos(
-        data: CreateClienteInput,
-        impuestos: TipoImpuesto[]
-    ): Promise<ClienteEntity> {
-        return this.db.$transaction(async (tx) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const cliente = await tx.cliente.create({ data: data as any });
+    async create(data: CreateClienteInput): Promise<ClienteEntity> {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return this.db.cliente.create({ data: data as any });
+    }
 
-            if (impuestos.length > 0) {
-                await tx.clienteImpuesto.createMany({
-                    data: impuestos.map((tipo) => ({
-                        clienteId: cliente.id,
-                        tipo,
-                    })),
-                });
-            }
-
-            return cliente;
+    /**
+     * Upsert de un impuesto del cliente: si existe lo reactiva, si no lo crea activo.
+     * La unique constraint (clienteId, tipo) hace que el upsert funcione atómicamente.
+     */
+    async upsertImpuesto(
+        clienteId: number,
+        tipo: TipoImpuesto,
+        activo: boolean,
+    ): Promise<void> {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await this.db.clienteImpuesto.upsert({
+            where: { uq_cliente_impuesto: { clienteId, tipo } },
+            create: { clienteId, tipo, activo },
+            update: { activo },
         });
     }
 
-    async replaceImpuestos(
-        clienteId: number,
-        tipos: TipoImpuesto[]
-    ): Promise<void> {
-        await this.db.$transaction(async (tx) => {
-            // Delete all existing impuestos for this cliente
-            await tx.clienteImpuesto.deleteMany({ where: { clienteId } });
-            // Create new ones
-            if (tipos.length > 0) {
-                await tx.clienteImpuesto.createMany({
-                    data: tipos.map((tipo) => ({ clienteId, tipo })),
-                });
-            }
+    /**
+     * Soft-delete: marca activo=false. NO borra el registro para preservar
+     * la integridad referencial con Liquidaciones.historial.
+     */
+    async softDeleteImpuesto(clienteImpuestoId: number): Promise<void> {
+        await this.db.clienteImpuesto.update({
+            where: { id: clienteImpuestoId },
+            data: { activo: false },
+        });
+    }
+
+    async toggleImpuesto(clienteImpuestoId: number, activo: boolean): Promise<void> {
+        await this.db.clienteImpuesto.update({
+            where: { id: clienteImpuestoId },
+            data: { activo },
         });
     }
 
