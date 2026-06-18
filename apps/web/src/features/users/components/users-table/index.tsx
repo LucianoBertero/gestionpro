@@ -3,7 +3,7 @@
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { getSortingStateParser } from '@/lib/parsers';
 import { usersQueryOptions } from '../../api/queries';
@@ -28,12 +28,15 @@ export function UsersTable() {
     ...(params.sort.length > 0 && { sort: JSON.stringify(params.sort) })
   };
 
-  const { data } = useSuspenseQuery(usersQueryOptions(filters));
+  const { data, isLoading } = useQuery({
+    ...usersQueryOptions(filters),
+    placeholderData: (prev) => prev,
+  });
 
-  const pageCount = Math.ceil(data.total / params.perPage);
+  const pageCount = Math.max(1, Math.ceil((data?.total ?? 0) / params.perPage));
 
   const { table } = useDataTable({
-    data: data.data,
+    data: data?.data ?? [],
     columns,
     pageCount,
     shallow: true,
@@ -42,6 +45,10 @@ export function UsersTable() {
       columnPinning: { right: ['actions'] }
     }
   });
+
+  if (isLoading) {
+    return <UsersTableSkeleton />;
+  }
 
   return (
     <DataTable table={table}>

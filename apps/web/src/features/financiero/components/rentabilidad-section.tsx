@@ -1,6 +1,6 @@
 'use client';
 
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   LineChart,
   Line,
@@ -14,7 +14,7 @@ import {
 import { rentabilidadQueryOptions } from '../api/queries';
 
 export function RentabilidadSection() {
-  const { data } = useSuspenseQuery(rentabilidadQueryOptions());
+  const { data } = useQuery(rentabilidadQueryOptions());
   const chartData = data ?? [];
 
   const totalGanancia = chartData.reduce((s, d) => s + d.ganancia, 0);

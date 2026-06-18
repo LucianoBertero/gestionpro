@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { activeUsersQueryOptions } from '@/features/clientes/api/queries';
 import {
   PRIORIDAD_VALUES,
@@ -41,7 +41,7 @@ export function TareasTableOptions<TData>({
   encargadoFilter,
   setEncargadoFilter,
 }: TareasTableOptionsProps<TData>) {
-  const { data: users } = useSuspenseQuery(activeUsersQueryOptions());
+  const { data: users = [] } = useQuery(activeUsersQueryOptions());
 
   return (
     <div className="flex flex-wrap items-center gap-3">

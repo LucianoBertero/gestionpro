@@ -10,6 +10,7 @@ import { Observable, map } from 'rxjs';
 
 import {
     DOC_RESPONSE_MESSAGE_META_KEY,
+    DOC_RESPONSE_PAGINATED_META_KEY,
     DOC_RESPONSE_SERIALIZATION_META_KEY,
 } from 'src/common/doc/constants/doc.constant';
 import { MessageService } from 'src/common/message/services/message.service';
@@ -43,6 +44,25 @@ export class ResponseInterceptor implements NestInterceptor {
                     DOC_RESPONSE_MESSAGE_META_KEY,
                     context.getHandler()
                 );
+                const isPaginated: boolean =
+                    this.reflector.get(
+                        DOC_RESPONSE_PAGINATED_META_KEY,
+                        context.getHandler()
+                    ) ?? false;
+
+                // If the handler returned the paginated envelope
+                // { data: T[], total, skip, take }, unwrap it and put the
+                // pagination metadata under `meta` on the final response.
+                if (isPaginated && this.isPaginatedEnvelope(responseBody)) {
+                    const { data: rows, total, skip, take } = responseBody;
+                    return {
+                        statusCode,
+                        message: this.messageService.resolveSuccessMessage(messageKey, statusCode),
+                        timestamp: new Date().toISOString(),
+                        data: this.serializerService.serialize(rows, cls),
+                        meta: { total, skip, take },
+                    };
+                }
 
                 const data = this.serializerService.serialize(
                     responseBody,
@@ -61,6 +81,17 @@ export class ResponseInterceptor implements NestInterceptor {
                     data,
                 };
             })
+        );
+    }
+
+    private isPaginatedEnvelope(value: unknown): value is { data: unknown; total: number; skip: number; take: number } {
+        return (
+            typeof value === 'object' &&
+            value !== null &&
+            'data' in value &&
+            'total' in value &&
+            'skip' in value &&
+            'take' in value
         );
     }
 }

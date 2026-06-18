@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
@@ -13,7 +13,7 @@ import type { Clave } from '@/features/claves/api/types';
 // ─── Component ─────────────────────────────────────────────────────────
 
 export function PasswordManagerCard() {
-  const { data: claves } = useSuspenseQuery(clavesQueryOptions());
+  const { data: claves = [] } = useQuery(clavesQueryOptions());
 
   return (
     <Card>

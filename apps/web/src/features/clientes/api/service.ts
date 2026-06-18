@@ -15,9 +15,16 @@ export async function getClientes(
   filters: ClienteFilters
 ): Promise<{ data: Cliente[]; total: number }> {
   const { data } = await api.get('/v1/clientes', {
-    params: { search: filters.search, semaforo: filters.semaforo, encargadoId: filters.encargadoId, skip: 0, take: 1000 }
+    params: {
+      search: filters.search,
+      semaforo: filters.semaforo,
+      encargadoId: filters.encargadoId,
+      skip: filters.skip ?? 0,
+      take: filters.take ?? 20,
+    }
   });
-  return { data: data.data, total: data.data.length };
+  // The backend returns { data: Cliente[], meta: { total: number } }
+  return { data: data.data, total: data.meta?.total ?? data.data.length };
 }
 
 export async function getCliente(id: number): Promise<Cliente> {

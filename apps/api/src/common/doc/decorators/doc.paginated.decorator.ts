@@ -9,6 +9,7 @@ import { ApiSuccessResponseDto } from 'src/common/response/dtos/response.success
 
 import {
     DOC_RESPONSE_MESSAGE_META_KEY,
+    DOC_RESPONSE_PAGINATED_META_KEY,
     DOC_RESPONSE_SERIALIZATION_META_KEY,
 } from '../constants/doc.constant';
 import { type IResponseDocOptions } from '../interfaces/doc.interface';
@@ -64,6 +65,7 @@ export function DocPaginatedResponse<T>(
         }),
         SetMetadata(DOC_RESPONSE_SERIALIZATION_META_KEY, serialization),
         SetMetadata(DOC_RESPONSE_MESSAGE_META_KEY, messageKey),
+        SetMetadata(DOC_RESPONSE_PAGINATED_META_KEY, true),
     ];
 
     if (serialization) {

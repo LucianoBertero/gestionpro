@@ -1,6 +1,6 @@
 'use client';
 
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { metricasQueryOptions, semaforosQueryOptions, tareasColaboradorQueryOptions, vencimientosSemanaQueryOptions } from '@/features/dashboard/api/queries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,10 +12,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const COLORS = { VERDE: '#22c55e', AMARILLO: '#eab308', ROJO: '#ef4444' };
 
 export function DashboardView() {
-  const { data: metricas } = useSuspenseQuery(metricasQueryOptions());
-  const { data: semaforos } = useSuspenseQuery(semaforosQueryOptions());
-  const { data: tareasColab } = useSuspenseQuery(tareasColaboradorQueryOptions());
-  const { data: vencimientos } = useSuspenseQuery(vencimientosSemanaQueryOptions());
+  const { data: metricas } = useQuery(metricasQueryOptions());
+  const { data: semaforos } = useQuery(semaforosQueryOptions());
+  const { data: tareasColab } = useQuery(tareasColaboradorQueryOptions());
+  const { data: vencimientos } = useQuery(vencimientosSemanaQueryOptions());
 
   return (
     <div className="space-y-6">

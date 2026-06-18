@@ -7,7 +7,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import esLocale from '@fullcalendar/core/locales/es';
 import type { DateSelectArg, EventClickArg, EventContentArg } from '@fullcalendar/core';
-import { useSuspenseQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   agendaItemsQueryOptions,
   agendaKeys,
@@ -62,7 +62,7 @@ export default function FullCalendarInnerWrapper() {
   const user = useAuthStore((s) => s.user);
   const isSocio = user?.role === SOCIO;
 
-  const { data: usuarios } = useSuspenseQuery(agendaUsuariosQueryOptions());
+  const { data: usuarios } = useQuery(agendaUsuariosQueryOptions());
 
   const queryOptions:
     | ReturnType<typeof equipoAgendaQueryOptions>
@@ -80,7 +80,10 @@ export default function FullCalendarInnerWrapper() {
           })
         : agendaItemsQueryOptions();
 
-  const { data: items } = useSuspenseQuery(queryOptions as ReturnType<typeof equipoAgendaQueryOptions>);
+  const { data: items } = useQuery({
+    ...(queryOptions as ReturnType<typeof equipoAgendaQueryOptions>),
+    placeholderData: (prev) => prev,
+  });
 
   const events = useMemo(() => (items ?? []).map(toCalendarEvent), [items]);
 

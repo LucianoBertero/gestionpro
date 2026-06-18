@@ -29,6 +29,9 @@ export const legajoQueryOptions = (id: number) =>
   queryOptions({
     queryKey: clientesKeys.legajo(id),
     queryFn: () => getLegajo(id),
+    // 60s — cambios a un cliente son poco frecuentes y la cache se
+    // invalida explícitamente con las mutaciones de update.
+    staleTime: 60 * 1000,
   });
 
 export const notasKeys = {
@@ -40,6 +43,9 @@ export const notasQueryOptions = (clienteId: number) =>
   queryOptions({
     queryKey: notasKeys.byCliente(clienteId),
     queryFn: () => getNotas(clienteId),
+    // 60s — las notas cambian con poca frecuencia, y la cache se
+    // invalida explícitamente cuando se crea/edita/elimina.
+    staleTime: 60 * 1000,
   });
 
 export const activeUsersQueryOptions = () =>

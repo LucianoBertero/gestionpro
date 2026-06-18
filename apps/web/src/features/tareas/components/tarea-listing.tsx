@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { tareasQueryOptions } from '../api/queries';
 import { activeUsersQueryOptions } from '@/features/clientes/api/queries';
 import { TareasTable } from './tareas-table/index';
@@ -12,8 +12,8 @@ import type { ActiveUser } from '@/features/auth/api/types';
 export function TareaListing() {
   const [editingTarea, setEditingTarea] = useState<Tarea | null>(null);
 
-  const { data } = useSuspenseQuery(tareasQueryOptions());
-  const { data: users } = useSuspenseQuery(activeUsersQueryOptions());
+  const { data, isLoading } = useQuery(tareasQueryOptions());
+  const { data: users } = useQuery(activeUsersQueryOptions());
 
   const tareas = data?.data ?? [];
   const encargados = (users as ActiveUser[]) ?? [];
@@ -22,8 +22,17 @@ export function TareaListing() {
     setEditingTarea(tarea);
   };
 
+  if (isLoading) {
+    return (
+      <div className='flex flex-1 flex-col gap-4'>
+        <div className='bg-muted h-10 w-full rounded animate-pulse' />
+        <div className='bg-muted h-96 w-full rounded-lg animate-pulse' />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-1 flex-col gap-4">
+    <div className='flex flex-1 flex-col gap-4'>
       <TareasTable data={tareas} users={encargados} onEdit={handleEdit} />
 
       <TareaFormSheet

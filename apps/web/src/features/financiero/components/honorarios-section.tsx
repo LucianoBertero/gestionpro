@@ -1,6 +1,6 @@
 'use client';
 
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   BarChart,
   Bar,
@@ -14,7 +14,7 @@ import {
 import { honorariosQueryOptions } from '../api/queries';
 
 export function HonorariosSection() {
-  const { data } = useSuspenseQuery(honorariosQueryOptions());
+  const { data } = useQuery(honorariosQueryOptions());
   const chartData = data ?? [];
 
   const totalFacturado = chartData.reduce((s, d) => s + d.facturado, 0);

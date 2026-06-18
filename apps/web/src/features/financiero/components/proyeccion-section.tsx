@@ -1,6 +1,6 @@
 'use client';
 
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   AreaChart,
   Area,
@@ -14,7 +14,7 @@ import {
 import { proyeccionQueryOptions } from '../api/queries';
 
 export function ProyeccionSection() {
-  const { data } = useSuspenseQuery(proyeccionQueryOptions());
+  const { data } = useQuery(proyeccionQueryOptions());
   const chartData = data ?? [];
 
   return (

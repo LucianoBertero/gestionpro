@@ -1,6 +1,6 @@
 'use client';
 
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { liquidacionesQueryOptions } from '../api/queries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,14 +8,16 @@ import { RESULTADO_LABELS, getResultadoBadgeVariant } from '@/constants';
 import type { Liquidacion } from '../api/types';
 
 export function LiquidacionListing() {
-  const { data } = useSuspenseQuery(liquidacionesQueryOptions());
+  const { data, isLoading } = useQuery(liquidacionesQueryOptions());
   const liquidaciones = data?.data ?? [];
 
   return (
     <Card>
       <CardHeader><CardTitle className="text-base">Últimas Liquidaciones</CardTitle></CardHeader>
       <CardContent>
-        {liquidaciones.length === 0 ? (
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground py-4 text-center">Cargando...</p>
+        ) : liquidaciones.length === 0 ? (
           <p className="text-sm text-muted-foreground py-4 text-center">Sin liquidaciones cargadas</p>
         ) : (
           <div className="space-y-2">

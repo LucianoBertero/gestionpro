@@ -43,8 +43,8 @@ export interface ClienteFilters {
   search?: string;
   semaforo?: string;
   encargadoId?: string;
-  page?: number;
-  limit?: number;
+  skip?: number;
+  take?: number;
 }
 
 export interface CreateClientePayload {

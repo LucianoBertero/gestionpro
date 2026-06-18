@@ -3,7 +3,7 @@
 import { DataTable } from '@/components/ui/table/data-table';
 import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { getSortingStateParser } from '@/lib/parsers';
 import { clavesQueryOptions } from '../../api/queries';
@@ -19,7 +19,7 @@ export function ClavesTable() {
     sort: getSortingStateParser(columnIds).withDefault([]),
   });
 
-  const { data } = useSuspenseQuery(clavesQueryOptions());
+  const { data, isLoading } = useQuery(clavesQueryOptions());
 
   const pageCount = Math.max(1, Math.ceil((data?.length ?? 0) / params.perPage));
 
@@ -33,6 +33,10 @@ export function ClavesTable() {
       columnPinning: { right: ['actions'] },
     },
   });
+
+  if (isLoading) {
+    return <ClavesTableSkeleton />;
+  }
 
   return (
     <DataTable table={table}>

@@ -33,24 +33,28 @@ export class ClientesPublicController {
         paginated: true,
         messageKey: 'clientes.success.list',
     })
-    findAll(
+    async findAll(
         @AuthUser() user: IAuthUser,
         @Query('search') search?: string,
         @Query('semaforo') semaforo?: string,
         @Query('encargadoId') encargadoId?: string,
         @Query('skip') skip?: string,
         @Query('take') take?: string
-    ): Promise<ClienteResponseDto[]> {
-        return this.clienteService.findAll(
-            {
-                search,
-                semaforo: parseSemaforo(semaforo),
-                encargadoId,
-                skip: skip ? parseInt(skip, 10) : undefined,
-                take: take ? parseInt(take, 10) : undefined,
-            },
-            user
-        );
+    ): Promise<{ data: ClienteResponseDto[]; total: number; skip: number; take: number }> {
+        const parsedSkip = skip ? parseInt(skip, 10) : 0;
+        const parsedTake = take ? parseInt(take, 10) : 20;
+        const options = {
+            search,
+            semaforo: parseSemaforo(semaforo),
+            encargadoId,
+            skip: parsedSkip,
+            take: parsedTake,
+        };
+        const [data, total] = await Promise.all([
+            this.clienteService.findAll(options, user),
+            this.clienteService.countAll(options, user),
+        ]);
+        return { data, total, skip: parsedSkip, take: parsedTake };
     }
 
     @Get(':id')

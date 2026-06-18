@@ -18,6 +18,9 @@ export const tareasQueryOptions = (filters?: TareaFilters) =>
       const tareas = await getTareas(filters ?? {});
       return { data: tareas, total: tareas.length };
     },
+    // 60s — la lista de tareas cambia con moderación, y la cache se
+    // invalida explícitamente con las mutaciones de CRUD.
+    staleTime: 60 * 1000,
   });
 
 export const tareaQueryOptions = (id: number) =>
