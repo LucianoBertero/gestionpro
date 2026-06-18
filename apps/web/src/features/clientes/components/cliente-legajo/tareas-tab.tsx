@@ -46,8 +46,8 @@ import {
   ESTADO_TAREA_LABELS,
   getEstadoBadgeVariant,
 } from '@/constants';
-import type { Prioridad, Tarea } from '@/features/tareas/api/types';
-import type { EstadoTarea } from '@/constants';
+import type { Prioridad, EstadoTarea } from '@/constants';
+import type { Tarea } from '@/features/tareas/api/types';
 import { toast } from 'sonner';
 
 // ─── Helpers ───────────────────────────────────
