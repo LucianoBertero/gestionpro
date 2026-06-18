@@ -21,8 +21,9 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Icons } from '@/components/icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { TIPO_IMPUESTO_VALUES, TIPO_IMPUESTO_LABELS } from '@/constants';
+import { useMutationWithOptions } from '@/hooks/use-mutation-with-options';
 import { createClienteMutation, updateClienteMutation } from '../api/mutations';
 import { activeUsersQueryOptions } from '../api/queries';
 import type { Cliente } from '../api/types';
@@ -64,8 +65,7 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
     },
   });
 
-  const createMut = useMutation({
-    ...createClienteMutation,
+  const createMut = useMutationWithOptions(createClienteMutation, {
     onSuccess: () => {
       toast.success(tr('cliente.created', 'Cliente creado'));
       onOpenChange(false);
@@ -73,8 +73,7 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
     },
     onError: () => toast.error(tr('cliente.createError', 'Error al crear')),
   });
-  const updateMut = useMutation({
-    ...updateClienteMutation,
+  const updateMut = useMutationWithOptions(updateClienteMutation, {
     onSuccess: () => {
       toast.success(tr('cliente.updated', 'Cliente actualizado'));
       onOpenChange(false);

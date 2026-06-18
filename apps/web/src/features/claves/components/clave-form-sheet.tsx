@@ -25,8 +25,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Icons } from '@/components/icons';
 import { createClaveMutation, updateClaveMutation } from '../api/mutations';
-import { claveKeys } from '../api/queries';
-import { getQueryClient } from '@/lib/query-client';
+import { useMutationWithOptions } from '@/hooks/use-mutation-with-options';
 import { claveSchema, type ClaveFormValues } from '../schemas/clave';
 import type { Clave } from '../api/types';
 
@@ -55,10 +54,8 @@ export function ClaveFormSheet({ clave, open, onOpenChange }: Props) {
     });
   }, [form, open, clave]);
 
-  const createMut = useMutation({
-    ...createClaveMutation,
-    onSuccess: async () => {
-      await getQueryClient().invalidateQueries({ queryKey: claveKeys.all });
+  const createMut = useMutationWithOptions(createClaveMutation, {
+    onSuccess: () => {
       toast.success('Clave creada');
       onOpenChange(false);
       form.reset();
@@ -69,10 +66,8 @@ export function ClaveFormSheet({ clave, open, onOpenChange }: Props) {
     },
   });
 
-  const updateMut = useMutation({
-    ...updateClaveMutation,
-    onSuccess: async () => {
-      await getQueryClient().invalidateQueries({ queryKey: claveKeys.all });
+  const updateMut = useMutationWithOptions(updateClaveMutation, {
+    onSuccess: () => {
       toast.success('Clave actualizada');
       onOpenChange(false);
     },

@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useT } from '@/lib/i18n/client';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useMutationWithOptions } from '@/hooks/use-mutation-with-options';
 import { deleteClienteMutation } from '../../api/mutations';
 import { ClienteFormSheet } from '../cliente-form-sheet';
 import type { Cliente } from '../../api/types';
@@ -23,8 +23,7 @@ export function CellAction({ data }: CellActionProps) {
   const [editOpen, setEditOpen] = useState(false);
   const router = useRouter();
 
-  const deleteMutation = useMutation({
-    ...deleteClienteMutation,
+  const deleteMutation = useMutationWithOptions(deleteClienteMutation, {
     onSuccess: () => {
       toast.success(t('cliente.deleteSuccess', 'Cliente eliminado correctamente'));
       setDeleteOpen(false);

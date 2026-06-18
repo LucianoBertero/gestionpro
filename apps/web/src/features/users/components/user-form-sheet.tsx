@@ -17,8 +17,7 @@ import {
 } from '@/components/ui/select';
 import { Icons } from '@/components/icons';
 import { COLABORADOR } from '@/constants';
-import { useMutation } from '@tanstack/react-query';
-import { getQueryClient } from '@/lib/query-client';
+import { useMutationWithOptions } from '@/hooks/use-mutation-with-options';
 import { useT } from '@/lib/i18n/client';
 import { createUserMutation, updateUserMutation } from '../api/mutations';
 import { userKeys } from '../api/queries';
@@ -62,20 +61,16 @@ export function UserFormSheet({ user, open, onOpenChange }: Props) {
     });
   }, [form, open, user]);
 
-  const createMut = useMutation({
-    ...createUserMutation,
-    onSuccess: async () => {
-      await getQueryClient().invalidateQueries({ queryKey: userKeys.all });
+  const createMut = useMutationWithOptions(createUserMutation, {
+    onSuccess: () => {
       toast.success(tr('user.created', 'Usuario creado'));
       onOpenChange(false);
       form.reset();
     },
     onError: () => toast.error(tr('user.createError', 'Error al crear')),
   });
-  const updateMut = useMutation({
-    ...updateUserMutation,
-    onSuccess: async () => {
-      await getQueryClient().invalidateQueries({ queryKey: userKeys.all });
+  const updateMut = useMutationWithOptions(updateUserMutation, {
+    onSuccess: () => {
       toast.success(tr('user.updated', 'Usuario actualizado'));
       onOpenChange(false);
     },

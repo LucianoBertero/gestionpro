@@ -1,16 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import { tareasQueryOptions, tareasKeys } from '@/features/tareas/api/queries';
+import { tareasQueryOptions } from '@/features/tareas/api/queries';
 import {
   createTareaMutation,
   updateTareaMutation,
   completarTareaMutation,
   deleteTareaMutation,
 } from '@/features/tareas/api/mutations';
-import { getQueryClient } from '@/lib/query-client';
+import { useMutationWithOptions } from '@/hooks/use-mutation-with-options';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -91,8 +91,7 @@ function EditTareaSheet({
     }
   }, [open, tarea]);
 
-  const updateMutation = useMutation({
-    ...updateTareaMutation,
+  const updateMutation = useMutationWithOptions(updateTareaMutation, {
     onSuccess: () => {
       toast.success(tr('tarea.updated', 'Tarea actualizada'));
       onOpenChange(false);
@@ -208,29 +207,23 @@ export function TareasTab({ clienteId }: TareasTabProps) {
   const [prioridad, setPrioridad] = useState<Prioridad>('MEDIA');
   const [editingTarea, setEditingTarea] = useState<Tarea | null>(null);
 
-  const createMutation = useMutation({
-    ...createTareaMutation,
+  const createMutation = useMutationWithOptions(createTareaMutation, {
     onSuccess: () => {
       setTitulo('');
-      getQueryClient().invalidateQueries({ queryKey: tareasKeys.list({ clienteId }) });
       toast.success(tr('tarea.created', 'Tarea creada'));
     },
     onError: () => toast.error(tr('tarea.createError', 'No se pudo crear la tarea')),
   });
 
-  const completeMutation = useMutation({
-    ...completarTareaMutation,
+  const completeMutation = useMutationWithOptions(completarTareaMutation, {
     onSuccess: () => {
-      getQueryClient().invalidateQueries({ queryKey: tareasKeys.list({ clienteId }) });
       toast.success(tr('tarea.completed_toast', 'Tarea completada'));
     },
     onError: () => toast.error(tr('tarea.completeError', 'No se pudo completar la tarea')),
   });
 
-  const deleteMutation = useMutation({
-    ...deleteTareaMutation,
+  const deleteMutation = useMutationWithOptions(deleteTareaMutation, {
     onSuccess: () => {
-      getQueryClient().invalidateQueries({ queryKey: tareasKeys.list({ clienteId }) });
       toast.success(tr('tarea.deleted', 'Tarea eliminada'));
     },
     onError: () => toast.error(tr('tarea.deleteError', 'No se pudo eliminar la tarea')),

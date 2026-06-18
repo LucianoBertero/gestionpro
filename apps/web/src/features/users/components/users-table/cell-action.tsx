@@ -8,11 +8,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { useMutationWithOptions } from '@/hooks/use-mutation-with-options';
 import { deleteUserMutation } from '../../api/mutations';
 import type { User } from '../../api/types';
 import { Icons } from '@/components/icons';
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { UserFormSheet } from '../user-form-sheet';
 
@@ -24,8 +24,7 @@ export function CellAction({ data }: CellActionProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
-  const deleteMutation = useMutation({
-    ...deleteUserMutation,
+  const deleteMutation = useMutationWithOptions(deleteUserMutation, {
     onSuccess: () => {
       toast.success('Usuario eliminado');
       setDeleteOpen(false);

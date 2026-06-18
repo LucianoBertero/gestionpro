@@ -1,6 +1,5 @@
 'use client';
 
-import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -14,6 +13,7 @@ import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-h
 import type { Column, ColumnDef } from '@tanstack/react-table';
 import { Icons } from '@/components/icons';
 import { useT } from '@/lib/i18n/client';
+import { useMutationWithOptions } from '@/hooks/use-mutation-with-options';
 import { CellAction } from './cell-action';
 import { updateClienteMutation } from '../../api/mutations';
 import { SEMAFORO_OPTIONS } from './options';
@@ -31,8 +31,7 @@ function SemaforoCell({ row }: { row: { original: Cliente } }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(semaforo);
 
-  const mutation = useMutation({
-    ...updateClienteMutation,
+  const mutation = useMutationWithOptions(updateClienteMutation, {
     onSuccess: () => {
       toast.success(t('cliente.updateSuccess', 'Cliente actualizado'));
       setEditing(false);
