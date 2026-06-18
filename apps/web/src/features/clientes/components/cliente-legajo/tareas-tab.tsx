@@ -40,6 +40,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Icons } from '@/components/icons';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DatePicker } from '@/components/ui/date-picker';
 import { useT } from '@/lib/i18n/client';
 import {
   PRIORIDAD_VALUES,
@@ -77,7 +78,7 @@ function EditTareaSheet({
   const [descripcion, setDescripcion] = useState('');
   const [prioridad, setPrioridad] = useState<Prioridad>('MEDIA');
   const [estado, setEstado] = useState<EstadoTarea>('PENDIENTE');
-  const [vence, setVence] = useState('');
+  const [vence, setVence] = useState<Date | undefined>(undefined);
 
   // Reset form when tarea changes
   useEffect(() => {
@@ -86,7 +87,7 @@ function EditTareaSheet({
       setDescripcion(tarea.descripcion ?? '');
       setPrioridad(tarea.prioridad);
       setEstado(tarea.estado);
-      setVence(tarea.vence ? new Date(tarea.vence).toISOString().slice(0, 10) : '');
+      setVence(tarea.vence ? new Date(tarea.vence) : undefined);
     }
   }, [open, tarea]);
 
@@ -108,7 +109,7 @@ function EditTareaSheet({
         descripcion: descripcion || undefined,
         prioridad,
         estado,
-        vence: vence ? new Date(vence).toISOString() : undefined,
+        vence: vence ? vence.toISOString() : undefined,
       },
     });
   };
@@ -161,10 +162,10 @@ function EditTareaSheet({
           </div>
           <div className='space-y-2'>
             <Label>{tr('tarea.vence', 'Vence')}</Label>
-            <Input
-              type='date'
+            <DatePicker
               value={vence}
-              onChange={(e) => setVence(e.target.value)}
+              onChange={setVence}
+              placeholder={tr('tarea.pickDate', 'Seleccioná una fecha')}
             />
           </div>
           <div className='space-y-2'>

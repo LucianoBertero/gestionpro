@@ -13,27 +13,28 @@ interface DatePickerProps {
   value?: Date;
   onChange?: (date: Date | undefined) => void;
   disabled?: boolean;
+  placeholder?: string;
 }
 
-function DatePicker({ value, onChange, disabled }: DatePickerProps) {
+function DatePicker({ value, onChange, disabled, placeholder = 'Seleccioná fecha' }: DatePickerProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant='outline'
           disabled={disabled}
           className={cn(
             'w-full justify-start text-left font-normal',
             !value && 'text-muted-foreground'
           )}
         >
-          <Icons.calendar className="mr-2 h-4 w-4" />
-          {value ? format(value, 'dd/MM/yyyy', { locale: es }) : 'Seleccioná fecha'}
+          <Icons.calendar className='mr-2 h-4 w-4' />
+          {value ? format(value, 'dd/MM/yyyy', { locale: es }) : placeholder}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className='w-auto p-0' align='start'>
         <Calendar
-          mode="single"
+          mode='single'
           selected={value}
           onSelect={onChange}
           initialFocus

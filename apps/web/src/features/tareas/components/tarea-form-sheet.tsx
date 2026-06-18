@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { DatePicker } from '@/components/ui/date-picker';
 import {
   Select,
   SelectContent,
@@ -67,7 +68,9 @@ export function TareaFormSheet({
   const [tiempoEstMin, setTiempoEstMin] = useState(tarea?.tiempoEstMin?.toString() ?? '');
   const [prioridad, setPrioridad] = useState<string>(tarea?.prioridad ?? 'MEDIA');
   const [estado, setEstado] = useState<string>(tarea?.estado ?? 'PENDIENTE');
-  const [vence, setVence] = useState(tarea?.vence ? new Date(tarea.vence).toISOString().slice(0, 10) : '');
+  const [vence, setVence] = useState<Date | undefined>(
+    tarea?.vence ? new Date(tarea.vence) : undefined,
+  );
   const [encargadoId, setEncargadoId] = useState(tarea?.encargadoId ?? '');
   const [clienteId, setClienteId] = useState<string>(tarea?.clienteId?.toString() ?? '');
   const [notas, setNotas] = useState(tarea?.notas ?? '');
@@ -83,7 +86,7 @@ export function TareaFormSheet({
     setTiempoEstMin(tarea?.tiempoEstMin?.toString() ?? '');
     setPrioridad(tarea?.prioridad ?? 'MEDIA');
     setEstado(tarea?.estado ?? 'PENDIENTE');
-    setVence(tarea?.vence ? new Date(tarea.vence).toISOString().slice(0, 10) : '');
+    setVence(tarea?.vence ? new Date(tarea.vence) : undefined);
     setEncargadoId(tarea?.encargadoId ?? '');
     setClienteId(tarea?.clienteId?.toString() ?? '');
     setNotas(tarea?.notas ?? '');
@@ -104,7 +107,7 @@ export function TareaFormSheet({
       periodo: periodo || undefined,
       tiempoEstMin: tiempoEstMin ? parseInt(tiempoEstMin, 10) : undefined,
       prioridad: prioridad as CreateTareaPayload['prioridad'],
-      vence: vence ? new Date(vence).toISOString() : undefined,
+      vence: vence ? vence.toISOString() : undefined,
       notas: notas || undefined,
     };
 
@@ -152,7 +155,7 @@ export function TareaFormSheet({
     setTiempoEstMin('');
     setPrioridad('MEDIA');
     setEstado('PENDIENTE');
-    setVence('');
+    setVence(undefined);
     setEncargadoId('');
     setClienteId('');
     setNotas('');
@@ -312,7 +315,11 @@ export function TareaFormSheet({
             </div>
             <div className="space-y-2">
               <Label>{tr('tarea.vence', 'Vence')}</Label>
-              <Input type="date" value={vence} onChange={(e) => setVence(e.target.value)} />
+              <DatePicker
+                value={vence}
+                onChange={setVence}
+                placeholder={tr('tarea.pickDate', 'Seleccioná una fecha')}
+              />
             </div>
           </div>
 

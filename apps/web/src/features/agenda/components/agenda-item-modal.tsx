@@ -25,6 +25,7 @@ import { Icons } from '@/components/icons';
 import { DatePicker } from '@/components/ui/date-picker';
 import { TimePicker } from '@/components/ui/time-picker';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { useT } from '@/lib/i18n/client';
 import { agendaUsuariosQueryOptions } from '../api/queries';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { SOCIO } from '@/constants';
@@ -39,6 +40,8 @@ interface AgendaItemModalProps {
   onDelete: (id: number) => void;
 }
 
+type Tr = (key: string, fallback: string) => string;
+
 export function AgendaItemModal({
   open,
   onOpenChange,
@@ -47,6 +50,8 @@ export function AgendaItemModal({
   onSave,
   onDelete,
 }: AgendaItemModalProps) {
+  const t = useT();
+  const tr: Tr = (key, fallback) => t(key, { defaultValue: fallback });
   const [titulo, setTitulo] = useState('');
   const [fecha, setFecha] = useState<Date | undefined>(undefined);
   const [horaInicio, setHoraInicio] = useState('09:00');
@@ -128,35 +133,37 @@ export function AgendaItemModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{item ? 'Editar Evento' : 'Nuevo Evento'}</DialogTitle>
+          <DialogTitle>
+            {item ? tr('agenda.edit', 'Editar Evento') : tr('agenda.add', 'Nuevo Evento')}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="titulo">Título</Label>
+            <Label htmlFor="titulo">{tr('agenda.titulo', 'Título')}</Label>
             <Input
               id="titulo"
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
-              placeholder="Nombre del evento"
+              placeholder={tr('agenda.placeholderTitulo', 'Nombre del evento')}
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Fecha</Label>
+              <Label>{tr('agenda.fecha', 'Fecha')}</Label>
               <DatePicker value={fecha} onChange={setFecha} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tipo">Tipo</Label>
+              <Label htmlFor="tipo">{tr('agenda.tipo', 'Tipo')}</Label>
               <Select value={tipo} onValueChange={(v: 'PERSONAL' | 'ESTUDIO' | 'TAREA') => setTipo(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PERSONAL">Personal</SelectItem>
-                  <SelectItem value="ESTUDIO">Estudio</SelectItem>
-                  <SelectItem value="TAREA">Tarea</SelectItem>
+                  <SelectItem value="PERSONAL">{tr('agenda.personal', 'Personal')}</SelectItem>
+                  <SelectItem value="ESTUDIO">{tr('agenda.estudio', 'Estudio')}</SelectItem>
+                  <SelectItem value="TAREA">{tr('agenda.tarea', 'Tarea')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -164,35 +171,37 @@ export function AgendaItemModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Hora de comienzo</Label>
+              <Label>{tr('agenda.horaInicio', 'Hora de comienzo')}</Label>
               <TimePicker value={horaInicio} onChange={setHoraInicio} />
             </div>
             <div className="space-y-2">
-              <Label>Hora de fin</Label>
+              <Label>{tr('agenda.horaFin', 'Hora de fin')}</Label>
               <TimePicker value={horaFin} onChange={setHoraFin} />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="descripcion">Descripción</Label>
+            <Label htmlFor="descripcion">{tr('agenda.descripcion', 'Descripción')}</Label>
             <Textarea
               id="descripcion"
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="Descripción del evento (opcional)"
+              placeholder={tr('agenda.placeholderDescripcion', 'Descripción del evento (opcional)')}
               rows={3}
             />
           </div>
 
           {!item && isSocio && (
             <div className="space-y-2">
-              <Label>Asignar a usuario</Label>
+              <Label>{tr('agenda.asignarUsuario', 'Asignar a usuario')}</Label>
               <select
                 value={usuarioId || user?.id || ''}
                 onChange={(e) => setUsuarioId(e.target.value)}
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm"
               >
-                <option value={user?.id ?? ''}>{user?.nombre ?? 'Yo'} (yo)</option>
+                <option value={user?.id ?? ''}>
+                  {user?.nombre ?? tr('common.me', 'Yo')} ({tr('agenda.me', 'yo')})
+                </option>
                 {(usuarios ?? [])
                   .filter((u: AgendaUsuario) => u.id !== user?.id)
                   .map((u: AgendaUsuario) => (
@@ -211,7 +220,7 @@ export function AgendaItemModal({
               onCheckedChange={handleEsEstudioChange}
             />
             <Label htmlFor="esEstudio" className="text-sm cursor-pointer">
-              Compartir con el estudio (visible para el equipo)
+              {tr('agenda.compartirEstudio', 'Compartir con el estudio (visible para el equipo)')}
             </Label>
           </div>
 
@@ -224,14 +233,14 @@ export function AgendaItemModal({
                 className="mr-auto"
               >
                 <Icons.trash className="mr-2 h-4 w-4" />
-                Eliminar
+                {tr('common.delete', 'Eliminar')}
               </Button>
             )}
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
+              {tr('common.cancel', 'Cancelar')}
             </Button>
             <Button type="submit">
-              {item ? 'Guardar' : 'Crear'}
+              {item ? tr('common.save', 'Guardar') : tr('common.create', 'Crear')}
             </Button>
           </DialogFooter>
         </form>
