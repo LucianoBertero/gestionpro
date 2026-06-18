@@ -108,7 +108,7 @@ export class ClienteService {
         // Validate and normalize CUIT
         if (!isValidCuit(dto.cuit)) {
             throw new HttpException(
-                'clientes.error.cuitInvalid',
+                'clientes.error.cuitInvalido',
                 HttpStatus.BAD_REQUEST
             );
         }
@@ -117,15 +117,13 @@ export class ClienteService {
 
         await this.assertNotDuplicateCuit(normalizedCuit);
 
-        const { tipoImpuesto, ...clienteData } = dto;
-
         const data = {
-            ...clienteData,
+            ...dto,
             cuit: normalizedCuit,
             semaforo: EstadoSemaforo.VERDE,
         };
 
-        return this.clienteRepository.createWithImpuestos(data, tipoImpuesto ?? []);
+        return this.clienteRepository.create(data);
     }
 
     async update(
@@ -134,29 +132,18 @@ export class ClienteService {
     ): Promise<ClienteResponseDto> {
         await this.assertExists(id);
 
-        // Extract tipoImpuesto before passing to Prisma (it's a relation, not a field)
-        const { tipoImpuesto, ...clienteFields } = dto as any;
-
-        if (clienteFields.cuit) {
-            if (!isValidCuit(clienteFields.cuit)) {
+        if (dto.cuit) {
+            if (!isValidCuit(dto.cuit)) {
                 throw new HttpException(
-                    'clientes.error.cuitInvalid',
+                    'clientes.error.cuitInvalido',
                     HttpStatus.BAD_REQUEST
                 );
             }
-            clienteFields.cuit = normalizeCuit(clienteFields.cuit);
-            await this.assertNotDuplicateCuit(clienteFields.cuit, id);
+            dto.cuit = normalizeCuit(dto.cuit);
+            await this.assertNotDuplicateCuit(dto.cuit, id);
         }
 
-        // Update cliente fields
-        const cliente = await this.clienteRepository.update(id, clienteFields);
-
-        // Update impuestos if provided (replace all)
-        if (tipoImpuesto !== undefined && Array.isArray(tipoImpuesto)) {
-            await this.clienteRepository.replaceImpuestos(id, tipoImpuesto);
-        }
-
-        return cliente;
+        return this.clienteRepository.update(id, dto);
     }
 
     async softDelete(id: number): Promise<ApiGenericResponseDto> {

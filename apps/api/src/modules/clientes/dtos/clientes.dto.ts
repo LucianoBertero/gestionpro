@@ -311,17 +311,6 @@ export class CreateClienteDto {
     @IsOptional()
     @Min(0)
     honorarioMensual?: number;
-
-    @ApiProperty({
-        enum: TipoImpuesto,
-        isArray: true,
-        example: [],
-        required: false,
-    })
-    @IsArray()
-    @IsEnum(TipoImpuesto, { each: true })
-    @IsOptional()
-    tipoImpuesto?: TipoImpuesto[];
 }
 
 // ─── Update DTO ──────────────────────────────────────────────────────────────
@@ -439,15 +428,4 @@ export class UpdateClienteDto {
     @IsEnum(EstadoSemaforo)
     @IsOptional()
     semaforo?: EstadoSemaforo;
-
-    @ApiProperty({
-        enum: TipoImpuesto,
-        isArray: true,
-        example: [],
-        required: false,
-    })
-    @IsArray()
-    @IsEnum(TipoImpuesto, { each: true })
-    @IsOptional()
-    tipoImpuesto?: TipoImpuesto[];
 }

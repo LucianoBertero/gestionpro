@@ -6,12 +6,16 @@
         "created": "Cliente created successfully",
         "updated": "Cliente updated successfully",
         "clienteDeleted": "Cliente deleted successfully",
-        "afipRetrieved": "AFIP data retrieved successfully"
+        "afipRetrieved": "AFIP data retrieved successfully",
+        "impuestoAdded": "Cliente impuesto added successfully",
+        "impuestoRemoved": "Cliente impuesto removed successfully",
+        "impuestoToggled": "Cliente impuesto toggled successfully"
     },
     "error": {
         "clienteNotFound": "Cliente not found",
         "cuitDuplicate": "A cliente with this CUIT already exists",
         "cuitInvalido": "Invalid CUIT format. Expected format: XX-NNNNNNNN-X",
-        "afipNoData": "No AFIP data found for this CUIT"
+        "afipNoData": "No AFIP data found for this CUIT",
+        "impuestoNotFound": "Cliente impuesto not found"
     }
 }
