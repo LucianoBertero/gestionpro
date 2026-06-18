@@ -7,6 +7,7 @@ import { ImpuestosTab } from './impuestos-tab';
 import { PlaceholderTab } from './placeholder-tab';
 import { NotasTab } from './notas-tab';
 import { ClavesClienteTab } from './claves-cliente-tab';
+import { TareasTab } from './tareas-tab';
 import type { ClienteLegajo } from '../../api/types';
 
 interface ClienteLegajoTabsProps {
@@ -53,7 +54,7 @@ export function ClienteLegajoTabs({ legajo, onEdit }: ClienteLegajoTabsProps) {
       </TabsContent>
 
       <TabsContent value='tareas' className='mt-4'>
-        <PlaceholderTab title='Tareas' />
+        <TareasTab clienteId={legajo.id} />
       </TabsContent>
 
       <TabsContent value='liquidaciones' className='mt-4'>
