@@ -91,8 +91,9 @@ export class AuthPublicController {
 
     @Post('signup')
     @ApiBearerAuth('accessToken')
+    @AllowedRoles([UserRole.SOCIO])
     @ApiEndpoint({
-        summary: 'Create user (MVP: all authenticated users)',
+        summary: 'Create user (SOCIO only)',
         serialization: AuthResponseDto,
         httpStatus: HttpStatus.CREATED,
         messageKey: 'auth.success.signedUp',
@@ -133,18 +134,17 @@ export class AuthPublicController {
     }
 
     @Get('users')
-    @PublicRoute()
+    @ApiBearerAuth('accessToken')
     @ApiEndpoint({
-        summary: 'List active users for login selector',
+        summary: 'List active users for user picker (authenticated)',
         messageKey: 'auth.success.usersListed',
     })
-    async getActiveUsers(): Promise<{ id: string; nombre: string; emoji: string | null; email: string }[]> {
+    async getActiveUsers(): Promise<{ id: string; nombre: string; emoji: string | null }[]> {
         const users = await this.userRepository.findAll();
         return users.map(u => ({
             id: u.id,
             nombre: u.nombre,
             emoji: u.emoji,
-            email: u.email,
         }));
     }
 
