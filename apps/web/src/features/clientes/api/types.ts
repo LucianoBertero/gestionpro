@@ -60,7 +60,6 @@ export interface CreateClientePayload {
   whatsapp?: string;
   supervisorId?: string;
   honorarioMensual?: number;
-  tipoImpuesto: TipoImpuesto[];
 }
 
 export interface UpdateClientePayload {
@@ -75,7 +74,6 @@ export interface UpdateClientePayload {
   email?: string;
   whatsapp?: string;
   supervisorId?: string;
-  honorarioMensual?: number;
   semaforo?: EstadoSemaforo;
 }
 

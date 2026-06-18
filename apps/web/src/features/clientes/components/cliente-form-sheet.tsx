@@ -14,11 +14,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Icons } from '@/components/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { createClienteMutation, updateClienteMutation } from '../api/mutations';
@@ -26,7 +25,6 @@ import { activeUsersQueryOptions } from '../api/queries';
 import type { Cliente } from '../api/types';
 import { toast } from 'sonner';
 import { clienteSchema, type ClienteFormValues } from '../schemas/cliente';
-import { TIPO_IMPUESTO_VALUES, TIPO_IMPUESTO_LABELS, TipoImpuesto } from '@/constants';
 
 const TERMINO_OPTIONS = [
   { value: '0', label: '0 meses' },
@@ -49,13 +47,11 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
       termino: cliente?.termino ? String(cliente.termino) : '0',
       encargadoId: cliente?.encargadoId ?? '',
       supervisorId: cliente?.supervisorId ?? '',
-      tipoImpuesto: (cliente?.impuestos?.map(i => i.tipo) ?? []) as TipoImpuesto[],
       actividades: cliente?.actividades ?? [],
       domicilio: cliente?.domicilio ?? '',
       telefono: cliente?.telefono ?? '',
       email: cliente?.email ?? '',
       whatsapp: cliente?.whatsapp ?? '',
-      notas: cliente?.notas ?? '',
       honorarioMensual: cliente?.honorarioMensual ?? undefined,
     },
   });
@@ -82,7 +78,6 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
       telefono: clean(values.telefono),
       whatsapp: clean(values.whatsapp),
       domicilio: clean(values.domicilio),
-      notas: clean(values.notas),
       supervisorId: clean(values.supervisorId),
       honorarioMensual: values.honorarioMensual || undefined,
     };
@@ -106,6 +101,14 @@ export function ClienteFormSheet({ cliente, open, onOpenChange }: Props) {
         </SheetHeader>
 
         <div className='flex-1 overflow-auto'>
+          {!isEdit && (
+            <Alert className='mb-4'>
+              <Icons.info className='h-4 w-4' />
+              <AlertDescription>
+                Los impuestos se gestionan desde el legajo del cliente una vez creado.
+              </AlertDescription>
+            </Alert>
+          )}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
               <div className='grid grid-cols-2 gap-4'>

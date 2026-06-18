@@ -2,6 +2,7 @@ import { mutationOptions } from '@tanstack/react-query';
 import { getQueryClient } from '@/lib/query-client';
 import { createCliente, updateCliente, deleteCliente, createNota, updateNota, deleteNota } from './service';
 import { clientesKeys, notasKeys } from './queries';
+import { impuestosEstadoKeys } from './queries-impuestos-estado';
 import type { CreateClientePayload, UpdateClientePayload, CreateNotaPayload, UpdateNotaPayload } from './types';
 
 export const createClienteMutation = mutationOptions({
@@ -19,8 +20,11 @@ export const updateClienteMutation = mutationOptions({
     id: number;
     values: UpdateClientePayload;
   }) => updateCliente(id, values),
-  onSuccess: () => {
+  onSuccess: (_data, variables) => {
     getQueryClient().invalidateQueries({ queryKey: clientesKeys.all });
+    // Invalida también el legajo específico y el estado de impuestos
+    getQueryClient().invalidateQueries({ queryKey: clientesKeys.legajo(variables.id) });
+    getQueryClient().invalidateQueries({ queryKey: impuestosEstadoKeys.byCliente(variables.id) });
   },
 });
 

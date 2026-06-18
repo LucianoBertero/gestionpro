@@ -1,8 +1,5 @@
 import * as z from 'zod';
 import { isValidCuit, formatCuit } from '@/lib/utils/cuit';
-import { TIPO_IMPUESTO_VALUES } from '@/constants';
-
-export const tipoImpuestoSchema = z.enum(TIPO_IMPUESTO_VALUES);
 
 export const terminoOptions = [
   { value: '0', label: '0 meses' },
@@ -21,13 +18,11 @@ export const clienteSchema = z.object({
   termino: z.string().optional(),
   encargadoId: z.string().min(1, 'El encargado es requerido'),
   supervisorId: z.string().optional(),
-  tipoImpuesto: z.array(tipoImpuestoSchema).optional().default([]),
   actividades: z.array(z.string()).optional().default([]),
   domicilio: z.string().optional(),
   telefono: z.string().optional(),
   email: z.string().email('Email inválido').optional().or(z.literal('')),
   whatsapp: z.string().optional(),
-  notas: z.string().optional(),
   honorarioMensual: z.coerce.number().min(0, 'El honorario debe ser positivo').optional(),
 });
 
