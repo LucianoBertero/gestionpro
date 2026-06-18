@@ -123,6 +123,7 @@ model User {
   comunicaciones       Comunicacion[]     @relation("ComunicacionUsuario")
   archivosSubidos      Archivo[]          @relation("ArchivoSubidoPor")
   notasCreadas         NotaCliente[]      @relation("NotaCreadoPor")
+  clavesEstudio        ClaveEstudio[]
 
   @@map("users")
 }
@@ -346,6 +347,20 @@ model NotaCliente {
 
   @@index([clienteId, creadoEn], name: "idx_notas_cliente_fecha")
   @@map("notas_cliente")
+}
+
+model ClaveEstudio {
+  id            String   @id @default(uuid())
+  estudioId     Int      @default(1) @map("estudio_id")
+  entidad       String   @unique
+  clave         String
+  creadoPorId   String   @map("creado_por_id")
+  creadoEn      DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @updatedAt @map("actualizado_en")
+
+  creadoPor     User     @relation(fields: [creadoPorId], references: [id])
+
+  @@map("claves_estudio")
 }
 
 model Archivo {

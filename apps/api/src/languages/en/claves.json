@@ -1,0 +1,13 @@
+{
+    "success": {
+        "list": "Claves retrieved",
+        "retrieved": "Clave retrieved",
+        "created": "Clave created",
+        "updated": "Clave updated",
+        "deleted": "Clave deleted"
+    },
+    "error": {
+        "notFound": "Clave not found",
+        "alreadyExists": "A clave for this entity already exists"
+    }
+}

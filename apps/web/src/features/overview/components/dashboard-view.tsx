@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Icons } from '@/components/icons';
 import { NULL_PLACEHOLDER } from '@/constants';
+import { PasswordManagerCard } from './password-manager-card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const COLORS = { VERDE: '#22c55e', AMARILLO: '#eab308', ROJO: '#ef4444' };
@@ -108,31 +109,35 @@ export function DashboardView() {
         </Card>
       </div>
 
-      {/* Vencimientos de la Semana */}
-      <Card>
-        <CardHeader><CardTitle className="text-base">Vencimientos Próximos 7 Días</CardTitle></CardHeader>
-        <CardContent>
-          {vencimientos && vencimientos.length > 0 ? (
-            <div className="space-y-2">
-              {vencimientos.slice(0, 10).map((v) => (
-                <div key={v.id} className="flex items-center justify-between border-b pb-2 text-sm">
-                  <div>
-                    <span className="font-medium">{v.titulo}</span>
-                    <span className="text-muted-foreground ml-2">
-                      {v.cliente?.denominacion ?? 'Sin cliente'} — {v.encargado.nombre}
-                    </span>
+      {/* Vencimientos + Claves */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader><CardTitle className="text-base">Vencimientos Próximos 7 Días</CardTitle></CardHeader>
+          <CardContent>
+            {vencimientos && vencimientos.length > 0 ? (
+              <div className="space-y-2">
+                {vencimientos.slice(0, 10).map((v) => (
+                  <div key={v.id} className="flex items-center justify-between border-b pb-2 text-sm">
+                    <div>
+                      <span className="font-medium">{v.titulo}</span>
+                      <span className="text-muted-foreground ml-2">
+                        {v.cliente?.denominacion ?? 'Sin cliente'} — {v.encargado.nombre}
+                      </span>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {v.vence ? new Date(v.vence).toLocaleDateString('es-AR') : NULL_PLACEHOLDER}
+                    </Badge>
                   </div>
-                  <Badge variant="outline" className="text-xs">
-                    {v.vence ? new Date(v.vence).toLocaleDateString('es-AR') : NULL_PLACEHOLDER}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground py-4 text-center">Sin vencimientos próximos</p>
-          )}
-        </CardContent>
-      </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground py-4 text-center">Sin vencimientos próximos</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <PasswordManagerCard />
+      </div>
     </div>
   );
 }

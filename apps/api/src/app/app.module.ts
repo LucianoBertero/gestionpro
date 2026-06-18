@@ -5,6 +5,7 @@ import { CommonModule } from 'src/common/common.module';
 import { AgendaModule } from 'src/modules/agenda/agenda.module';
 import { ArchivoModule } from 'src/modules/archivo/archivo.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
+import { ClavesModule } from 'src/modules/claves/claves.module';
 import { ClientesModule } from 'src/modules/clientes/clientes.module';
 import { ComunicacionModule } from 'src/modules/comunicacion/comunicacion.module';
 import { DashboardModule } from 'src/modules/dashboard/dashboard.module';
@@ -44,6 +45,7 @@ import { HealthController } from './controllers/health.controller';
         NotificacionesModule,
         ComunicacionModule,
         ArchivoModule,
+        ClavesModule,
         EmailTemplatesModule,
         DashboardModule,
         FinancieroModule,
