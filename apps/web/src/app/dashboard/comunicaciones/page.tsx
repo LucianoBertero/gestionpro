@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSuspenseQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import PageContainer from '@/components/layout/page-container';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,13 +37,13 @@ const tipoBadge: Record<string, string> = {
 export default function ComunicacionesPage() {
   const [editing, setEditing] = useState<Comunicacion | null>(null);
   const [creating, setCreating] = useState(false);
-  const { data: items } = useSuspenseQuery(comunicacionesQueryOptions());
+  const { data: items, isLoading } = useQuery(comunicacionesQueryOptions());
   const queryClient = getQueryClient();
 
   const createMutation = useMutation({
     mutationFn: (data: CreateComunicacionPayload) => createComunicacion(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all });
+      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all, refetchType: 'all' });
       setCreating(false);
     },
   });
@@ -52,17 +52,26 @@ export default function ComunicacionesPage() {
     mutationFn: ({ id, values }: { id: number; values: UpdateComunicacionPayload }) =>
       updateComunicacion(id, values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all });
+      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all, refetchType: 'all' });
       setEditing(null);
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteComunicacion(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: comunicacionKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: comunicacionKeys.all, refetchType: 'all' }),
   });
 
   const comunicaciones = items ?? [];
+
+  if (isLoading) {
+    return (
+      <PageContainer pageTitle="Comunicaciones" pageDescription="Registro de comunicaciones con clientes">
+        <div className="rounded-lg border p-8 text-center text-muted-foreground">Cargando...</div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer

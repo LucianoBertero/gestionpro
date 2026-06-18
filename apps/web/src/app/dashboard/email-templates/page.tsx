@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSuspenseQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import PageContainer from '@/components/layout/page-container';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,13 +23,13 @@ export default function EmailTemplatesPage() {
   const t = useT();
   const [editing, setEditing] = useState<EmailTemplate | null>(null);
   const [creating, setCreating] = useState(false);
-  const { data: templates } = useSuspenseQuery(emailTemplatesQueryOptions());
+  const { data: templates, isLoading } = useQuery(emailTemplatesQueryOptions());
   const queryClient = getQueryClient();
 
   const createMutation = useMutation({
     mutationFn: (data: CreateEmailTemplatePayload) => createEmailTemplate(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all });
+      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all, refetchType: 'all' });
       setCreating(false);
     },
   });
@@ -38,17 +38,26 @@ export default function EmailTemplatesPage() {
     mutationFn: ({ id, values }: { id: number; values: UpdateEmailTemplatePayload }) =>
       updateEmailTemplate(id, values),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all });
+      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all, refetchType: 'all' });
       setEditing(null);
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteEmailTemplate(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: emailTemplateKeys.all, refetchType: 'all' }),
   });
 
   const items = templates ?? [];
+
+  if (isLoading) {
+    return (
+      <PageContainer pageTitle="Plantillas de Email" pageDescription="Gestioná las plantillas de correo electrónico">
+        <div className="rounded-lg border p-8 text-center text-muted-foreground">Cargando...</div>
+      </PageContainer>
+    );
+  }
   const activeCount = items.filter((template) => template.activo).length;
   const typeCount = new Set(items.map((template) => template.tipo)).size;
 

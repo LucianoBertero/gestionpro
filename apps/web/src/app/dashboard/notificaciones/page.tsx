@@ -1,6 +1,6 @@
 'use client';
 
-import { useSuspenseQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import PageContainer from '@/components/layout/page-container';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,15 +32,24 @@ const tipoColors: Record<string, string> = {
 
 export default function NotificacionesPage() {
   const router = useRouter();
-  const { data } = useSuspenseQuery(notificacionesQueryOptions());
+  const { data, isLoading } = useQuery(notificacionesQueryOptions());
   const queryClient = getQueryClient();
 
   const markReadMutation = useMutation({
     mutationFn: (id: number) => marcarLeida(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: notificacionesKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: notificacionesKeys.all, refetchType: 'all' }),
   });
 
   const notificaciones: Notificacion[] = data?.data ?? [];
+
+  if (isLoading) {
+    return (
+      <PageContainer pageTitle="Notificaciones" pageDescription="Centro de notificaciones">
+        <div className="rounded-lg border p-8 text-center text-muted-foreground">Cargando...</div>
+      </PageContainer>
+    );
+  }
 
   const handleClick = (notif: Notificacion) => {
     if (!notif.leida) {

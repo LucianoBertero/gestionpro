@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSuspenseQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import PageContainer from '@/components/layout/page-container';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -38,15 +38,24 @@ function formatFileSize(kb: number | null): string {
 
 export default function ArchivosPage() {
   const [uploadOpen, setUploadOpen] = useState(false);
-  const { data: items } = useSuspenseQuery(archivosQueryOptions());
+  const { data: items, isLoading } = useQuery(archivosQueryOptions());
   const queryClient = getQueryClient();
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteArchivo(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: archivosKeys.all }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: archivosKeys.all, refetchType: 'all' }),
   });
 
   const archivos: Archivo[] = items ?? [];
+
+  if (isLoading) {
+    return (
+      <PageContainer pageTitle="Archivos" pageDescription="Gestión de archivos y documentos">
+        <div className="rounded-lg border p-8 text-center text-muted-foreground">Cargando...</div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer

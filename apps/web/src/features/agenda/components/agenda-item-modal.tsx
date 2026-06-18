@@ -24,7 +24,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Icons } from '@/components/icons';
 import { DatePicker } from '@/components/ui/date-picker';
 import { TimePicker } from '@/components/ui/time-picker';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useT } from '@/lib/i18n/client';
 import { agendaUsuariosQueryOptions } from '../api/queries';
 import { useAuthStore } from '@/features/auth/store/auth.store';
@@ -63,7 +63,7 @@ export function AgendaItemModal({
 
   const user = useAuthStore((s) => s.user);
   const isSocio = user?.role === SOCIO;
-  const { data: usuarios } = useSuspenseQuery(agendaUsuariosQueryOptions());
+  const { data: usuarios = [] } = useQuery(agendaUsuariosQueryOptions());
 
   const handleEsEstudioChange = useCallback((checked: boolean) => {
     setEsEstudio(checked);

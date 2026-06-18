@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import PageContainer from '@/components/layout/page-container';
 import {
   Table,
@@ -19,8 +19,16 @@ import { ExcelImportModal } from '@/features/vencimientos/components/excel-impor
 
 export default function VencimientosPage() {
   const [importOpen, setImportOpen] = useState(false);
-  const { data: vencimientos } = useSuspenseQuery(vencimientosQueryOptions());
+  const { data: vencimientos, isLoading } = useQuery(vencimientosQueryOptions());
   const items = vencimientos ?? [];
+
+  if (isLoading) {
+    return (
+      <PageContainer pageTitle="Vencimientos" pageDescription="Calendario de vencimientos impositivos">
+        <div className="rounded-lg border p-8 text-center text-muted-foreground">Cargando...</div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer
