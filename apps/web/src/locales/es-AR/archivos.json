@@ -1,0 +1,44 @@
+{
+  "title": "Archivos",
+  "upload": {
+    "title": "Subir archivo",
+    "button": "Subir Archivo"
+  },
+  "dropzone": {
+    "placeholder": "Arrastrá un archivo o hacé clic para seleccionar",
+    "hint": "PDF, Excel, Word, Imágenes — máx. {{maxSizeMB}} MB",
+    "dropHere": "Soltá el archivo acá",
+    "uploading": "Subiendo...",
+    "cancel": "Cancelar"
+  },
+  "errors": {
+    "fileTooBig": "El archivo supera el tamaño máximo permitido",
+    "unsupportedType": "Tipo de archivo no soportado",
+    "invalidFile": "El archivo no coincide con el tipo declarado",
+    "uploadFailed": "Error al subir el archivo",
+    "notFound": "Archivo no encontrado",
+    "unknown": "Error desconocido"
+  },
+  "success": {
+    "uploaded": "Archivo subido correctamente",
+    "deleted": "Archivo eliminado correctamente"
+  },
+  "delete": {
+    "confirm": "¿Eliminar este archivo?"
+  },
+  "parent": {
+    "cliente": "Cliente",
+    "tarea": "Tarea",
+    "liquidacion": "Liquidación"
+  },
+  "table": {
+    "name": "Nombre",
+    "type": "Tipo",
+    "period": "Período",
+    "size": "Tamaño",
+    "uploadedBy": "Subido por",
+    "date": "Fecha",
+    "actions": "Acciones",
+    "empty": "No hay archivos cargados"
+  }
+}
