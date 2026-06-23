@@ -1,3 +1,9 @@
+import {
+    DeleteObjectCommand,
+    GetObjectCommand,
+    HeadObjectCommand,
+    PutObjectCommand,
+} from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { Test, type TestingModule } from '@nestjs/testing';
 
@@ -21,6 +27,26 @@ jest.mock('@aws-sdk/s3-request-presigner', () => ({
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const presigner = require('@aws-sdk/s3-request-presigner');
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyS3Command = new (...args: any[]) => unknown;
+
+/** Helper: assert that the command sent to S3Client has the expected type, Bucket, and Key. */
+function assertCommand(
+    mockSend: jest.Mock,
+    ExpectedCommand: AnyS3Command,
+    expectedBucket: string,
+    expectedKey: string,
+) {
+    expect(mockSend).toHaveBeenCalledTimes(1);
+    const cmd = mockSend.mock.calls[0][0];
+    expect(cmd).toBeInstanceOf(ExpectedCommand);
+     
+    expect((cmd).input).toMatchObject({
+        Bucket: expectedBucket,
+        Key: expectedKey,
+    });
+}
 
 describe('R2StorageService', () => {
     let service: R2StorageService;
@@ -79,7 +105,17 @@ describe('R2StorageService', () => {
             const result = await service.put(putInput);
 
             expect(result).toEqual({ key: putInput.key });
-            expect(mockS3Client.send).toHaveBeenCalledTimes(1);
+            assertCommand(
+                mockS3Client.send,
+                PutObjectCommand,
+                bucket,
+                putInput.key,
+            );
+
+            // Additionally assert ContentType and Body on the command
+            const cmd = mockS3Client.send.mock.calls[0][0] as PutObjectCommand;
+            expect(cmd.input.ContentType).toBe('application/pdf');
+            expect(cmd.input.Body).toBe(putInput.body);
         });
 
         it('should throw on network error', async () => {
@@ -107,8 +143,13 @@ describe('R2StorageService', () => {
             const result = await service.get(key);
 
             expect(result).toEqual(fileContent);
-            expect(mockS3Client.send).toHaveBeenCalledTimes(1);
             expect(mockBody.transformToByteArray).toHaveBeenCalledTimes(1);
+            assertCommand(
+                mockS3Client.send,
+                GetObjectCommand,
+                bucket,
+                key,
+            );
         });
 
         it('should throw when key does not exist', async () => {
@@ -133,6 +174,17 @@ describe('R2StorageService', () => {
 
             expect(typeof result).toBe('string');
             expect(presigner.getSignedUrl).toHaveBeenCalledTimes(1);
+
+            // Verify the command passed to the presigner is a GetObjectCommand
+            // with the correct Bucket and Key
+            const [, cmdArg, optsArg] = presigner.getSignedUrl.mock.calls[0];
+            expect(cmdArg).toBeInstanceOf(GetObjectCommand);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            expect((cmdArg as Record<string, any>).input).toMatchObject({
+                Bucket: bucket,
+                Key: key,
+            });
+            expect(optsArg).toEqual({ expiresIn: 300 });
         });
 
         it('should accept a custom TTL', async () => {
@@ -140,6 +192,9 @@ describe('R2StorageService', () => {
 
             expect(typeof result).toBe('string');
             expect(presigner.getSignedUrl).toHaveBeenCalledTimes(1);
+
+            const [_, __, optsArg] = presigner.getSignedUrl.mock.calls[0];
+            expect(optsArg).toEqual({ expiresIn: 600 });
         });
     });
 
@@ -150,7 +205,12 @@ describe('R2StorageService', () => {
             mockS3Client.send.mockResolvedValue({});
 
             await expect(service.delete(key)).resolves.toBeUndefined();
-            expect(mockS3Client.send).toHaveBeenCalledTimes(1);
+            assertCommand(
+                mockS3Client.send,
+                DeleteObjectCommand,
+                bucket,
+                key,
+            );
         });
 
         it('should be idempotent when key does not exist', async () => {
@@ -160,7 +220,12 @@ describe('R2StorageService', () => {
             mockS3Client.send.mockRejectedValue(notFoundError);
 
             await expect(service.delete(key)).resolves.toBeUndefined();
-            expect(mockS3Client.send).toHaveBeenCalledTimes(1);
+            assertCommand(
+                mockS3Client.send,
+                DeleteObjectCommand,
+                bucket,
+                key,
+            );
         });
 
         it('should rethrow non-NoSuchKey errors', async () => {
@@ -182,7 +247,12 @@ describe('R2StorageService', () => {
             const result = await service.exists(key);
 
             expect(result).toBe(true);
-            expect(mockS3Client.send).toHaveBeenCalledTimes(1);
+            assertCommand(
+                mockS3Client.send,
+                HeadObjectCommand,
+                bucket,
+                key,
+            );
         });
 
         it('should return false when key does not exist (NotFound)', async () => {

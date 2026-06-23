@@ -10,7 +10,6 @@ import { ArchivosTareasService } from '../services/archivos-tareas.service';
 
 @ApiTags('admin.tareas')
 @ApiBearerAuth('accessToken')
-@AllowedRoles([UserRole.SOCIO])
 @Controller({ path: '/tareas', version: '1' })
 export class ArchivosTareasController {
     constructor(private readonly archivosTareasService: ArchivosTareasService) {}
@@ -25,6 +24,7 @@ export class ArchivosTareasController {
     }
 
     @Post(':id/archivos')
+    @AllowedRoles([UserRole.SOCIO])
     @ApiEndpoint({
         summary: 'Attach an existing archivo to a tarea (SOCIO only)',
         messageKey: 'archivo.success.attached',
@@ -39,6 +39,7 @@ export class ArchivosTareasController {
     }
 
     @Delete(':id/archivos/:archivoId')
+    @AllowedRoles([UserRole.SOCIO])
     @ApiEndpoint({
         summary: 'Detach an archivo from a tarea (SOCIO only)',
         messageKey: 'archivo.success.detached',
