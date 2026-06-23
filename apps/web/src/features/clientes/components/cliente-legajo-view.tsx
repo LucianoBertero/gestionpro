@@ -11,9 +11,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ClienteFormSheet } from './cliente-form-sheet';
-import { GestionarImpuestosSheet } from './gestionar-impuestos-sheet';
-import { useAuthStore } from '@/features/auth/store/auth.store';
-import { SOCIO } from '@/constants';
 
 interface ClienteLegajoViewProps {
   id: number;
@@ -22,9 +19,6 @@ interface ClienteLegajoViewProps {
 export function ClienteLegajoView({ id }: ClienteLegajoViewProps) {
   const { data: legajo, isLoading, error } = useQuery(legajoQueryOptions(id));
   const [editOpen, setEditOpen] = useState(false);
-  const [impuestosOpen, setImpuestosOpen] = useState(false);
-  const user = useAuthStore((s) => s.user);
-  const isSocio = user?.role === SOCIO;
 
   const breadcrumb = (
     <nav className='mb-2 flex items-center gap-2 text-sm'>
@@ -72,30 +66,14 @@ export function ClienteLegajoView({ id }: ClienteLegajoViewProps) {
         open={editOpen}
         onOpenChange={setEditOpen}
       />
-      <GestionarImpuestosSheet
-        clienteId={legajo.id}
-        open={impuestosOpen}
-        onOpenChange={setImpuestosOpen}
-      />
       <PageContainer
         pageTitle={legajo.denominacion}
         pageDescription={`CUIT: ${legajo.cuit}`}
         pageHeaderAction={
-          <div className='flex items-center gap-2'>
-            {isSocio && (
-              <Button
-                variant='outline'
-                onClick={() => setImpuestosOpen(true)}
-              >
-                <Icons.fileText className='mr-2 h-4 w-4' />
-                Gestionar Impuestos
-              </Button>
-            )}
-            <Button onClick={() => setEditOpen(true)}>
-              <Icons.edit className='mr-2 h-4 w-4' />
-              Editar cliente
-            </Button>
-          </div>
+          <Button onClick={() => setEditOpen(true)}>
+            <Icons.edit className='mr-2 h-4 w-4' />
+            Editar cliente
+          </Button>
         }
       >
       {breadcrumb}

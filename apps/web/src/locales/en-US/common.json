@@ -433,6 +433,7 @@
     "deleteError": "Error deleting credential"
   },
   "impuestoCliente": {
+    "title": "Taxes",
     "vence": "Due",
     "noResults": "This client has no registered taxes.",
     "sinFecha": "No due date",

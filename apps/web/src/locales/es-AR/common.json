@@ -431,6 +431,7 @@
     "deleteError": "Error al eliminar clave"
   },
   "impuestoCliente": {
+    "title": "Impuestos",
     "vence": "Vence",
     "noResults": "Este cliente no tiene impuestos registrados.",
     "sinFecha": "Sin fecha",
