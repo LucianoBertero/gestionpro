@@ -1,5 +1,6 @@
 {
   "title": "Archivos",
+  "description": "Gestión de archivos y documentos",
   "upload": {
     "title": "Subir archivo",
     "button": "Subir Archivo",
@@ -55,5 +56,17 @@
     "date": "Fecha",
     "actions": "Acciones",
     "empty": "No hay archivos cargados"
+  },
+  "tipo": {
+    "COMPROBANTE": "Comprobante",
+    "DDJJ": "DDJJ",
+    "CONTRATO": "Contrato",
+    "OTRO": "Otro"
+  },
+  "filter": {
+    "selectParent": "Seleccioná un tipo de entidad y un ID para ver los archivos",
+    "parentTypeLabel": "Entidad",
+    "parentIdLabel": "ID",
+    "searchButton": "Buscar"
   }
 }
