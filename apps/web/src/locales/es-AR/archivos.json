@@ -2,7 +2,20 @@
   "title": "Archivos",
   "upload": {
     "title": "Subir archivo",
-    "button": "Subir Archivo"
+    "button": "Subir Archivo",
+    "description": "Adjuntá un archivo a un cliente, tarea o liquidación. El archivo se almacena de forma segura.",
+    "cancel": "Cancelar",
+    "submit": "Subir",
+    "uploading": "Subiendo...",
+    "dragHere": "Arrastrá y soltá tu archivo aquí",
+    "formats": "PDF, Excel, Word, Imágenes — Max 10MB",
+    "dropActive": "Soltá el archivo aquí...",
+    "fileTooBig": "El archivo es demasiado grande. Tamaño máximo: 10MB",
+    "parentType": "Tipo",
+    "parentId": "ID",
+    "category": "Categoría",
+    "periodo": "Período (opcional)",
+    "periodoPlaceholder": "Ej: 2026-05"
   },
   "dropzone": {
     "placeholder": "Arrastrá un archivo o hacé clic para seleccionar",
@@ -21,7 +34,9 @@
   },
   "success": {
     "uploaded": "Archivo subido correctamente",
-    "deleted": "Archivo eliminado correctamente"
+    "deleted": "Archivo eliminado correctamente",
+    "attached": "Archivo adjuntado correctamente",
+    "detached": "Archivo desvinculado correctamente"
   },
   "delete": {
     "confirm": "¿Eliminar este archivo?"

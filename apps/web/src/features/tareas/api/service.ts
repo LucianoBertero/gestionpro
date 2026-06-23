@@ -40,3 +40,20 @@ export async function completarTarea(id: number): Promise<Tarea> {
 export async function deleteTarea(id: number): Promise<void> {
   await api.delete(`/v1/admin/tareas/${id}`);
 }
+
+// ─── Archivos ──────────────────────────────────────────────────────
+
+export async function getArchivosTarea(tareaId: number) {
+  const { data } = await api.get(`/v1/tareas/${tareaId}/archivos`);
+  return data.data ?? [];
+}
+
+export async function attachArchivoTarea(tareaId: number, archivoId: number, orden?: number) {
+  const { data } = await api.post(`/v1/tareas/${tareaId}/archivos`, { archivoId, orden });
+  return data.data;
+}
+
+export async function detachArchivoTarea(tareaId: number, archivoId: number) {
+  const { data } = await api.delete(`/v1/tareas/${tareaId}/archivos/${archivoId}`);
+  return data.data;
+}

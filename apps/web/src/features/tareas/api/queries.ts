@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import { getTareas, getTarea } from './service';
+import { getTareas, getTarea, getArchivosTarea } from './service';
 import type { Tarea, TareaFilters } from './types';
 
 export type { Tarea };
@@ -28,4 +28,18 @@ export const tareaQueryOptions = (id: number) =>
     queryKey: tareasKeys.detail(id),
     queryFn: () => getTarea(id),
     enabled: !!id,
+  });
+
+// ─── Archivos ──────────────────────────────────────────────────────
+
+export const archivosTareaKeys = {
+  root: ['tareas', 'archivos'] as const,
+  byTarea: (tareaId: number) => [...archivosTareaKeys.root, tareaId] as const,
+};
+
+export const archivosTareaQueryOptions = (tareaId: number) =>
+  queryOptions({
+    queryKey: archivosTareaKeys.byTarea(tareaId),
+    queryFn: () => getArchivosTarea(tareaId),
+    enabled: !!tareaId,
   });

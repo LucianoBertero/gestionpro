@@ -1,5 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-import { getClientes, getCliente, getLegajo, getNotas } from './service';
+import { getClientes, getCliente, getLegajo, getNotas, getArchivosCliente } from './service';
 import { getActiveUsers } from '@/features/auth/api/service';
 import type { Cliente, ClienteFilters, ClienteLegajo } from './types';
 
@@ -53,4 +53,18 @@ export const activeUsersQueryOptions = () =>
     queryKey: ['users', 'active'],
     queryFn: getActiveUsers,
     staleTime: 5 * 60 * 1000,
+  });
+
+// ─── Archivos ──────────────────────────────────────────────────────
+
+export const archivosClienteKeys = {
+  root: ['clientes', 'archivos'] as const,
+  byCliente: (clienteId: number) => [...archivosClienteKeys.root, clienteId] as const,
+};
+
+export const archivosClienteQueryOptions = (clienteId: number) =>
+  queryOptions({
+    queryKey: archivosClienteKeys.byCliente(clienteId),
+    queryFn: () => getArchivosCliente(clienteId),
+    enabled: !!clienteId,
   });
