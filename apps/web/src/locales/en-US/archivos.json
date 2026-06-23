@@ -1,5 +1,6 @@
 {
   "title": "Files",
+  "description": "File and document management",
   "upload": {
     "title": "Upload file",
     "button": "Upload File",
@@ -55,5 +56,17 @@
     "date": "Date",
     "actions": "Actions",
     "empty": "No files uploaded"
+  },
+  "tipo": {
+    "COMPROBANTE": "Receipt",
+    "DDJJ": "Tax Return",
+    "CONTRATO": "Contract",
+    "OTRO": "Other"
+  },
+  "filter": {
+    "selectParent": "Select an entity type and ID to browse files",
+    "parentTypeLabel": "Entity",
+    "parentIdLabel": "ID",
+    "searchButton": "Search"
   }
 }
