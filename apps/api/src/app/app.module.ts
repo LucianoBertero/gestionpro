@@ -4,7 +4,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { CommonModule } from 'src/common/common.module';
 import { StorageModule } from 'src/common/storage/storage.module';
 import { AgendaModule } from 'src/modules/agenda/agenda.module';
-import { ArchivoModule } from 'src/modules/archivo/archivo.module';
+import { ArchivosModule } from 'src/modules/archivos/archivos.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { ClavesModule } from 'src/modules/claves/claves.module';
 import { ClientesModule } from 'src/modules/clientes/clientes.module';
@@ -49,7 +49,7 @@ import { HealthController } from './controllers/health.controller';
         AgendaModule,
         NotificacionesModule,
         ComunicacionModule,
-        ArchivoModule,
+        ArchivosModule,
         ClavesModule,
         EmailTemplatesModule,
         DashboardModule,
