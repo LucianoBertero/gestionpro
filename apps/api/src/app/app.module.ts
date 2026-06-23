@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TerminusModule } from '@nestjs/terminus';
 
 import { CommonModule } from 'src/common/common.module';
+import { StorageModule } from 'src/common/storage/storage.module';
 import { AgendaModule } from 'src/modules/agenda/agenda.module';
 import { ArchivoModule } from 'src/modules/archivo/archivo.module';
 import { AuthModule } from 'src/modules/auth/auth.module';
@@ -33,6 +34,9 @@ import { HealthController } from './controllers/health.controller';
 
         // Background Processing
         WorkerModule,
+
+        // Shared Infrastructure
+        StorageModule,
 
         // Feature Modules
         AuthModule,
