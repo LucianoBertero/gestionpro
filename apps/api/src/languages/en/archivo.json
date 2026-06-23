@@ -1,8 +1,16 @@
 {
     "success": {
-        "deleted": "File deleted"
+        "deleted": "File deleted successfully",
+        "uploaded": "File uploaded successfully",
+        "found": "File retrieved successfully",
+        "list": "Files retrieved successfully"
     },
     "error": {
-        "notFound": "File not found"
+        "notFound": "File not found",
+        "fileNotFound": "The file could not be found in storage",
+        "fileTooLarge": "File exceeds the maximum size of 10 MB",
+        "unsupportedMimeType": "Unsupported file type",
+        "invalidFile": "File content does not match the declared type",
+        "uploadFailed": "Failed to upload file"
     }
 }
