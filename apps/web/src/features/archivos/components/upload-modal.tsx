@@ -21,21 +21,22 @@ import {
 } from '@/components/ui/select';
 import { Icons } from '@/components/icons';
 import { useMutation } from '@tanstack/react-query';
-import { createArchivo } from '../api/service';
+import { uploadArchivo } from '../api/service';
 import { getQueryClient } from '@/lib/query-client';
 import { archivosKeys } from '../api/queries';
-import type { TipoArchivo } from '../api/types';
+import type { TipoArchivo, ArchivoParent } from '../api/types';
 
 interface UploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const MAX_SIZE_KB = 10240; // 10MB
+const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 export function UploadModal({ open, onOpenChange }: UploadModalProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [clienteId, setClienteId] = useState<number>(0);
+  const [parentType, setParentType] = useState<ArchivoParent['type']>('cliente');
+  const [parentId, setParentId] = useState<number>(0);
   const [tipo, setTipo] = useState<TipoArchivo>('COMPROBANTE');
   const [periodo, setPeriodo] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -43,8 +44,11 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
   const queryClient = getQueryClient();
 
   const uploadMutation = useMutation({
-    mutationFn: (data: { clienteId: number; nombre: string; tipo: TipoArchivo; periodo?: string; url: string; tamanioKb?: number }) =>
-      createArchivo(data),
+    mutationFn: () => {
+      if (!file) throw new Error('No file selected');
+      const parent: ArchivoParent = { type: parentType, id: parentId };
+      return uploadArchivo(file, parent, tipo, periodo || undefined);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: archivosKeys.all });
       resetForm();
@@ -57,7 +61,8 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
 
   const resetForm = () => {
     setFile(null);
-    setClienteId(0);
+    setParentType('cliente');
+    setParentId(0);
     setTipo('COMPROBANTE');
     setPeriodo('');
     setValidationError(null);
@@ -67,9 +72,8 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
     const f = acceptedFiles[0];
     if (!f) return;
 
-    const sizeKb = Math.round(f.size / 1024);
-    if (sizeKb > MAX_SIZE_KB) {
-      setValidationError(`El archivo es demasiado grande. Tamaño máximo: 10MB`);
+    if (f.size > MAX_SIZE_BYTES) {
+      setValidationError('El archivo es demasiado grande. Tamaño máximo: 10MB');
       return;
     }
 
@@ -80,21 +84,13 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxFiles: 1,
-    maxSize: MAX_SIZE_KB * 1024,
+    maxSize: MAX_SIZE_BYTES,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !clienteId) return;
-
-    uploadMutation.mutate({
-      clienteId,
-      nombre: file.name,
-      tipo,
-      periodo: periodo || undefined,
-      url: URL.createObjectURL(file),
-      tamanioKb: Math.round(file.size / 1024),
-    });
+    if (!file || !parentId) return;
+    uploadMutation.mutate();
   };
 
   return (
@@ -103,7 +99,7 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
         <DialogHeader>
           <DialogTitle>Subir Archivo</DialogTitle>
           <DialogDescription>
-            Cargá un archivo al sistema. Se guardará la metadata; el almacenamiento físico se habilitará próximamente.
+            Adjuntá un archivo a un cliente, tarea o liquidación. El archivo se almacena de forma segura.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -142,17 +138,33 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="clienteId">ID del Cliente</Label>
+              <Label htmlFor="parentType">Tipo</Label>
+              <Select value={parentType} onValueChange={(v: ArchivoParent['type']) => setParentType(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cliente">Cliente</SelectItem>
+                  <SelectItem value="tarea">Tarea</SelectItem>
+                  <SelectItem value="liquidacion">Liquidación</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="parentId">ID</Label>
               <Input
-                id="clienteId"
+                id="parentId"
                 type="number"
-                value={clienteId || ''}
-                onChange={(e) => setClienteId(Number(e.target.value))}
+                value={parentId || ''}
+                onChange={(e) => setParentId(Number(e.target.value))}
                 required
               />
             </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="tipo">Tipo</Label>
+              <Label htmlFor="tipoArchivo">Categoría</Label>
               <Select value={tipo} onValueChange={(v: TipoArchivo) => setTipo(v)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -165,21 +177,20 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="periodo">Período (opcional)</Label>
-            <Input
-              id="periodo"
-              value={periodo}
-              onChange={(e) => setPeriodo(e.target.value)}
-              placeholder="Ej: 2026-05"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="periodo">Período (opcional)</Label>
+              <Input
+                id="periodo"
+                value={periodo}
+                onChange={(e) => setPeriodo(e.target.value)}
+                placeholder="Ej: 2026-05"
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={!file || !clienteId || uploadMutation.isPending}>
+            <Button type="submit" disabled={!file || !parentId || uploadMutation.isPending}>
               {uploadMutation.isPending ? (
                 <><Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Subiendo...</>
               ) : (

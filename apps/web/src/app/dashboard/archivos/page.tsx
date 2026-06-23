@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import PageContainer from '@/components/layout/page-container';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -30,10 +29,11 @@ const tipoBadge: Record<string, string> = {
   OTRO: 'bg-gray-100 text-gray-800',
 };
 
-function formatFileSize(kb: number | null): string {
-  if (!kb) return NULL_PLACEHOLDER;
-  if (kb < 1024) return `${kb} KB`;
-  return `${(kb / 1024).toFixed(1)} MB`;
+function formatFileSize(bytes: number): string {
+  if (!bytes) return NULL_PLACEHOLDER;
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export default function ArchivosPage() {
@@ -61,12 +61,6 @@ export default function ArchivosPage() {
     <PageContainer
       pageTitle="Archivos"
       pageDescription="Gestión de archivos y documentos"
-      pageHeaderAction={
-        <Button onClick={() => setUploadOpen(true)}>
-          <Icons.upload className="mr-2 h-4 w-4" />
-          Subir Archivo
-        </Button>
-      }
     >
       <div className="rounded-lg border">
         <Table>
@@ -94,7 +88,7 @@ export default function ArchivosPage() {
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
                       <Icons.fileText className="h-4 w-4 text-muted-foreground" />
-                      {arc.nombre}
+                      {arc.originalName}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -106,24 +100,24 @@ export default function ArchivosPage() {
                     {arc.periodo || NULL_PLACEHOLDER}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {formatFileSize(arc.tamanioKb)}
+                    {formatFileSize(arc.bytes)}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {arc.subidoPor?.nombre ?? NULL_PLACEHOLDER}
+                    {arc.subidoPorId}
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(arc.creadoEn), { addSuffix: true, locale: es })}
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center rounded-md p-2 hover:bg-muted"
                       onClick={() => {
                         if (confirm('¿Eliminar este archivo?')) deleteMutation.mutate(arc.id);
                       }}
                     >
                       <Icons.trash className="h-4 w-4" />
-                    </Button>
+                    </button>
                   </TableCell>
                 </TableRow>
               ))
