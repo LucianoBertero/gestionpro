@@ -156,4 +156,54 @@ describe('ArchivoRepository', () => {
             });
         });
     });
+
+    describe('findById', () => {
+        it('returns archivo when found', async () => {
+            const row = { id: 1, storageKey: 'key-1', activo: true };
+            mockArchivoDelegate.findUnique.mockResolvedValue(row);
+
+            const result = await repository.findById(1);
+            expect(result).toEqual(row);
+        });
+
+        it('returns null when not found', async () => {
+            mockArchivoDelegate.findUnique.mockResolvedValue(null);
+            const result = await repository.findById(999);
+            expect(result).toBeNull();
+        });
+    });
+
+    describe('create', () => {
+        it('creates an archivo row', async () => {
+            const input = {
+                storageKey: 'key-1',
+                mimeType: 'application/pdf',
+                extension: 'pdf',
+                bytes: 2048,
+                originalName: 'test.pdf',
+                tipo: 'DDJJ' as const,
+                subidoPorId: 'user-1',
+            };
+            const created = { id: 2, ...input, activo: true, periodo: null, creadoEn: new Date() };
+            mockArchivoDelegate.create.mockResolvedValue(created);
+
+            const result = await repository.create(input);
+            expect(result).toEqual(created);
+            expect(mockArchivoDelegate.create).toHaveBeenCalledWith({ data: input });
+        });
+    });
+
+    describe('existsById', () => {
+        it('returns true when row exists', async () => {
+            mockArchivoDelegate.findUnique.mockResolvedValue({ id: 1 });
+            const result = await repository.existsById(1);
+            expect(result).toBe(true);
+        });
+
+        it('returns false when row does not exist', async () => {
+            mockArchivoDelegate.findUnique.mockResolvedValue(null);
+            const result = await repository.existsById(999);
+            expect(result).toBe(false);
+        });
+    });
 });

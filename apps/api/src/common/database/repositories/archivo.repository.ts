@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../services/database.service';
+
 import type { TipoArchivo } from '../enums/tipo-archivo.enum';
+import { DatabaseService } from '../services/database.service';
 
 type ParentType = 'cliente' | 'tarea' | 'liquidacion';
 
@@ -61,13 +62,13 @@ export class ArchivoRepository {
 
     deleteJunctions(archivoId: number): Promise<void> {
         return Promise.all([
-            (this.db as any).archivosCliente.deleteMany({
+            this.db.archivosCliente.deleteMany({
                 where: { archivoId },
             }),
-            (this.db as any).archivosTarea.deleteMany({
+            this.db.archivosTarea.deleteMany({
                 where: { archivoId },
             }),
-            (this.db as any).archivosLiquidacion.deleteMany({
+            this.db.archivosLiquidacion.deleteMany({
                 where: { archivoId },
             }),
         ]).then(() => undefined);
@@ -93,11 +94,11 @@ export class ArchivoRepository {
     private getDelegates(parentType: ParentType) {
         switch (parentType) {
             case 'cliente':
-                return (this.db as any).archivosCliente;
+                return this.db.archivosCliente;
             case 'tarea':
-                return (this.db as any).archivosTarea;
+                return this.db.archivosTarea;
             case 'liquidacion':
-                return (this.db as any).archivosLiquidacion;
+                return this.db.archivosLiquidacion;
         }
     }
 
