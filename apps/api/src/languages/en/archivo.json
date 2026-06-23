@@ -11,6 +11,10 @@
         "fileTooLarge": "File exceeds the maximum size of 10 MB",
         "unsupportedMimeType": "Unsupported file type",
         "invalidFile": "File content does not match the declared type",
-        "uploadFailed": "Failed to upload file"
+        "uploadFailed": "Failed to upload file",
+        "invalidParent": "Missing or invalid parent. Expected {\"type\":\"cliente|tarea|liquidacion\",\"id\":<number>}",
+        "invalidTipo": "Invalid file type value",
+        "invalidPeriodo": "Invalid period format. Expected YYYY-MM",
+        "invalidParentType": "Invalid parent type. Must be cliente, tarea, or liquidacion"
     }
 }

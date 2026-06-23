@@ -10,7 +10,6 @@ import { ArchivosClientesService } from '../services/archivos-clientes.service';
 
 @ApiTags('admin.clientes')
 @ApiBearerAuth('accessToken')
-@AllowedRoles([UserRole.SOCIO])
 @Controller({ path: '/clientes', version: '1' })
 export class ArchivosClientesController {
     constructor(private readonly archivosClientesService: ArchivosClientesService) {}
@@ -25,6 +24,7 @@ export class ArchivosClientesController {
     }
 
     @Post(':id/archivos')
+    @AllowedRoles([UserRole.SOCIO])
     @ApiEndpoint({
         summary: 'Attach an existing archivo to a cliente (SOCIO only)',
         messageKey: 'archivo.success.attached',
@@ -39,6 +39,7 @@ export class ArchivosClientesController {
     }
 
     @Delete(':id/archivos/:archivoId')
+    @AllowedRoles([UserRole.SOCIO])
     @ApiEndpoint({
         summary: 'Detach an archivo from a cliente (SOCIO only)',
         messageKey: 'archivo.success.detached',

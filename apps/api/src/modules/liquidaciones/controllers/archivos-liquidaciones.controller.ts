@@ -10,7 +10,6 @@ import { ArchivosLiquidacionesService } from '../services/archivos-liquidaciones
 
 @ApiTags('admin.liquidaciones')
 @ApiBearerAuth('accessToken')
-@AllowedRoles([UserRole.SOCIO])
 @Controller({ path: '/liquidaciones', version: '1' })
 export class ArchivosLiquidacionesController {
     constructor(private readonly archivosLiquidacionesService: ArchivosLiquidacionesService) {}
@@ -25,6 +24,7 @@ export class ArchivosLiquidacionesController {
     }
 
     @Post(':id/archivos')
+    @AllowedRoles([UserRole.SOCIO])
     @ApiEndpoint({
         summary: 'Attach an existing archivo to a liquidacion (SOCIO only)',
         messageKey: 'archivo.success.attached',
@@ -39,6 +39,7 @@ export class ArchivosLiquidacionesController {
     }
 
     @Delete(':id/archivos/:archivoId')
+    @AllowedRoles([UserRole.SOCIO])
     @ApiEndpoint({
         summary: 'Detach an archivo from a liquidacion (SOCIO only)',
         messageKey: 'archivo.success.detached',

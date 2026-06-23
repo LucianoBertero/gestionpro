@@ -1,4 +1,5 @@
 import {
+    BadRequestException,
     Body,
     Controller,
     Delete,
@@ -21,6 +22,8 @@ import type { IAuthUser } from 'src/common/request/interfaces/request.interface'
 import { ApiGenericResponseDto } from 'src/common/response/dtos/response.generic.dto';
 
 import { ArchivoResponseDto } from '../dtos/archivo.response.dto';
+import { ArchivoParentDto } from '../dtos/archivo-parent.dto';
+import type { ArchivoParent } from '../interfaces/archivo.interface';
 import { FileValidationPipe } from '../pipes/file-validation.pipe';
 import { ArchivosService } from '../services/archivos.service';
 
@@ -47,30 +50,17 @@ export class ArchivosAdminController {
     })
     create(
         @UploadedFile(FileValidationPipe) file: Express.Multer.File,
-        @Body('parent') parentRaw: string,
+        @Body() dto: ArchivoParentDto,
         @AuthUser() user: IAuthUser,
     ) {
-        const parent = parentRaw
-            ? (JSON.parse(parentRaw) as { type: string; id: number })
-            : undefined;
+        // JSON.parse is safe here because the DTO's IsValidParentJson
+        // validator already confirmed it parseable and shape-valid.
+        const parentObj = JSON.parse(dto.parent) as ArchivoParent;
 
-        if (
-            !parent ||
-            !['cliente', 'tarea', 'liquidacion'].includes(parent.type)
-        ) {
-            throw new Error(
-                'Missing or invalid parent. Expected multipart field "parent" as JSON: {"type":"cliente","id":42}',
-            );
-        }
-
-        return this.archivosService.create(
-            file,
-            parent as {
-                type: 'cliente' | 'tarea' | 'liquidacion';
-                id: number;
-            },
-            user.userId,
-        );
+        return this.archivosService.create(file, parentObj, user.userId, {
+            tipo: dto.tipo,
+            periodo: dto.periodo,
+        });
     }
 
     @Delete(':id')
