@@ -5,6 +5,7 @@ import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/c
 
 import type { TipoArchivo } from 'src/common/database/enums/tipo-archivo.enum';
 import { ArchivoRepository } from 'src/common/database/repositories/archivo.repository';
+import { DatabaseService } from 'src/common/database/services/database.service';
 import { ApiGenericResponseDto } from 'src/common/response/dtos/response.generic.dto';
 import { STORAGE_SERVICE } from 'src/common/storage/constants/storage.constant';
 import { StorageService } from 'src/common/storage/interfaces/storage.interface';
@@ -26,6 +27,30 @@ function parentTypeSegment(type: ParentType): string {
     }
 }
 
+/** Map singular parent type to the Prisma junction table delegate name. */
+function junctionDelegate(type: ParentType): 'archivosCliente' | 'archivosTarea' | 'archivosLiquidacion' {
+    switch (type) {
+        case 'cliente':
+            return 'archivosCliente';
+        case 'tarea':
+            return 'archivosTarea';
+        case 'liquidacion':
+            return 'archivosLiquidacion';
+    }
+}
+
+/** Map singular parent type to the junction FK field name. */
+function parentIdField(type: ParentType): string {
+    switch (type) {
+        case 'cliente':
+            return 'clienteId';
+        case 'tarea':
+            return 'tareaId';
+        case 'liquidacion':
+            return 'liquidacionId';
+    }
+}
+
 interface CreateOptions {
     tipo?: TipoArchivo;
     periodo?: string;
@@ -37,6 +62,7 @@ export class ArchivosService {
 
     constructor(
         private readonly repo: ArchivoRepository,
+        private readonly db: DatabaseService,
         @Inject(STORAGE_SERVICE)
         private readonly storage: StorageService,
     ) {}
@@ -77,21 +103,34 @@ export class ArchivosService {
             );
         }
 
-        // 2. DB transaction: create archivo row + junction row
+        // 2. DB transaction: create archivo row + junction row atomically
         let archivo: { id: number };
         try {
-            archivo = await this.repo.create({
-                storageKey,
-                mimeType: file.mimetype,
-                extension: ext,
-                bytes: file.size,
-                originalName: file.originalname,
-                tipo: options.tipo ?? ('OTRO'),
-                periodo: options.periodo ?? null,
-                subidoPorId: userId,
-            });
+            archivo = await this.db.$transaction(async (tx) => {
+                const created = await tx.archivo.create({
+                    data: {
+                        storageKey,
+                        mimeType: file.mimetype,
+                        extension: ext,
+                        bytes: file.size,
+                        originalName: file.originalname,
+                        tipo: options.tipo ?? ('OTRO'),
+                        periodo: options.periodo ?? null,
+                        subidoPorId: userId,
+                    },
+                });
 
-            await this.repo.createJunction(parent.type, parent.id, archivo.id, 0);
+                const delegate = tx[junctionDelegate(parent.type)];
+                await delegate.create({
+                    data: {
+                        archivoId: created.id,
+                        [parentIdField(parent.type)]: parent.id,
+                        orden: 0,
+                    },
+                });
+
+                return created;
+            });
         } catch (error) {
             // R2 object is orphaned — log + Sentry for manual cleanup
             this.logger.error(
@@ -131,11 +170,16 @@ export class ArchivosService {
                 archivo.storageKey,
                 SIGNED_URL_TTL,
             );
-        } catch {
-            throw new HttpException(
-                'archivo.error.fileNotFound',
-                HttpStatus.NOT_FOUND,
-            );
+        } catch (error) {
+            // Only 404 when the storage object is genuinely missing (NoSuchKey).
+            // Other errors (network, auth, 5xx) propagate as 500.
+            if ((error as { name?: string }).name === 'NoSuchKey') {
+                throw new HttpException(
+                    'archivo.error.fileNotFound',
+                    HttpStatus.NOT_FOUND,
+                );
+            }
+            throw error;
         }
 
         return { ...archivo, signedUrl };
@@ -152,8 +196,10 @@ export class ArchivosService {
      * Soft-delete an archivo: set activo=false, remove the R2 object,
      * and delete all junction rows.
      *
-     * If R2 delete fails, the error is logged but the DB row is still
-     * soft-deleted (consistent state; orphan R2 objects cleaned up later).
+     * R2 delete happens first (best-effort). Then softDelete + deleteJunctions
+     * run in a single transaction. If R2 delete fails, the error is logged
+     * but the DB operations proceed (consistent state; orphan R2 objects
+     * cleaned up later by a janitor).
      */
     async delete(id: number): Promise<ApiGenericResponseDto> {
         const archivo = await this.repo.findById(id);
@@ -176,8 +222,22 @@ export class ArchivosService {
             );
         }
 
-        await this.repo.softDelete(id);
-        await this.repo.deleteJunctions(id);
+        await this.db.$transaction(async (tx) => {
+            await tx.archivo.update({
+                where: { id },
+                data: { activo: false },
+            });
+
+            await tx.archivosCliente.deleteMany({
+                where: { archivoId: id },
+            });
+            await tx.archivosTarea.deleteMany({
+                where: { archivoId: id },
+            });
+            await tx.archivosLiquidacion.deleteMany({
+                where: { archivoId: id },
+            });
+        });
 
         return { success: true, message: 'archivo.success.deleted' };
     }
