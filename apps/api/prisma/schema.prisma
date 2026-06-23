@@ -169,7 +169,7 @@ model Cliente {
   tareas           Tarea[]
   liquidaciones    Liquidacion[]
   comunicaciones   Comunicacion[]
-  archivos         Archivo[]
+  archivosCliente  ArchivosCliente[]
   notasCliente     NotaCliente[]
   clavesCliente    ClaveCliente[]
 
@@ -214,9 +214,10 @@ model Tarea {
   creadoEn      DateTime     @default(now()) @map("creado_en")
   actualizadoEn DateTime     @updatedAt @map("actualizado_en")
 
-  cliente       Cliente?     @relation(fields: [clienteId], references: [id], onDelete: SetNull)
-  encargado     User         @relation("TareaEncargado", fields: [encargadoId], references: [id])
-  agendaItems   AgendaItem[]
+  cliente            Cliente?          @relation(fields: [clienteId], references: [id], onDelete: SetNull)
+  encargado          User              @relation("TareaEncargado", fields: [encargadoId], references: [id])
+  agendaItems        AgendaItem[]
+  archivosTarea      ArchivosTarea[]
 
   @@index([clienteId, estado], name: "idx_tareas_cliente_estado")
   @@index([encargadoId, estado], name: "idx_tareas_encargado_estado")
@@ -243,8 +244,9 @@ model Liquidacion {
   creadoEn      DateTime      @default(now()) @map("creado_en")
   actualizadoEn DateTime      @updatedAt @map("actualizado_en")
 
-  cliente       Cliente       @relation(fields: [clienteId], references: [id], onDelete: Cascade)
-  cargadoPor    User          @relation("LiquidacionCargadoPor", fields: [cargadoPorId], references: [id])
+  cliente            Cliente            @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  cargadoPor         User               @relation("LiquidacionCargadoPor", fields: [cargadoPorId], references: [id])
+  archivosLiquidacion ArchivosLiquidacion[]
 
   @@unique([clienteId, impuesto, periodo], name: "uq_liquidacion_cliente_periodo")
   @@index([clienteId, impuesto, periodo], name: "idx_liquidaciones_cliente_impuesto_periodo")
@@ -382,20 +384,61 @@ model ClaveEstudio {
 }
 
 model Archivo {
-  id          Int        @id @default(autoincrement())
-  clienteId   Int        @map("cliente_id")
-  nombre      String
-  tipo        TipoArchivo
-  periodo     String?
-  url         String
-  tamanioKb   Int?       @map("tamanio_kb")
-  subidoPorId String     @map("subido_por_id")
-  activo      Boolean    @default(true)
-  creadoEn    DateTime   @default(now()) @map("creado_en")
+  id           Int         @id @default(autoincrement())
+  storageKey   String      @unique @map("storage_key")
+  mimeType     String      @map("mime_type")
+  extension    String
+  bytes        Int
+  originalName String      @map("original_name")
+  tipo         TipoArchivo
+  periodo      String?
+  subidoPorId  String      @map("subido_por_id")
+  activo       Boolean     @default(true)
+  creadoEn     DateTime    @default(now()) @map("creado_en")
 
-  cliente     Cliente    @relation(fields: [clienteId], references: [id], onDelete: Cascade)
-  subidoPor   User       @relation("ArchivoSubidoPor", fields: [subidoPorId], references: [id])
+  subidoPor            User                    @relation("ArchivoSubidoPor", fields: [subidoPorId], references: [id])
+  archivosCliente      ArchivosCliente[]
+  archivosTarea        ArchivosTarea[]
+  archivosLiquidacion  ArchivosLiquidacion[]
 
-  @@index([clienteId, tipo], name: "idx_archivos_cliente_tipo")
   @@map("archivos")
+}
+
+model ArchivosCliente {
+  clienteId Int  @map("cliente_id")
+  archivoId Int  @map("archivo_id")
+  orden     Int  @default(0)
+
+  cliente   Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  archivo   Archivo @relation(fields: [archivoId], references: [id], onDelete: Cascade)
+
+  @@id([clienteId, archivoId])
+  @@unique([archivoId, clienteId], name: "uq_archivos_cliente_archivo")
+  @@map("archivos_clientes")
+}
+
+model ArchivosTarea {
+  tareaId   Int  @map("tarea_id")
+  archivoId Int  @map("archivo_id")
+  orden     Int  @default(0)
+
+  tarea     Tarea   @relation(fields: [tareaId], references: [id], onDelete: Cascade)
+  archivo   Archivo @relation(fields: [archivoId], references: [id], onDelete: Cascade)
+
+  @@id([tareaId, archivoId])
+  @@unique([archivoId, tareaId], name: "uq_archivos_tarea_archivo")
+  @@map("archivos_tareas")
+}
+
+model ArchivosLiquidacion {
+  liquidacionId Int  @map("liquidacion_id")
+  archivoId     Int  @map("archivo_id")
+  orden         Int  @default(0)
+
+  liquidacion   Liquidacion @relation(fields: [liquidacionId], references: [id], onDelete: Cascade)
+  archivo       Archivo     @relation(fields: [archivoId], references: [id], onDelete: Cascade)
+
+  @@id([liquidacionId, archivoId])
+  @@unique([archivoId, liquidacionId], name: "uq_archivos_liquidacion_archivo")
+  @@map("archivos_liquidaciones")
 }
