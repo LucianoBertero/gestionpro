@@ -175,10 +175,18 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="COMPROBANTE">Comprobante</SelectItem>
-                  <SelectItem value="DDJJ">DDJJ</SelectItem>
-                  <SelectItem value="CONTRATO">Contrato</SelectItem>
-                  <SelectItem value="OTRO">Otro</SelectItem>
+                  <SelectItem value="COMPROBANTE">
+                    {t('archivos.tipo.COMPROBANTE', { defaultValue: 'Comprobante' })}
+                  </SelectItem>
+                  <SelectItem value="DDJJ">
+                    {t('archivos.tipo.DDJJ', { defaultValue: 'DDJJ' })}
+                  </SelectItem>
+                  <SelectItem value="CONTRATO">
+                    {t('archivos.tipo.CONTRATO', { defaultValue: 'Contrato' })}
+                  </SelectItem>
+                  <SelectItem value="OTRO">
+                    {t('archivos.tipo.OTRO', { defaultValue: 'Otro' })}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
