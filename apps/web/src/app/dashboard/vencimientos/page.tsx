@@ -9,13 +9,19 @@ import { useT } from '@/lib/i18n/client';
 import type { TipoImpuesto } from '@/constants';
 import { vencimientosQueryOptions } from '@/features/vencimientos/api/queries';
 import { ExcelImportModal } from '@/features/vencimientos/components/excel-import-modal';
+import { VencimientoFormSheet } from '@/features/vencimientos/components/vencimiento-form-sheet';
+import { DuplicateYearDialog } from '@/features/vencimientos/components/duplicate-year-dialog';
 import { ProximosVencimientosCard } from '@/features/vencimientos/components/proximos-vencimientos-card';
 import { VencimientosFilterBar } from '@/features/vencimientos/components/vencimientos-filter-bar';
 import { VencimientosTable } from '@/features/vencimientos/components/vencimientos-table';
 
 export default function VencimientosPage() {
   const t = useT();
+  const tr = (key: string, fallback: string) => t(key, { defaultValue: fallback });
+
   const [importOpen, setImportOpen] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [duplicateOpen, setDuplicateOpen] = useState(false);
 
   // Filters
   const [impuesto, setImpuesto] = useState<TipoImpuesto | 'all'>('all');
@@ -45,13 +51,23 @@ export default function VencimientosPage() {
 
   return (
     <PageContainer
-      pageTitle={t('vencimiento.title', { defaultValue: 'Vencimientos' })}
-      pageDescription={t('vencimiento.periodo', { defaultValue: 'Calendario de vencimientos impositivos' })}
+      pageTitle={tr('vencimiento.title', 'Vencimientos')}
+      pageDescription={tr('vencimiento.periodo', 'Calendario de vencimientos impositivos')}
       pageHeaderAction={
-        <Button onClick={() => setImportOpen(true)}>
-          <Icons.upload className="mr-2 h-4 w-4" />
-          {t('vencimiento.importExcel', { defaultValue: 'Importar Excel' })}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setDuplicateOpen(true)} variant="outline">
+            <Icons.copy className="mr-2 h-4 w-4" />
+            {tr('vencimiento.actions.duplicateYear', 'Duplicar año anterior')}
+          </Button>
+          <Button onClick={() => setImportOpen(true)} variant="outline">
+            <Icons.upload className="mr-2 h-4 w-4" />
+            {tr('vencimiento.actions.import', 'Importar Excel')}
+          </Button>
+          <Button onClick={() => setFormOpen(true)}>
+            <Icons.add className="mr-2 h-4 w-4" />
+            {tr('vencimiento.actions.new', 'Nuevo vencimiento')}
+          </Button>
+        </div>
       }
     >
       {/* Top: Próximos vencimientos */}
@@ -77,6 +93,9 @@ export default function VencimientosPage() {
         onPageChange={setPage}
       />
 
+      {/* Modals */}
+      <VencimientoFormSheet open={formOpen} onOpenChange={setFormOpen} />
+      <DuplicateYearDialog open={duplicateOpen} onOpenChange={setDuplicateOpen} />
       <ExcelImportModal open={importOpen} onOpenChange={setImportOpen} />
     </PageContainer>
   );
