@@ -265,21 +265,20 @@ export function AgendaItemModal({
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="titulo">{tr('agenda.titulo', 'Título')}</Label>
-            <Input
-              id="titulo"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              placeholder={tr('agenda.placeholderTitulo', 'Nombre del evento')}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          {/* ── Básico ───────────────────────────────────────────────────── */}
+          <fieldset className="space-y-3 rounded-md border p-3">
+            <legend className="px-1 text-sm font-medium">
+              {tr('agenda.section.basic', 'Información básica')}
+            </legend>
             <div className="space-y-2">
-              <Label>{tr('agenda.fecha', 'Fecha')}</Label>
-              <DatePicker value={fecha} onChange={setFecha} />
+              <Label htmlFor="titulo">{tr('agenda.titulo', 'Título')}</Label>
+              <Input
+                id="titulo"
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
+                placeholder={tr('agenda.placeholderTitulo', 'Nombre del evento')}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="tipo">{tr('agenda.tipo', 'Tipo')}</Label>
@@ -294,91 +293,110 @@ export function AgendaItemModal({
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          {/* All-day checkbox */}
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="allDay"
-              checked={allDay}
-              onCheckedChange={(checked) => setAllDay(checked === true)}
-            />
-            <Label htmlFor="allDay" className="text-sm cursor-pointer">
-              {tr('agenda.allDay', 'Día completo')}
-            </Label>
-          </div>
-
-          {/* Time inputs (hidden when all-day) */}
-          {!allDay && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{tr('agenda.horaInicio', 'Hora de comienzo')}</Label>
-                <TimePicker value={horaInicio} onChange={setHoraInicio} />
-              </div>
-              <div className="space-y-2">
-                <Label>{tr('agenda.horaFin', 'Hora de fin')}</Label>
-                <TimePicker value={horaFin} onChange={setHoraFin} />
-              </div>
-            </div>
-          )}
-
-          {/* Multi-day checkbox */}
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="multiDay"
-              checked={multiDay}
-              onCheckedChange={(checked) => setMultiDay(checked === true)}
-            />
-            <Label htmlFor="multiDay" className="text-sm cursor-pointer">
-              {tr('agenda.multiDay.label', 'Evento de varios días')}
-            </Label>
-          </div>
-
-          {multiDay && (
             <div className="space-y-2">
-              <Label>{tr('agenda.multiDay.endDate', 'Fecha de fin')}</Label>
-              <DatePicker value={fechaFin} onChange={setFechaFin} />
+              <Label htmlFor="descripcion">{tr('agenda.descripcion', 'Descripción')}</Label>
+              <Textarea
+                id="descripcion"
+                value={descripcion}
+                onChange={(e) => setDescripcion(e.target.value)}
+                placeholder={tr('agenda.placeholderDescripcion', 'Descripción del evento (opcional)')}
+                rows={2}
+              />
             </div>
-          )}
+          </fieldset>
 
-          <div className="space-y-2">
-            <Label htmlFor="descripcion">{tr('agenda.descripcion', 'Descripción')}</Label>
-            <Textarea
-              id="descripcion"
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              placeholder={tr('agenda.placeholderDescripcion', 'Descripción del evento (opcional)')}
-              rows={2}
-            />
-          </div>
-
-          {!item && isSocio && (
+          {/* ── Cuándo ───────────────────────────────────────────────────── */}
+          <fieldset className="space-y-3 rounded-md border p-3">
+            <legend className="px-1 text-sm font-medium">
+              {tr('agenda.section.when', 'Cuándo')}
+            </legend>
             <div className="space-y-2">
-              <Label>{tr('agenda.asignarUsuario', 'Asignar a usuario')}</Label>
-              <select
-                value={usuarioId || user?.id || ''}
-                onChange={(e) => setUsuarioId(e.target.value)}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-              >
-                <option value={user?.id ?? ''}>
-                  {user?.nombre ?? tr('common.me', 'Yo')} ({tr('agenda.me', 'yo')})
-                </option>
-                {(usuarios ?? [])
-                  .filter((u: AgendaUsuario) => u.id !== user?.id)
-                  .map((u: AgendaUsuario) => (
-                    <option key={u.id} value={u.id}>
-                      {u.nombre}
-                    </option>
-                  ))}
-              </select>
+              <Label>{tr('agenda.fecha', 'Fecha')}</Label>
+              <DatePicker value={fecha} onChange={setFecha} />
             </div>
-          )}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="multiDay"
+                checked={multiDay}
+                onCheckedChange={(checked) => setMultiDay(checked === true)}
+              />
+              <Label htmlFor="multiDay" className="text-sm cursor-pointer">
+                {tr('agenda.multiDay.label', 'Evento de varios días')}
+              </Label>
+            </div>
+            {multiDay && (
+              <div className="space-y-2">
+                <Label>{tr('agenda.multiDay.endDate', 'Fecha de fin')}</Label>
+                <DatePicker value={fechaFin} onChange={setFechaFin} />
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="allDay"
+                checked={allDay}
+                onCheckedChange={(checked) => setAllDay(checked === true)}
+              />
+              <Label htmlFor="allDay" className="text-sm cursor-pointer">
+                {tr('agenda.allDay', 'Día completo')}
+              </Label>
+            </div>
+            {!allDay && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{tr('agenda.horaInicio', 'Hora de comienzo')}</Label>
+                  <TimePicker value={horaInicio} onChange={setHoraInicio} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{tr('agenda.horaFin', 'Hora de fin')}</Label>
+                  <TimePicker value={horaFin} onChange={setHoraFin} />
+                </div>
+              </div>
+            )}
+          </fieldset>
 
-          {/* Recurrence section */}
-          <div className="space-y-3 rounded-md border p-3">
-            <Label className="text-sm font-medium">
+          {/* ── Quién ────────────────────────────────────────────────────── */}
+          <fieldset className="space-y-3 rounded-md border p-3">
+            <legend className="px-1 text-sm font-medium">
+              {tr('agenda.section.who', 'Quién')}
+            </legend>
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="esEstudio"
+                checked={esEstudio}
+                onCheckedChange={handleEsEstudioChange}
+              />
+              <Label htmlFor="esEstudio" className="text-sm cursor-pointer">
+                {tr('agenda.compartirEstudio', 'Compartir con el estudio (visible para el equipo)')}
+              </Label>
+            </div>
+            {!item && isSocio && (
+              <div className="space-y-2">
+                <Label>{tr('agenda.asignarUsuario', 'Asignar a usuario')}</Label>
+                <select
+                  value={usuarioId || user?.id || ''}
+                  onChange={(e) => setUsuarioId(e.target.value)}
+                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                >
+                  <option value={user?.id ?? ''}>
+                    {user?.nombre ?? tr('common.me', 'Yo')} ({tr('agenda.me', 'yo')})
+                  </option>
+                  {(usuarios ?? [])
+                    .filter((u: AgendaUsuario) => u.id !== user?.id)
+                    .map((u: AgendaUsuario) => (
+                      <option key={u.id} value={u.id}>
+                        {u.nombre}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+          </fieldset>
+
+          {/* ── Repetición ────────────────────────────────────────────────── */}
+          <fieldset className="space-y-3 rounded-md border p-3">
+            <legend className="px-1 text-sm font-medium">
               {tr('agenda.recurrence.label', 'Repetición')}
-            </Label>
+            </legend>
             <Select
               value={recurrenceFreq}
               onValueChange={(v) => {
@@ -459,18 +477,7 @@ export function AgendaItemModal({
                 </div>
               </>
             )}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="esEstudio"
-              checked={esEstudio}
-              onCheckedChange={handleEsEstudioChange}
-            />
-            <Label htmlFor="esEstudio" className="text-sm cursor-pointer">
-              {tr('agenda.compartirEstudio', 'Compartir con el estudio (visible para el equipo)')}
-            </Label>
-          </div>
+          </fieldset>
 
           <DialogFooter className="gap-2 sm:gap-0">
             {item && (

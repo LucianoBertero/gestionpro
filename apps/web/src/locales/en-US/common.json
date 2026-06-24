@@ -371,6 +371,12 @@
     "compartirEstudio": "Share with the office (visible to the team)",
     "me": "me",
     "confirmDelete": "Delete event {{title}}?",
+    "section": {
+      "basic": "Basic info",
+      "when": "When",
+      "who": "Who",
+      "recurrence": "Recurrence"
+    },
     "created": "Event created",
     "updated": "Event updated",
     "deleted": "Event deleted",
