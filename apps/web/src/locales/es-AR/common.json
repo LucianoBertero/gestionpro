@@ -328,6 +328,7 @@
     "placeholderFormaPago": "Efectivo, Transferencia...",
     "placeholderImporte": "0.00",
     "placeholderPeriodo": "YYYY-MM",
+    "placeholderVencimiento": "YYYY-MM-DD",
     "updated": "Liquidación actualizada",
     "updateError": "No se pudo actualizar la liquidación"
   },

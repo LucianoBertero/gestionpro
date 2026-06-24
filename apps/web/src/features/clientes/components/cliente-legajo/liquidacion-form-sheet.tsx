@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DatePicker } from '@/components/ui/date-picker';
 import { Label } from '@/components/ui/label';
 import { Icons } from '@/components/icons';
 import { useT } from '@/lib/i18n/client';
@@ -55,7 +54,7 @@ export function LiquidacionFormSheet({
   const [periodo, setPeriodo] = useState('');
   const [resultado, setResultado] = useState<ResultadoLiquidacion>('A_PAGAR');
   const [importe, setImporte] = useState('');
-  const [vencimiento, setVencimiento] = useState<Date | undefined>(undefined);
+  const [vencimiento, setVencimiento] = useState('');
   const [formaPago, setFormaPago] = useState('');
 
   // Reset form when sheet opens
@@ -66,8 +65,9 @@ export function LiquidacionFormSheet({
         setPeriodo(liquidacion.periodo);
         setResultado(liquidacion.resultado);
         setImporte(liquidacion.importe != null ? liquidacion.importe.toString() : '');
+        // Display the date portion only (YYYY-MM-DD) for the text input.
         setVencimiento(
-          liquidacion.vencimiento ? new Date(liquidacion.vencimiento) : undefined,
+          liquidacion.vencimiento ? liquidacion.vencimiento.slice(0, 10) : '',
         );
         setFormaPago(liquidacion.formaPago ?? '');
       } else {
@@ -75,7 +75,7 @@ export function LiquidacionFormSheet({
         setPeriodo('');
         setResultado('A_PAGAR');
         setImporte('');
-        setVencimiento(undefined);
+        setVencimiento('');
         setFormaPago('');
       }
     }
@@ -105,7 +105,7 @@ export function LiquidacionFormSheet({
       return;
     }
 
-    const vencimientoISO = vencimiento ? vencimiento.toISOString() : undefined;
+    const vencimientoVal = vencimiento.trim() || undefined;
     const importeNum = importe ? Number(importe) : undefined;
     const formaPagoVal = formaPago.trim() || undefined;
 
@@ -117,7 +117,7 @@ export function LiquidacionFormSheet({
           periodo: periodo.trim(),
           resultado,
           importe: importeNum,
-          vencimiento: vencimientoISO,
+          vencimiento: vencimientoVal,
           formaPago: formaPagoVal,
         },
       });
@@ -128,7 +128,7 @@ export function LiquidacionFormSheet({
         periodo: periodo.trim(),
         resultado,
         importe: importeNum,
-        vencimiento: vencimientoISO,
+        vencimiento: vencimientoVal,
         formaPago: formaPagoVal,
       });
     }
@@ -222,10 +222,14 @@ export function LiquidacionFormSheet({
           {/* Vencimiento */}
           <div className='space-y-2'>
             <Label>{tr('liquidacion.vencimiento', 'Vencimiento')}</Label>
-            <DatePicker
+            <Input
+              type='date'
               value={vencimiento}
-              onChange={setVencimiento}
-              placeholder={tr('tarea.pickDate', 'Seleccioná una fecha')}
+              onChange={(e) => setVencimiento(e.target.value)}
+              placeholder={tr(
+                'liquidacion.placeholderVencimiento',
+                'YYYY-MM-DD',
+              )}
             />
           </div>
 

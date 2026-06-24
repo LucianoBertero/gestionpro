@@ -329,6 +329,7 @@
     "placeholderFormaPago": "Cash, Transfer...",
     "placeholderImporte": "0.00",
     "placeholderPeriodo": "YYYY-MM",
+    "placeholderVencimiento": "YYYY-MM-DD",
     "updated": "Settlement updated",
     "updateError": "Could not update settlement"
   },
