@@ -30,6 +30,8 @@
     "unsupportedType": "Unsupported file type",
     "invalidFile": "File does not match the declared type",
     "uploadFailed": "Failed to upload file",
+    "downloadFailed": "Could not get the download link",
+    "deleteFailed": "Could not delete the file",
     "notFound": "File not found",
     "unknown": "Unknown error"
   },
@@ -68,5 +70,8 @@
     "parentTypeLabel": "Entity",
     "parentIdLabel": "ID",
     "searchButton": "Search"
+  },
+  "actions": {
+    "download": "Download"
   }
 }

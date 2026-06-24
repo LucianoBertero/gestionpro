@@ -30,6 +30,8 @@
     "unsupportedType": "Tipo de archivo no soportado",
     "invalidFile": "El archivo no coincide con el tipo declarado",
     "uploadFailed": "Error al subir el archivo",
+    "downloadFailed": "No se pudo obtener el link de descarga",
+    "deleteFailed": "No se pudo eliminar el archivo",
     "notFound": "Archivo no encontrado",
     "unknown": "Error desconocido"
   },
@@ -68,5 +70,8 @@
     "parentTypeLabel": "Entidad",
     "parentIdLabel": "ID",
     "searchButton": "Buscar"
+  },
+  "actions": {
+    "download": "Descargar"
   }
 }
