@@ -4,6 +4,8 @@ import { UserRepository } from 'src/common/database/repositories/user.repository
 import { UserRole } from 'src/common/database/enums/role.enum';
 import type { IAuthUser } from 'src/common/request/interfaces/request.interface';
 import { ApiGenericResponseDto } from 'src/common/response/dtos/response.generic.dto';
+import type { CreateAgendaItemDto } from '../dtos/agenda.dto';
+import type { UpdateAgendaItemDto } from '../dtos/agenda.update.dto';
 
 @Injectable()
 export class AgendaService {
@@ -40,13 +42,21 @@ export class AgendaService {
         return item;
     }
 
-    create(data: any) { return this.repo.create(data); }
+    create(data: CreateAgendaItemDto & { usuarioId: string; origen: string }) {
+        if (data.recurrenceRule) {
+            this.validateRrule(data.recurrenceRule);
+        }
+        return this.repo.create(data);
+    }
 
-    async update(id: number, user: IAuthUser, data: any) {
+    async update(id: number, user: IAuthUser, data: UpdateAgendaItemDto) {
         const item = await this.repo.findById(id);
         if (!item) throw new HttpException('agenda.error.notFound', HttpStatus.NOT_FOUND);
         if (item.usuarioId !== user.userId && user.role !== UserRole.SOCIO) {
             throw new HttpException('agenda.error.forbidden', HttpStatus.FORBIDDEN);
+        }
+        if (data.recurrenceRule) {
+            this.validateRrule(data.recurrenceRule);
         }
         return this.repo.update(id, data);
     }
@@ -59,5 +69,21 @@ export class AgendaService {
         }
         await this.repo.softDelete(id);
         return { success: true, message: 'agenda.success.deleted' };
+    }
+
+    /**
+     * Basic validation of an RFC 5545 RRULE string.
+     * Checks that the rule starts with FREQ= and contains no obviously invalid parts.
+     * Full RRULE validation is out of scope — this is a sanity check.
+     */
+    private validateRrule(rule: string): void {
+        if (!rule || !rule.startsWith('FREQ=')) {
+            throw new HttpException('agenda.error.invalidRrule', HttpStatus.BAD_REQUEST);
+        }
+        const validFreq = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
+        const freqMatch = rule.match(/FREQ=(DAILY|WEEKLY|MONTHLY|YEARLY)/);
+        if (!freqMatch) {
+            throw new HttpException('agenda.error.invalidRrule', HttpStatus.BAD_REQUEST);
+        }
     }
 }

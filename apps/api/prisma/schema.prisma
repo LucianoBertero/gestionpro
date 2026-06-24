@@ -261,10 +261,14 @@ model AgendaItem {
   titulo         String
   descripcion    String?      @map("descripcion")
   fecha          DateTime
+  fechaFin       DateTime?    @map("fecha_fin")
+  allDay         Boolean      @default(false) @map("all_day")
   duracionMin    Int          @map("duracion_min")
   tipo           TipoEvento   @default(PERSONAL)
   origen         OrigenEvento @default(MANUAL)
   googleEventId  String?      @map("google_event_id")
+  recurrenceRule String?     @map("recurrence_rule")
+  recurrenceEnd  DateTime?    @map("recurrence_end")
   esEstudio      Boolean      @default(false) @map("es_estudio")
   activo         Boolean      @default(true)
   creadoEn       DateTime     @default(now()) @map("creado_en")

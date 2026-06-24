@@ -6,6 +6,8 @@ import type { IAuthUser } from 'src/common/request/interfaces/request.interface'
 import { UserRole } from 'src/common/database/enums/role.enum';
 import { ApiGenericResponseDto } from 'src/common/response/dtos/response.generic.dto';
 import { AgendaService } from '../services/agenda.service';
+import { CreateAgendaItemDto } from '../dtos/agenda.dto';
+import { UpdateAgendaItemDto } from '../dtos/agenda.update.dto';
 
 @ApiTags('admin.agenda')
 @ApiBearerAuth('accessToken')
@@ -23,12 +25,16 @@ export class AgendaAdminController {
     }
 
     @Post()
-    create(@Body() body: any, @AuthUser() user: IAuthUser) {
-        return this.service.create({ ...body, usuarioId: body.usuarioId || user.userId, origen: body.origen || 'MANUAL' });
+    create(@Body() body: CreateAgendaItemDto, @AuthUser() user: IAuthUser) {
+        return this.service.create({
+            ...body,
+            usuarioId: body.usuarioId || user.userId,
+            origen: body.origen || 'MANUAL',
+        });
     }
 
     @Patch(':id')
-    update(@Param('id', ParseIntPipe) id: number, @Body() body: any, @AuthUser() user: IAuthUser) {
+    update(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateAgendaItemDto, @AuthUser() user: IAuthUser) {
         return this.service.update(id, user, body);
     }
 

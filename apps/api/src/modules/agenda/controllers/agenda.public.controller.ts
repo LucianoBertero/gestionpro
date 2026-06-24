@@ -4,6 +4,7 @@ import { AuthUser } from 'src/common/request/decorators/auth-user.decorator';
 import { UserRole } from 'src/common/database/enums/role.enum';
 import type { IAuthUser } from 'src/common/request/interfaces/request.interface';
 import { AgendaService } from '../services/agenda.service';
+import { CreateAgendaItemDto } from '../dtos/agenda.dto';
 
 @ApiTags('public.agenda')
 @ApiBearerAuth('accessToken')
@@ -43,7 +44,7 @@ export class AgendaPublicController {
     }
 
     @Post()
-    create(@Body() body: any, @AuthUser() user: IAuthUser) {
+    create(@Body() body: CreateAgendaItemDto, @AuthUser() user: IAuthUser) {
         return this.service.create({
             ...body,
             usuarioId: user.role === UserRole.SOCIO ? (body.usuarioId || user.userId) : user.userId,
