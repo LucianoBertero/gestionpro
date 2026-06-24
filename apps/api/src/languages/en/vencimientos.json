@@ -2,7 +2,11 @@
   "success": {
     "list": "Vencimientos retrieved",
     "listWithClients": "Vencimientos with clients retrieved",
-    "calculated": "Vencimiento calculated"
+    "calculated": "Vencimiento calculated",
+    "created": "Vencimiento created",
+    "createdBatch": "Batch of vencimientos created",
+    "duplicatedYear": "Year duplicated",
+    "imported": "Excel imported"
   },
   "error": {
     "notFound": "Vencimiento not found"

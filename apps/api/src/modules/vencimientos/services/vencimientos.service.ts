@@ -4,6 +4,11 @@ import { DatabaseService } from 'src/common/database/services/database.service';
 import type { TipoImpuesto } from 'src/common/database/enums/tipo-impuesto.enum';
 import type { VencimientoListFiltersDto } from '../dtos/vencimiento-list.dto';
 import type { VencimientoConClientesDto } from '../dtos/vencimiento-response.dto';
+import type { CreateVencimientoDto } from '../dtos/vencimiento-create.dto';
+
+function isLeapYear(year: number): boolean {
+    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+}
 
 @Injectable()
 export class VencimientoService {
@@ -28,6 +33,78 @@ export class VencimientoService {
 
     async upsert(data: { impuesto: TipoImpuesto; anio: number; mes: number; digitoCuit: number; fechaVence: Date }) {
         return this.repo.upsert(data);
+    }
+
+    async create(dto: CreateVencimientoDto) {
+        return this.repo.upsert({
+            impuesto: dto.impuesto,
+            anio: dto.anio,
+            mes: dto.mes,
+            digitoCuit: dto.digitoCuit,
+            fechaVence: new Date(dto.fechaVence),
+        });
+    }
+
+    async createBatch(rows: CreateVencimientoDto[]) {
+        const results = await this.db.$transaction(
+            rows.map((row) =>
+                this.db.calendarioVencimiento.upsert({
+                    where: {
+                        uq_calendario_vencimiento: {
+                            impuesto: row.impuesto,
+                            anio: row.anio,
+                            mes: row.mes,
+                            digitoCuit: row.digitoCuit,
+                        },
+                    },
+                    update: { fechaVence: new Date(row.fechaVence) },
+                    create: {
+                        impuesto: row.impuesto,
+                        anio: row.anio,
+                        mes: row.mes,
+                        digitoCuit: row.digitoCuit,
+                        fechaVence: new Date(row.fechaVence),
+                    },
+                }),
+            ),
+        );
+        return { created: results.length };
+    }
+
+    async duplicateYear(sourceYear: number, targetYear: number) {
+        const source = await this.db.calendarioVencimiento.findMany({
+            where: { anio: sourceYear },
+        });
+
+        if (source.length === 0) {
+            return { created: 0 };
+        }
+
+        const daysInSourceYear = isLeapYear(sourceYear) ? 366 : 365;
+
+        const rows = source.map((v) => {
+            const newDate = new Date(v.fechaVence);
+            newDate.setDate(newDate.getDate() + daysInSourceYear);
+            return {
+                impuesto: v.impuesto,
+                anio: targetYear,
+                mes: v.mes,
+                digitoCuit: v.digitoCuit,
+                fechaVence: newDate,
+            };
+        });
+
+        await this.createBatch(
+            rows.map((r) => ({
+                impuesto: r.impuesto,
+                anio: r.anio,
+                mes: r.mes,
+                digitoCuit: r.digitoCuit,
+                fechaVence: r.fechaVence.toISOString().slice(0, 10),
+            })),
+        );
+
+        return { created: rows.length };
     }
 
     /**
