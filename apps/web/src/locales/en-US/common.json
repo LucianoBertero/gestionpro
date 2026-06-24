@@ -480,7 +480,16 @@
       "parentTypeAll": "All",
       "dateFromLabel": "From",
       "dateToLabel": "To",
-      "clear": "Clear filters"
+      "clear": "Clear filters",
+      "datePresetLabel": "Period",
+      "datePreset": {
+        "none": "Any date",
+        "today": "Today",
+        "last7": "Last 7 days",
+        "last30": "Last 30 days",
+        "thisMonth": "This month",
+        "custom": "Custom"
+      }
     },
     "table": {
       "name": "Name",
@@ -492,7 +501,12 @@
       "uploadedBy": "Uploaded by",
       "date": "Date",
       "actions": "Actions",
-      "empty.filtered": "No files match the current filters"
+      "empty": {
+        "noFiles": "No files yet",
+        "filteredHint": "Try clearing the filters",
+        "filteredCta": "Clear filters",
+        "filtered": "No files match the current filters"
+      }
     },
     "parent": {
       "cliente": "Client",
@@ -525,8 +539,10 @@
         "tareaPlaceholder": "Search task...",
         "liquidacionPlaceholder": "Search settlement..."
       },
+      "parentSearchPlaceholder": "Search...",
       "parentEmpty": {
-        "cliente": "Client not found"
+        "cliente": "Client not found",
+        "noResults": "No results"
       },
       "error": "Could not upload file"
     },

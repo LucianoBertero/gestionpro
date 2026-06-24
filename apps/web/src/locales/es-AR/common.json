@@ -479,7 +479,16 @@
       "parentTypeAll": "Todos",
       "dateFromLabel": "Desde",
       "dateToLabel": "Hasta",
-      "clear": "Limpiar filtros"
+      "clear": "Limpiar filtros",
+      "datePresetLabel": "Período",
+      "datePreset": {
+        "none": "Cualquier fecha",
+        "today": "Hoy",
+        "last7": "Últimos 7 días",
+        "last30": "Últimos 30 días",
+        "thisMonth": "Este mes",
+        "custom": "Personalizado"
+      }
     },
     "table": {
       "name": "Nombre",
@@ -491,7 +500,12 @@
       "uploadedBy": "Subido por",
       "date": "Fecha",
       "actions": "Acciones",
-      "empty.filtered": "No se encontraron archivos con los filtros aplicados"
+      "empty": {
+        "noFiles": "No hay archivos todavía",
+        "filteredHint": "Probá limpiar los filtros",
+        "filteredCta": "Limpiar filtros",
+        "filtered": "No se encontraron archivos con los filtros aplicados"
+      }
     },
     "parent": {
       "cliente": "Cliente",
@@ -524,8 +538,10 @@
         "tareaPlaceholder": "Buscar tarea...",
         "liquidacionPlaceholder": "Buscar liquidación..."
       },
+      "parentSearchPlaceholder": "Buscar...",
       "parentEmpty": {
-        "cliente": "No se encontró el cliente"
+        "cliente": "No se encontró el cliente",
+        "noResults": "Sin resultados"
       },
       "error": "No se pudo subir el archivo"
     },

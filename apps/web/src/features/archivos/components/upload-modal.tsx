@@ -21,7 +21,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from '@/components/ui/command';
 import { Icons } from '@/components/icons';
+import { cn } from '@/lib/utils';
 import { formatFileSize } from '@/lib/format';
 import { useT } from '@/lib/i18n/client';
 import { clientesQueryOptions } from '@/features/clientes/api/queries';
@@ -96,6 +106,7 @@ export function UploadModal({
     presetParent && presetParent.type !== 'estudio' ? presetParent.id : null,
   );
   const [entitySearch, setEntitySearch] = useState('');
+  const [comboboxOpen, setComboboxOpen] = useState(false);
   const [tipoValue, setTipoValue] = useState<TipoArchivo | 'all'>('all');
   const [periodoValue, setPeriodoValue] = useState('');
 
@@ -114,6 +125,7 @@ export function UploadModal({
           : null,
       );
       setEntitySearch('');
+      setComboboxOpen(false);
       setTipoValue('all');
       setPeriodoValue('');
     }
@@ -176,10 +188,6 @@ export function UploadModal({
     tareasQuery.data,
     liquidacionesQuery.data,
   ]);
-
-  const filteredOptions = entityOptions.filter((opt) =>
-    opt.label.toLowerCase().includes(entitySearch.toLowerCase()),
-  );
 
   const selectedEntity = selectedEntityId
     ? entityOptions.find((o) => o.value === selectedEntityId)
@@ -344,6 +352,7 @@ export function UploadModal({
                         setParentTypeChoice(v as ParentTypeChoice);
                         setSelectedEntityId(null);
                         setEntitySearch('');
+                        setComboboxOpen(false);
                       }}
                       disabled={isUploading}
                     >
@@ -375,7 +384,7 @@ export function UploadModal({
                     </Select>
                   </div>
 
-                  {/* Entity picker (except estudio) */}
+                  {/* Entity picker (except estudio) — shadcn Combobox */}
                   {parentTypeChoice !== 'estudio' && (
                     <div className="space-y-1.5">
                       <Label className="text-xs">
@@ -400,64 +409,94 @@ export function UploadModal({
                                 },
                               )}
                       </Label>
-                      {selectedEntity && !entitySearch ? (
-                        <div className="flex items-center gap-2 rounded-md border px-3 py-2">
-                          <Icons.check className="h-4 w-4 text-green-600" />
-                          <span className="text-sm">
-                            {selectedEntity.label}
-                          </span>
-                          <button
-                            type="button"
+                      <div className="flex gap-1">
+                        <Popover
+                          open={comboboxOpen}
+                          onOpenChange={setComboboxOpen}
+                        >
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              aria-expanded={comboboxOpen}
+                              aria-controls="parent-entity-combobox-list"
+                              className="flex-1 justify-between font-normal"
+                              disabled={isUploading}
+                            >
+                              {selectedEntity ? (
+                                selectedEntity.label
+                              ) : (
+                                <span className="text-muted-foreground">
+                                  {t(
+                                    'archivos.modal.parentSearchPlaceholder',
+                                    { defaultValue: 'Buscar...' },
+                                  )}
+                                </span>
+                              )}
+                              <Icons.chevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-[400px] p-0"
+                            align="start"
+                          >
+                            <Command>
+                              <CommandInput
+                                placeholder={t(
+                                  'archivos.modal.parentSearchPlaceholder',
+                                  { defaultValue: 'Buscar...' },
+                                )}
+                                value={entitySearch}
+                                onValueChange={setEntitySearch}
+                              />
+                              <CommandList id="parent-entity-combobox-list">
+                                <CommandEmpty>
+                                  {t(
+                                    'archivos.modal.parentEmpty.noResults',
+                                    { defaultValue: 'Sin resultados' },
+                                  )}
+                                </CommandEmpty>
+                                <CommandGroup>
+                                  {entityOptions.map((opt) => (
+                                    <CommandItem
+                                      key={opt.value}
+                                      value={opt.label}
+                                      onSelect={() => {
+                                        setSelectedEntityId(opt.value);
+                                        setEntitySearch('');
+                                        setComboboxOpen(false);
+                                      }}
+                                    >
+                                      <Icons.check
+                                        className={cn(
+                                          'mr-2 h-4 w-4',
+                                          selectedEntityId === opt.value
+                                            ? 'opacity-100'
+                                            : 'opacity-0',
+                                        )}
+                                      />
+                                      {opt.label}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        {selectedEntity && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 shrink-0"
                             onClick={() => {
                               setSelectedEntityId(null);
                             }}
-                            className="ml-auto"
-                          >
-                            <Icons.close className="h-3.5 w-3.5 text-muted-foreground" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          <Input
-                            value={entitySearch}
-                            onChange={(e) =>
-                              setEntitySearch(e.target.value)
-                            }
-                            placeholder={t('common.search', {
-                              defaultValue: 'Buscar...',
-                            })}
                             disabled={isUploading}
-                          />
-                          {entitySearch && (
-                            <div className="mt-1 max-h-40 overflow-auto rounded-md border">
-                              {filteredOptions.length === 0 ? (
-                                <p className="py-3 text-center text-xs text-muted-foreground">
-                                  {t('archivos.modal.parentEmpty.cliente', {
-                                    defaultValue:
-                                      'No se encontró el cliente',
-                                  })}
-                                </p>
-                              ) : (
-                                filteredOptions
-                                  .slice(0, 20)
-                                  .map((opt) => (
-                                    <button
-                                      key={opt.value}
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedEntityId(opt.value);
-                                        setEntitySearch('');
-                                      }}
-                                      className="w-full px-3 py-2 text-left text-sm hover:bg-muted"
-                                    >
-                                      {opt.label}
-                                    </button>
-                                  ))
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
+                          >
+                            <Icons.close className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </>

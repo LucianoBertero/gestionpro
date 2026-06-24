@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import Link from 'next/link';
 
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
@@ -35,6 +36,7 @@ import { Icons } from '@/components/icons';
 import { getQueryClient } from '@/lib/query-client';
 import { useT } from '@/lib/i18n/client';
 import { formatFileSize, formatRelative } from '@/lib/format';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { NULL_PLACEHOLDER } from '@/constants';
 import {
   archivosQueryOptions,
@@ -51,6 +53,7 @@ import { TIPO_ARCHIVO_BADGE, TIPO_ARCHIVO_VALUES, TIPO_ARCHIVO_LABELS } from '@/
 import { toast } from 'sonner';
 
 type ParentTypeFilter = 'all' | 'cliente' | 'tarea' | 'liquidacion' | 'estudio';
+type DatePreset = 'none' | 'today' | 'last7' | 'last30' | 'thisMonth' | 'custom';
 
 // ---- helpers ----
 
@@ -98,11 +101,13 @@ interface FilterBarProps {
   parentType: ParentTypeFilter;
   dateFrom: Date | undefined;
   dateTo: Date | undefined;
+  datePreset: DatePreset;
   onSearchChange: (v: string) => void;
   onTipoChange: (v: string) => void;
   onParentTypeChange: (v: ParentTypeFilter) => void;
   onDateFromChange: (v: Date | undefined) => void;
   onDateToChange: (v: Date | undefined) => void;
+  onDatePresetChange: (v: DatePreset) => void;
   onClear: () => void;
 }
 
@@ -112,11 +117,13 @@ function FilterBar({
   parentType,
   dateFrom,
   dateTo,
+  datePreset,
   onSearchChange,
   onTipoChange,
   onParentTypeChange,
   onDateFromChange,
   onDateToChange,
+  onDatePresetChange,
   onClear,
 }: FilterBarProps) {
   const t = useT();
@@ -201,11 +208,62 @@ function FilterBar({
 
       <div className="space-y-1.5">
         <Label className="text-xs">
+          {t('archivos.filter.datePresetLabel', {
+            defaultValue: 'Período',
+          })}
+        </Label>
+        <Select
+          value={datePreset}
+          onValueChange={(v) => onDatePresetChange(v as DatePreset)}
+        >
+          <SelectTrigger className="w-[160px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">
+              {t('archivos.filter.datePreset.none', {
+                defaultValue: 'Cualquier fecha',
+              })}
+            </SelectItem>
+            <SelectItem value="today">
+              {t('archivos.filter.datePreset.today', {
+                defaultValue: 'Hoy',
+              })}
+            </SelectItem>
+            <SelectItem value="last7">
+              {t('archivos.filter.datePreset.last7', {
+                defaultValue: 'Últimos 7 días',
+              })}
+            </SelectItem>
+            <SelectItem value="last30">
+              {t('archivos.filter.datePreset.last30', {
+                defaultValue: 'Últimos 30 días',
+              })}
+            </SelectItem>
+            <SelectItem value="thisMonth">
+              {t('archivos.filter.datePreset.thisMonth', {
+                defaultValue: 'Este mes',
+              })}
+            </SelectItem>
+            <SelectItem value="custom">
+              {t('archivos.filter.datePreset.custom', {
+                defaultValue: 'Personalizado',
+              })}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className="text-xs">
           {t('archivos.filter.dateFromLabel', { defaultValue: 'Desde' })}
         </Label>
         <DatePicker
           value={dateFrom}
-          onChange={onDateFromChange}
+          onChange={(v) => {
+            onDateFromChange(v);
+            onDatePresetChange('custom');
+          }}
           placeholder={t('archivos.filter.dateFromLabel', {
             defaultValue: 'Desde',
           })}
@@ -218,7 +276,10 @@ function FilterBar({
         </Label>
         <DatePicker
           value={dateTo}
-          onChange={onDateToChange}
+          onChange={(v) => {
+            onDateToChange(v);
+            onDatePresetChange('custom');
+          }}
           placeholder={t('archivos.filter.dateToLabel', {
             defaultValue: 'Hasta',
           })}
@@ -242,6 +303,7 @@ const DEFAULT_FILTERS = {
   parentType: 'all' as ParentTypeFilter,
   dateFrom: undefined as Date | undefined,
   dateTo: undefined as Date | undefined,
+  datePreset: 'none' as DatePreset,
   page: 1,
   limit: 20,
 };
@@ -251,6 +313,7 @@ export default function ArchivosPage() {
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [search, setSearch] = useState(DEFAULT_FILTERS.search);
+  const debouncedSearch = useDebouncedValue(search, 300);
   const [tipo, setTipo] = useState(DEFAULT_FILTERS.tipo);
   const [parentType, setParentType] = useState<ParentTypeFilter>(
     DEFAULT_FILTERS.parentType,
@@ -261,12 +324,15 @@ export default function ArchivosPage() {
   const [dateTo, setDateTo] = useState<Date | undefined>(
     DEFAULT_FILTERS.dateTo,
   );
+  const [datePreset, setDatePreset] = useState<DatePreset>(
+    DEFAULT_FILTERS.datePreset,
+  );
   const [page, setPage] = useState(DEFAULT_FILTERS.page);
 
   const queryClient = getQueryClient();
 
   const filters = {
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     tipo: tipo !== 'all' ? (tipo as TipoArchivo) : undefined,
     parentType,
     dateFrom: dateFrom
@@ -307,18 +373,62 @@ export default function ArchivosPage() {
     });
   }, [queryClient]);
 
+  const handleDatePresetChange = useCallback(
+    (value: DatePreset) => {
+      setDatePreset(value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (value === 'today') {
+        setDateFrom(today);
+        setDateTo(today);
+      } else if (value === 'last7') {
+        const d = new Date(today);
+        d.setDate(d.getDate() - 7);
+        setDateFrom(d);
+        setDateTo(today);
+      } else if (value === 'last30') {
+        const d = new Date(today);
+        d.setDate(d.getDate() - 30);
+        setDateFrom(d);
+        setDateTo(today);
+      } else if (value === 'thisMonth') {
+        const first = new Date(today.getFullYear(), today.getMonth(), 1);
+        setDateFrom(first);
+        setDateTo(today);
+      } else if (value === 'none') {
+        setDateFrom(undefined);
+        setDateTo(undefined);
+      }
+      // 'custom': don't change dates — dates were already set by the user
+      setPage(1);
+    },
+    [],
+  );
+
   const clearFilters = useCallback(() => {
     setSearch(DEFAULT_FILTERS.search);
     setTipo(DEFAULT_FILTERS.tipo);
     setParentType(DEFAULT_FILTERS.parentType);
     setDateFrom(DEFAULT_FILTERS.dateFrom);
     setDateTo(DEFAULT_FILTERS.dateTo);
+    setDatePreset(DEFAULT_FILTERS.datePreset);
     setPage(DEFAULT_FILTERS.page);
   }, []);
 
   const archivos: ArchivoWithParent[] = data?.data ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / DEFAULT_FILTERS.limit));
+
+  const hasActiveFilters = useMemo(
+    () =>
+      debouncedSearch !== '' ||
+      tipo !== 'all' ||
+      parentType !== 'all' ||
+      dateFrom !== undefined ||
+      dateTo !== undefined,
+    [debouncedSearch, tipo, parentType, dateFrom, dateTo],
+  );
 
   return (
     <PageContainer
@@ -339,6 +449,7 @@ export default function ArchivosPage() {
         parentType={parentType}
         dateFrom={dateFrom}
         dateTo={dateTo}
+        datePreset={datePreset}
         onSearchChange={(v) => {
           setSearch(v);
           setPage(1);
@@ -359,6 +470,7 @@ export default function ArchivosPage() {
           setDateTo(v);
           setPage(1);
         }}
+        onDatePresetChange={handleDatePresetChange}
         onClear={clearFilters}
       />
 
@@ -396,18 +508,44 @@ export default function ArchivosPage() {
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
-                  {t('common.loading', { defaultValue: 'Cargando...' })}
-                </TableCell>
-              </TableRow>
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell colSpan={8} className="py-2">
+                    <Skeleton className="h-8 w-full" />
+                  </TableCell>
+                </TableRow>
+              ))
             ) : archivos.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
-                  {t('archivos.table.empty.filtered', {
-                    defaultValue:
-                      'No se encontraron archivos con los filtros aplicados',
-                  })}
+                <TableCell
+                  colSpan={8}
+                  className="py-8 text-center text-muted-foreground"
+                >
+                  {hasActiveFilters ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <p>
+                        {t('archivos.table.empty.filteredHint', {
+                          defaultValue:
+                            'No se encontraron archivos con los filtros aplicados',
+                        })}
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={clearFilters}
+                      >
+                        {t('archivos.table.empty.filteredCta', {
+                          defaultValue: 'Limpiar filtros',
+                        })}
+                      </Button>
+                    </div>
+                  ) : (
+                    <p>
+                      {t('archivos.table.empty.noFiles', {
+                        defaultValue: 'No hay archivos todavía',
+                      })}
+                    </p>
+                  )}
                 </TableCell>
               </TableRow>
             ) : (
