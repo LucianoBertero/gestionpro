@@ -10,7 +10,12 @@ import { ApiGenericResponseDto } from 'src/common/response/dtos/response.generic
 import { STORAGE_SERVICE } from 'src/common/storage/constants/storage.constant';
 import { StorageService } from 'src/common/storage/interfaces/storage.interface';
 
-import type { ArchivoParent, ParentType } from '../interfaces/archivo.interface';
+import type {
+    ArchivoParent,
+    ArchivoParentInfo,
+    ParentType,
+} from '../interfaces/archivo.interface';
+import type { ArchivoListDto } from '../dtos/archivo-list.dto';
 
 const ESTUDIO_ID = 1; // single-tenant; prepared for multitenancy
 const SIGNED_URL_TTL = 300; // 5 minutes
@@ -24,11 +29,15 @@ function parentTypeSegment(type: ParentType): string {
             return 'tareas';
         case 'liquidacion':
             return 'liquidaciones';
+        case 'estudio':
+            return 'general';
     }
 }
 
 /** Map singular parent type to the Prisma junction table delegate name. */
-function junctionDelegate(type: ParentType): 'archivosCliente' | 'archivosTarea' | 'archivosLiquidacion' {
+function junctionDelegate(
+    type: Exclude<ParentType, 'estudio'>,
+): 'archivosCliente' | 'archivosTarea' | 'archivosLiquidacion' {
     switch (type) {
         case 'cliente':
             return 'archivosCliente';
@@ -40,7 +49,7 @@ function junctionDelegate(type: ParentType): 'archivosCliente' | 'archivosTarea'
 }
 
 /** Map singular parent type to the junction FK field name. */
-function parentIdField(type: ParentType): string {
+function parentIdField(type: Exclude<ParentType, 'estudio'>): string {
     switch (type) {
         case 'cliente':
             return 'clienteId';
@@ -70,6 +79,8 @@ export class ArchivosService {
     /**
      * Upload a file to R2, persist metadata + junction in a transaction,
      * and return the archivo row with a signed URL.
+     *
+     * For estudio parent: no junction row is created.
      */
     async create(
         file: Express.Multer.File,
@@ -80,7 +91,13 @@ export class ArchivosService {
         const ext = extname(file.originalname).replace('.', '') || 'bin';
         const periodo = options.periodo ?? this.currentYearMonth();
         const uuid = randomUUID();
-        const key = `estudios/${ESTUDIO_ID}/${parentTypeSegment(parent.type)}/${parent.id}/${periodo}/${uuid}.${ext}`;
+        const seg = parentTypeSegment(parent.type);
+
+        // Build R2 key — estudio files skip the parent ID subfolder
+        const key =
+            parent.type === 'estudio'
+                ? `estudios/${ESTUDIO_ID}/${seg}/${periodo}/${uuid}.${ext}`
+                : `estudios/${ESTUDIO_ID}/${seg}/${parent.id}/${periodo}/${uuid}.${ext}`;
 
         // 1. Upload to R2
         let storageKey: string;
@@ -120,14 +137,18 @@ export class ArchivosService {
                     },
                 });
 
-                const delegate = tx[junctionDelegate(parent.type)];
-                await delegate.create({
-                    data: {
-                        archivoId: created.id,
-                        [parentIdField(parent.type)]: parent.id,
-                        orden: 0,
-                    },
-                });
+                // No junction for estudio-level files
+                if (parent.type !== 'estudio') {
+                    const delegate =
+                        tx[junctionDelegate(parent.type)];
+                    await delegate.create({
+                        data: {
+                            archivoId: created.id,
+                            [parentIdField(parent.type)]: parent.id,
+                            orden: 0,
+                        },
+                    });
+                }
 
                 return created;
             });
@@ -165,8 +186,6 @@ export class ArchivosService {
         }
 
         // Verify the R2 object exists before generating a signed URL.
-        // getSignedUrl (presigner) is a local operation — it never validates
-        // existence, so a missing object would silently return a URL to nothing.
         const objectExists = await this.storage.exists(archivo.storageKey);
         if (!objectExists) {
             throw new HttpException(
@@ -185,19 +204,69 @@ export class ArchivosService {
 
     /**
      * List archivos attached to a parent entity via junction tables.
+     * Kept for backward compatibility; the new `findAll` is preferred
+     * for the global file browser.
      */
-    findByParent(type: ParentType, id: number) {
+    findByParent(
+        type: Exclude<ParentType, 'estudio'>,
+        id: number,
+    ) {
         return this.repo.findByParent(type, id);
+    }
+
+    /**
+     * Global file browser with filters.
+     * Returns paginated archivos with parent info and uploader name.
+     */
+    async findAll(filters: ArchivoListDto) {
+        const page = filters.page ?? 1;
+        const limit = filters.limit ?? 20;
+        const skip = (page - 1) * limit;
+
+        const dateFrom = filters.dateFrom
+            ? new Date(filters.dateFrom)
+            : undefined;
+        // End of day for dateTo
+        const dateTo = filters.dateTo
+            ? new Date(filters.dateTo + 'T23:59:59.999Z')
+            : undefined;
+
+        const { data, total } = await this.repo.findAllWithParent({
+            search: filters.search,
+            tipo: filters.tipo,
+            parentType: filters.parentType ?? 'all',
+            dateFrom,
+            dateTo,
+            skip,
+            take: limit,
+        });
+
+        const items = data.map((row) => ({
+            id: row.id,
+            storageKey: row.storageKey,
+            mimeType: row.mimeType,
+            extension: row.extension,
+            bytes: row.bytes,
+            originalName: row.originalName,
+            tipo: row.tipo,
+            periodo: row.periodo,
+            subidoPorId: row.subidoPorId,
+            subidoPorNombre: row.subidoPor
+                ? [row.subidoPor.firstName, row.subidoPor.lastName]
+                      .filter(Boolean)
+                      .join(' ') || null
+                : null,
+            activo: row.activo,
+            creadoEn: row.creadoEn,
+            parent: this.extractParent(row),
+        }));
+
+        return { data: items, total, page, limit };
     }
 
     /**
      * Soft-delete an archivo: set activo=false, remove the R2 object,
      * and delete all junction rows.
-     *
-     * R2 delete happens first (best-effort). Then softDelete + deleteJunctions
-     * run in a single transaction. If R2 delete fails, the error is logged
-     * but the DB operations proceed (consistent state; orphan R2 objects
-     * cleaned up later by a janitor).
      */
     async delete(id: number): Promise<ApiGenericResponseDto> {
         const archivo = await this.repo.findById(id);
@@ -241,6 +310,22 @@ export class ArchivosService {
     }
 
     // ─── Private helpers ────────────────────────────────────────────
+
+    private extractParent(row: Record<string, any>): ArchivoParentInfo {
+        if (row.archivosCliente && row.archivosCliente.length > 0) {
+            const c = row.archivosCliente[0].cliente;
+            return { type: 'cliente', id: c.id, name: c.denominacion };
+        }
+        if (row.archivosTarea && row.archivosTarea.length > 0) {
+            const t = row.archivosTarea[0].tarea;
+            return { type: 'tarea', id: t.id, name: t.titulo };
+        }
+        if (row.archivosLiquidacion && row.archivosLiquidacion.length > 0) {
+            const l = row.archivosLiquidacion[0].liquidacion;
+            return { type: 'liquidacion', id: l.id, name: l.periodo };
+        }
+        return { type: 'estudio' };
+    }
 
     private currentYearMonth(): string {
         const now = new Date();

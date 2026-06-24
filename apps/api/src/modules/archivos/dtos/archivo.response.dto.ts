@@ -52,6 +52,12 @@ export class ArchivoResponseDto {
     @IsUUID()
     subidoPorId: string;
 
+    @ApiPropertyOptional({ example: 'Ernesto López', nullable: true })
+    @Expose()
+    @IsString()
+    @IsOptional()
+    subidoPorNombre?: string | null;
+
     @ApiProperty({ example: true })
     @Expose()
     @IsBoolean()

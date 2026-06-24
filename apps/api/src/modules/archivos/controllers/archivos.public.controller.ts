@@ -1,20 +1,11 @@
-import { BadRequestException, Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { ApiEndpoint } from 'src/common/doc/decorators/doc.api-endpoint.decorator';
 
+import { ArchivoListDto } from '../dtos/archivo-list.dto';
 import { ArchivoResponseDto } from '../dtos/archivo.response.dto';
-import type { ParentType } from '../interfaces/archivo.interface';
 import { ArchivosService } from '../services/archivos.service';
-
-const VALID_PARENT_TYPES: readonly ParentType[] = ['cliente', 'tarea', 'liquidacion'] as const;
-
-function assertParentType(value: string): ParentType {
-    if (VALID_PARENT_TYPES.includes(value as ParentType)) {
-        return value as ParentType;
-    }
-    throw new BadRequestException('archivo.error.invalidParentType');
-}
 
 @ApiTags('public.archivos')
 @ApiBearerAuth('accessToken')
@@ -24,15 +15,12 @@ export class ArchivosPublicController {
 
     @Get()
     @ApiEndpoint({
-        summary: 'List archivos by parent entity',
+        summary:
+            'List archivos with filters (text search, type, parent, date range)',
         messageKey: 'archivo.success.list',
     })
-    findByParent(
-        @Query('parentType') parentType: string,
-        @Query('parentId', ParseIntPipe) parentId: number,
-    ) {
-        const type = assertParentType(parentType);
-        return this.archivosService.findByParent(type, parentId);
+    findAll(@Query() filters: ArchivoListDto) {
+        return this.archivosService.findAll(filters);
     }
 
     @Get(':id')

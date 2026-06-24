@@ -13,13 +13,16 @@ import {
 
 import { TipoArchivo } from 'src/common/database/enums/tipo-archivo.enum';
 
-const VALID_PARENT_TYPES = ['cliente', 'tarea', 'liquidacion'] as const;
+const VALID_PARENT_TYPES = ['cliente', 'tarea', 'liquidacion', 'estudio'] as const;
 
 /**
- * Custom validator: checks that the parent JSON string:
- * 1. Is valid JSON
- * 2. Has `type` as one of the valid parent types
- * 3. Has `id` as a positive integer
+ * Custom validator: checks that the parent JSON string is a valid
+ * ArchivoParent:
+ * - Valid JSON object
+ * - `type` is one of the valid parent types
+ * - Object shape:
+ *   - For 'cliente' | 'tarea' | 'liquidacion': must have `id` as a positive integer
+ *   - For 'estudio': `id` is optional (ignored if present)
  */
 @ValidatorConstraint({ name: 'isValidParentJson' })
 class IsValidParentJson implements ValidatorConstraintInterface {
@@ -37,8 +40,11 @@ class IsValidParentJson implements ValidatorConstraintInterface {
 
         if (!VALID_PARENT_TYPES.includes(obj.type as typeof VALID_PARENT_TYPES[number])) return false;
 
-        const id = obj.id;
-        if (typeof id !== 'number' || !Number.isInteger(id) || id <= 0) return false;
+        // For non-estudio types, require a valid positive integer id
+        if (obj.type !== 'estudio') {
+            const id = obj.id;
+            if (typeof id !== 'number' || !Number.isInteger(id) || id <= 0) return false;
+        }
 
         return true;
     }
