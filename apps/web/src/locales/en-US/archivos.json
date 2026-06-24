@@ -73,5 +73,22 @@
   },
   "actions": {
     "download": "Download"
+  },
+  "addButton": "Add file",
+  "modal": {
+    "title": "Upload file",
+    "description": {
+      "select": "Drag or select a PDF, image, Word, or Excel file.",
+      "uploading": "Please wait while the file is being uploaded.",
+      "confirm": "Review the file and confirm to upload it."
+    },
+    "confirm": {
+      "title": "Upload this file?",
+      "upload": "Upload",
+      "cancel": "Cancel"
+    },
+    "uploading": "Uploading...",
+    "error": "Could not upload the file",
+    "fileInfo": "{{name}}, {{size}}"
   }
 }

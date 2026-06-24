@@ -329,14 +329,16 @@ describe('ArchivosService', () => {
             creadoEn: new Date(),
         };
 
-        it('returns archivo metadata with signedUrl', async () => {
+        it('returns archivo metadata with signedUrl when object exists in R2', async () => {
             mockRepo.findById.mockResolvedValue(archivoRow);
+            mockStorage.exists.mockResolvedValue(true);
             mockStorage.getSignedUrl.mockResolvedValue(
                 'https://signed.example.com/read'
             );
 
             const result = await service.findById(1);
 
+            expect(mockStorage.exists).toHaveBeenCalledWith(archivoRow.storageKey);
             expect(mockStorage.getSignedUrl).toHaveBeenCalledWith(
                 archivoRow.storageKey,
                 300
@@ -347,7 +349,7 @@ describe('ArchivosService', () => {
             });
         });
 
-        it('throws 404 when archivo is not found', async () => {
+        it('throws 404 when archivo is not found in DB', async () => {
             mockRepo.findById.mockResolvedValue(null);
 
             await expect(service.findById(999)).rejects.toMatchObject({
@@ -356,26 +358,28 @@ describe('ArchivosService', () => {
             });
         });
 
-        it('throws 404 when archivo exists but R2 object is missing (NoSuchKey)', async () => {
+        it('throws 404 when archivo exists in DB but R2 object does not exist', async () => {
             mockRepo.findById.mockResolvedValue(archivoRow);
-            const noSuchKeyError = Object.assign(new Error('NoSuchKey'), {
-                name: 'NoSuchKey',
-            });
-            mockStorage.getSignedUrl.mockRejectedValue(noSuchKeyError);
+            mockStorage.exists.mockResolvedValue(false);
 
             await expect(service.findById(1)).rejects.toMatchObject({
                 message: 'archivo.error.fileNotFound',
                 status: 404,
             });
+
+            // Should NOT attempt to generate a signed URL for a missing object
+            expect(mockStorage.getSignedUrl).not.toHaveBeenCalled();
         });
 
-        it('rethrows non-NoSuchKey storage errors as 500 (W8)', async () => {
+        it('rethrows storage errors from getSignedUrl as 500 (W8)', async () => {
             mockRepo.findById.mockResolvedValue(archivoRow);
+            mockStorage.exists.mockResolvedValue(true);
             const networkError = new Error('Network timeout');
             mockStorage.getSignedUrl.mockRejectedValue(networkError);
 
             // Should propagate as-is (global exception filter maps to 500)
             await expect(service.findById(1)).rejects.toThrow('Network timeout');
+            expect(mockStorage.exists).toHaveBeenCalledWith(archivoRow.storageKey);
         });
     });
 

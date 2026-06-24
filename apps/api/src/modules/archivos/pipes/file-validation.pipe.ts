@@ -43,6 +43,13 @@ export class FileValidationPipe
         file: Express.Multer.File,
         _metadata: ArgumentMetadata,
     ): Promise<Express.Multer.File> {
+        // Step 0: Guard — `file` is undefined when the multipart request
+        // arrives without the `file` field (e.g. client never selected a file
+        // or the FormData was misconfigured). Surface a 400 instead of a 500.
+        if (!file) {
+            throw new BadRequestException('archivo.error.fileRequired');
+        }
+
         // Step 1: Size
         if (file.size > MAX_FILE_SIZE) {
             throw new BadRequestException('archivo.error.fileTooLarge');

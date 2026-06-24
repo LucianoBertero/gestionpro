@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import PageContainer from '@/components/layout/page-container';
 import { Button } from '@/components/ui/button';
@@ -61,6 +61,10 @@ export default function ArchivosPage() {
       queryClient.invalidateQueries({ queryKey: archivosKeys.all, refetchType: 'active' }),
   });
 
+  const handleUploadSuccess = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: archivosKeys.all, refetchType: 'active' });
+  }, [queryClient]);
+
   const archivos: Archivo[] = items ?? [];
 
   if (isLoading) {
@@ -81,7 +85,7 @@ export default function ArchivosPage() {
       pageTitle={t('archivos.title', { defaultValue: 'Archivos' })}
       pageDescription={t('archivos.description', { defaultValue: 'Gestión de archivos y documentos' })}
       pageHeaderAction={
-        <Button onClick={() => setUploadOpen(true)}>
+        <Button onClick={() => setUploadOpen(true)} disabled={parentId === ''}>
           <Icons.upload className="mr-2 h-4 w-4" />
           {t('archivos.upload.button', { defaultValue: 'Subir Archivo' })}
         </Button>
@@ -225,7 +229,12 @@ export default function ArchivosPage() {
         </Table>
       </div>
 
-      <UploadModal open={uploadOpen} onOpenChange={setUploadOpen} />
+      <UploadModal
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        parent={{ type: parentType, id: Number(parentId) || 0 }}
+        onSuccess={handleUploadSuccess}
+      />
     </PageContainer>
   );
 }

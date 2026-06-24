@@ -139,5 +139,8 @@ export interface ClienteArchivoListItem {
     subidoPorId: string;
     activo: boolean;
     creadoEn: string;
+    /** Signed URL for direct download — present when backend W10 is deployed. */
+    signedUrl?: string | null;
+    downloadUrl?: string | null;
   };
 }

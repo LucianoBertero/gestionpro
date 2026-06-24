@@ -41,6 +41,16 @@ describe('FileValidationPipe', () => {
         });
     });
 
+    describe('missing file guard', () => {
+        it('rejects undefined file with archivo.error.fileRequired instead of crashing', async () => {
+            await expect(
+                pipe.transform(undefined as unknown as MockFile, { type: 'custom' })
+            ).rejects.toMatchObject({
+                message: 'archivo.error.fileRequired',
+            });
+        });
+    });
+
     describe('MIME allowlist', () => {
         it('rejects application/zip with archivo.error.unsupportedMimeType', async () => {
             const zipFile = makeFile({ mimetype: 'application/zip' });

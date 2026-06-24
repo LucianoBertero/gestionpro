@@ -5,9 +5,11 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  // Intentionally no `Content-Type` default here. Setting one at the instance
+  // level overrides what axios would otherwise infer per-request: for `FormData`
+  // bodies axios lets the browser set the multipart boundary automatically, but
+  // a hard-coded `Content-Type: application/json` is preserved on the request,
+  // which makes Multer skip parsing and leaves `@UploadedFile()` undefined.
 });
 
 let getAccessToken: (() => string | null) | null = null;

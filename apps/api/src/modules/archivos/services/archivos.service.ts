@@ -164,23 +164,21 @@ export class ArchivosService {
             );
         }
 
-        let signedUrl: string;
-        try {
-            signedUrl = await this.storage.getSignedUrl(
-                archivo.storageKey,
-                SIGNED_URL_TTL,
+        // Verify the R2 object exists before generating a signed URL.
+        // getSignedUrl (presigner) is a local operation — it never validates
+        // existence, so a missing object would silently return a URL to nothing.
+        const objectExists = await this.storage.exists(archivo.storageKey);
+        if (!objectExists) {
+            throw new HttpException(
+                'archivo.error.fileNotFound',
+                HttpStatus.NOT_FOUND,
             );
-        } catch (error) {
-            // Only 404 when the storage object is genuinely missing (NoSuchKey).
-            // Other errors (network, auth, 5xx) propagate as 500.
-            if ((error as { name?: string }).name === 'NoSuchKey') {
-                throw new HttpException(
-                    'archivo.error.fileNotFound',
-                    HttpStatus.NOT_FOUND,
-                );
-            }
-            throw error;
         }
+
+        const signedUrl = await this.storage.getSignedUrl(
+            archivo.storageKey,
+            SIGNED_URL_TTL,
+        );
 
         return { ...archivo, signedUrl };
     }

@@ -8,8 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Icons } from '@/components/icons';
-import { UploadDropzone } from '@/features/archivos/components/upload-dropzone';
-import { useUpload } from '@/features/archivos/hooks/use-upload';
+import { UploadModal } from '@/features/archivos/components/upload-modal';
 import { deleteArchivoMutation } from '@/features/archivos/api/mutations';
 import { getArchivo } from '@/features/archivos/api/service';
 import { archivosClienteQueryOptions, archivosClienteKeys } from '../../api/queries';
@@ -59,8 +58,8 @@ export function ArchivosTab({ clienteId }: ArchivosTabProps) {
   const isSocio = user?.role === SOCIO;
 
   const { data: archivos, isLoading } = useQuery(archivosClienteQueryOptions(clienteId));
-  const { status, progress, error, upload, abort } = useUpload();
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const deleteMutation = useMutation({
     ...deleteArchivoMutation,
@@ -81,28 +80,15 @@ export function ArchivosTab({ clienteId }: ArchivosTabProps) {
   // (which remounts the component), so re-creating these callbacks on every
   // render would defeat the point of `useCallback`. oxlint flags this as
   // missing-dep; suppress with `// oxlint-disable` for the array lines.
-  const handleFile = useCallback(
-    async (file: File) => {
-      const result = await upload(file, { type: 'cliente', id: clienteId });
-      if (result) {
-        // The backend attach is atomic with the upload, so the new file
-        // is already linked. Just invalidate so the list refetches.
-        getQueryClient().invalidateQueries({
-          queryKey: archivosClienteKeys.byCliente(clienteId),
-        });
-        toast.success(
-          tr('archivos.success.uploaded', 'Archivo subido correctamente'),
-        );
-      } else if (status === 'error') {
-        toast.error(
-          error?.message ??
-            tr('archivos.errors.uploadFailed', 'Error al subir el archivo'),
-        );
-      }
-    },
+  const handleUploadSuccess = useCallback(() => {
+    getQueryClient().invalidateQueries({
+      queryKey: archivosClienteKeys.byCliente(clienteId),
+    });
+    toast.success(
+      tr('archivos.success.uploaded', 'Archivo subido correctamente'),
+    );
     // oxlint-disable react-hooks/exhaustive-deps
-    [upload, clienteId, status, error],
-  );
+  }, [clienteId]);
 
   const handleDownload = useCallback(
     async (archivoId: number) => {
@@ -156,15 +142,19 @@ export function ArchivosTab({ clienteId }: ArchivosTabProps) {
   }
 
   const list: ClienteArchivoListItem[] = archivos ?? [];
-  const isUploading = status === 'uploading';
 
   return (
     <div className='space-y-4'>
-      <UploadDropzone
-        onUpload={handleFile}
-        isUploading={isUploading}
-        progress={progress}
-        onCancel={isUploading ? abort : undefined}
+      <Button onClick={() => setModalOpen(true)}>
+        <Icons.upload className='mr-1.5 h-4 w-4' />
+        {tr('archivos.addButton', 'Agregar archivo')}
+      </Button>
+
+      <UploadModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        parent={{ type: 'cliente', id: clienteId }}
+        onSuccess={handleUploadSuccess}
       />
 
       {list.length === 0 ? (
@@ -177,7 +167,12 @@ export function ArchivosTab({ clienteId }: ArchivosTabProps) {
         <div className='space-y-2'>
           {list.map((item) => {
             const archivo = item.archivo;
-            const Icon = fileIcon(archivo.mimeType, archivo.extension);
+            const imageUrl = archivo.signedUrl ?? archivo.downloadUrl ?? null;
+            const showThumbnail =
+              imageUrl != null && archivo.mimeType?.startsWith('image/');
+            const Icon = !showThumbnail
+              ? fileIcon(archivo.mimeType, archivo.extension)
+              : null;
             const isDownloading = downloadingId === archivo.id;
             const isDeleting =
               deleteMutation.isPending &&
@@ -189,7 +184,18 @@ export function ArchivosTab({ clienteId }: ArchivosTabProps) {
                 className='hover:bg-accent/30 flex items-center justify-between gap-3 rounded-lg border p-3 transition-colors'
               >
                 <div className='flex min-w-0 items-center gap-3'>
-                  <Icon className='text-muted-foreground h-5 w-5 shrink-0' />
+                  {showThumbnail ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- signed R2 URLs are dynamic; next/image requires static remotePatterns
+                    <img
+                      src={imageUrl!}
+                      alt={archivo.originalName}
+                      className='h-10 w-10 shrink-0 rounded object-cover'
+                    />
+                  ) : Icon ? (
+                    <Icon className='text-muted-foreground h-5 w-5 shrink-0' />
+                  ) : (
+                    <Icons.fileText className='text-muted-foreground h-5 w-5 shrink-0' />
+                  )}
                   <div className='flex min-w-0 flex-col gap-0.5'>
                     <span
                       className='truncate font-medium'

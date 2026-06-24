@@ -73,5 +73,22 @@
   },
   "actions": {
     "download": "Descargar"
+  },
+  "addButton": "Agregar archivo",
+  "modal": {
+    "title": "Subir archivo",
+    "description": {
+      "select": "Arrastrá o seleccioná un archivo PDF, imagen, Word o Excel.",
+      "uploading": "Por favor esperá mientras se sube el archivo.",
+      "confirm": "Revisá el archivo y confirmá para subirlo."
+    },
+    "confirm": {
+      "title": "¿Subir este archivo?",
+      "upload": "Subir",
+      "cancel": "Cancelar"
+    },
+    "uploading": "Subiendo...",
+    "error": "No se pudo subir el archivo",
+    "fileInfo": "{{name}}, {{size}}"
   }
 }
