@@ -346,7 +346,40 @@
     "validationReport": "Informe de validación",
     "rowsProcessed": "Filas procesadas",
     "errorsFound": "Errores encontrados",
-    "downloadTemplate": "Descargar plantilla"
+    "downloadTemplate": "Descargar plantilla",
+    "proximos": {
+      "title": "Próximos vencimientos",
+      "empty": "No hay vencimientos en los próximos 30 días",
+      "daysLeft": "en {{days}} días",
+      "today": "Hoy",
+      "tomorrow": "Mañana",
+      "overdue": "Vencido",
+      "cuitGroup": "CUIT terminado en {{digit}}",
+      "more": "+{{count}} más",
+      "noClientes": "Ningún cliente activo tiene este vencimiento"
+    },
+    "table": {
+      "clientes": "Clientes",
+      "expand": "Ver clientes",
+      "collapse": "Ocultar clientes",
+      "cuitLastDigits": "CUIT ••{{last4}}"
+    },
+    "filter": {
+      "impuestoLabel": "Impuesto",
+      "impuestoAll": "Todos",
+      "anioLabel": "Año",
+      "mesLabel": "Mes",
+      "mesAll": "Todos",
+      "clear": "Limpiar filtros"
+    },
+    "pagination": {
+      "pageOf": "Página {{page}} de {{total}}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    },
+    "empty": {
+      "filtered": "No hay vencimientos que coincidan con los filtros"
+    }
   },
   "agenda": {
     "title": "Agenda",

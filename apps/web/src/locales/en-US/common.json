@@ -347,7 +347,40 @@
     "validationReport": "Validation Report",
     "rowsProcessed": "Rows processed",
     "errorsFound": "Errors found",
-    "downloadTemplate": "Download template"
+    "downloadTemplate": "Download template",
+    "proximos": {
+      "title": "Upcoming due dates",
+      "empty": "No due dates in the next 30 days",
+      "daysLeft": "in {{days}} days",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "overdue": "Overdue",
+      "cuitGroup": "Tax ID ending in {{digit}}",
+      "more": "+{{count}} more",
+      "noClientes": "No active client has this due date"
+    },
+    "table": {
+      "clientes": "Clients",
+      "expand": "View clients",
+      "collapse": "Hide clients",
+      "cuitLastDigits": "Tax ID ••{{last4}}"
+    },
+    "filter": {
+      "impuestoLabel": "Tax",
+      "impuestoAll": "All",
+      "anioLabel": "Year",
+      "mesLabel": "Month",
+      "mesAll": "All",
+      "clear": "Clear filters"
+    },
+    "pagination": {
+      "pageOf": "Page {{page}} of {{total}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "empty": {
+      "filtered": "No due dates match the filters"
+    }
   },
   "agenda": {
     "title": "Agenda",

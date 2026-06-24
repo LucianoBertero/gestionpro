@@ -1,3 +1,5 @@
+import type { TipoImpuesto } from '@/constants';
+
 export interface Vencimiento {
   id: number;
   impuesto: string;
@@ -9,10 +11,42 @@ export interface Vencimiento {
 }
 
 export interface VencimientoFilters {
-  impuesto?: string;
+  impuesto?: TipoImpuesto;
   anio?: number;
   mes?: number;
-  digitoCuit?: number;
+  dateFrom?: string;
+  dateTo?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface VencimientoCliente {
+  id: number;
+  denominacion: string;
+  cuit: string;
+}
+
+export interface VencimientoConClientes {
+  id: number;
+  impuesto: TipoImpuesto;
+  anio: number;
+  mes: number;
+  digitoCuit: number;
+  fechaVence: string;
+  clientes: VencimientoCliente[];
+}
+
+export interface VencimientosListMeta {
+  total: number;
+  skip: number;
+  take: number;
+}
+
+export interface VencimientosListResponse {
+  data: VencimientoConClientes[];
+  total: number;
+  skip: number;
+  take: number;
 }
 
 export interface CalendarioVencimientoRow {
