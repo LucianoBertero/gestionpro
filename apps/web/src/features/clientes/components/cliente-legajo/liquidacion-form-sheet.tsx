@@ -41,6 +41,17 @@ interface LiquidacionFormSheetProps {
   clienteId: number;
 }
 
+/**
+ * Parse a YYYY-MM periodo string into a Date (first day of the month).
+ * Returns undefined if the input is missing or malformed — callers use this
+ * to seed the DatePicker, which would otherwise crash on an Invalid Date.
+ */
+function parsePeriodoToDate(periodo: string): Date | undefined {
+  if (!/^\d{4}-\d{2}$/.test(periodo)) return undefined;
+  const d = new Date(`${periodo}-01`);
+  return isNaN(d.getTime()) ? undefined : d;
+}
+
 export function LiquidacionFormSheet({
   open,
   onOpenChange,
@@ -66,9 +77,10 @@ export function LiquidacionFormSheet({
         // Período is stored as YYYY-MM string in the backend. Initialize the
         // DatePicker with the first day of that month so the calendar shows
         // something coherent. The day is irrelevant — only the year-month
-        // is sent to the backend.
+        // is sent to the backend. Guard against malformed values that would
+        // produce an Invalid Date and crash the DatePicker's format() call.
         setPeriodo(
-          liquidacion.periodo ? new Date(`${liquidacion.periodo}-01`) : undefined,
+          liquidacion.periodo ? parsePeriodoToDate(liquidacion.periodo) : undefined,
         );
         setResultado(liquidacion.resultado);
         setImporte(liquidacion.importe != null ? liquidacion.importe.toString() : '');

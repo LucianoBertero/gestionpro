@@ -29,7 +29,9 @@ function DatePicker({ value, onChange, disabled, placeholder = 'Seleccioná fech
           )}
         >
           <Icons.calendar className='mr-2 h-4 w-4' />
-          {value ? format(value, 'dd/MM/yyyy', { locale: es }) : placeholder}
+          {value && !isNaN(value.getTime())
+            ? format(value, 'dd/MM/yyyy', { locale: es })
+            : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-auto p-0' align='start'>
