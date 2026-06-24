@@ -307,7 +307,29 @@
     "cliente": "Cliente",
     "aPagar": "A Pagar",
     "saldoAFavor": "Saldo a Favor",
-    "sinMovimiento": "Sin Movimiento"
+    "sinMovimiento": "Sin Movimiento",
+    "confirmDelete": "¿Eliminar esta liquidación?",
+    "created": "Liquidación creada",
+    "createError": "No se pudo crear la liquidación",
+    "deleted": "Liquidación eliminada",
+    "deleteError": "No se pudo eliminar la liquidación",
+    "empty": {
+      "hint": "Agregá una usando el botón de arriba",
+      "title": "No hay liquidaciones para este cliente"
+    },
+    "filter": {
+      "all": "Todos",
+      "impuesto": "Filtrar por impuesto"
+    },
+    "formaPago": "Forma de pago",
+    "formAddDescription": "Completá los datos para crear una nueva liquidación.",
+    "formEditDescription": "Modificá los campos de la liquidación.",
+    "missingFields": "Completá los campos requeridos",
+    "placeholderFormaPago": "Efectivo, Transferencia...",
+    "placeholderImporte": "0.00",
+    "placeholderPeriodo": "YYYY-MM",
+    "updated": "Liquidación actualizada",
+    "updateError": "No se pudo actualizar la liquidación"
   },
   "vencimiento": {
     "title": "Vencimientos",

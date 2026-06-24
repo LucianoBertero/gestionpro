@@ -308,7 +308,29 @@
     "cliente": "Client",
     "aPagar": "To Pay",
     "saldoAFavor": "Credit Balance",
-    "sinMovimiento": "No Movement"
+    "sinMovimiento": "No Movement",
+    "confirmDelete": "Delete this settlement?",
+    "created": "Settlement created",
+    "createError": "Could not create settlement",
+    "deleted": "Settlement deleted",
+    "deleteError": "Could not delete settlement",
+    "empty": {
+      "hint": "Add one using the button above",
+      "title": "No settlements for this client"
+    },
+    "filter": {
+      "all": "All",
+      "impuesto": "Filter by tax"
+    },
+    "formaPago": "Payment method",
+    "formAddDescription": "Fill in the details to create a new settlement.",
+    "formEditDescription": "Modify the settlement fields.",
+    "missingFields": "Fill in the required fields",
+    "placeholderFormaPago": "Cash, Transfer...",
+    "placeholderImporte": "0.00",
+    "placeholderPeriodo": "YYYY-MM",
+    "updated": "Settlement updated",
+    "updateError": "Could not update settlement"
   },
   "vencimiento": {
     "title": "Deadlines",
