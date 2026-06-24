@@ -111,3 +111,33 @@ export interface CreateNotaPayload {
 export interface UpdateNotaPayload {
   contenido: string;
 }
+
+// ─── Archivos ───────────────────────────────────────────────────────
+
+/**
+ * Shape of an item returned by `GET /v1/clientes/:id/archivos`.
+ * The backend includes the nested `archivo` row (full metadata, NO signedUrl —
+ * signed URLs are generated on demand via `GET /v1/archivos/:id`).
+ */
+export interface ClienteArchivoListItem {
+  clienteId: number;
+  archivoId: number;
+  orden: number;
+  archivo: {
+    id: number;
+    storageKey: string;
+    mimeType: string;
+    extension: string;
+    bytes: number;
+    originalName: string;
+    tipo: 'COMPROBANTE' | 'DDJJ' | 'CONTRATO' | 'OTRO';
+    periodo: string | null;
+    parent: {
+      type: 'cliente' | 'tarea' | 'liquidacion';
+      id: number;
+    };
+    subidoPorId: string;
+    activo: boolean;
+    creadoEn: string;
+  };
+}

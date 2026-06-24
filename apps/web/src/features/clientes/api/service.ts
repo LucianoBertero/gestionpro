@@ -9,6 +9,7 @@ import type {
   Nota,
   CreateNotaPayload,
   UpdateNotaPayload,
+  ClienteArchivoListItem,
 } from './types';
 
 export async function getClientes(
@@ -75,4 +76,21 @@ export async function updateNota(id: number, payload: UpdateNotaPayload): Promis
 
 export async function deleteNota(id: number): Promise<void> {
   await api.delete(`/v1/notas/${id}`);
+}
+
+// ─── Archivos ──────────────────────────────────────────────────────
+
+export async function getArchivosCliente(clienteId: number): Promise<ClienteArchivoListItem[]> {
+  const { data } = await api.get(`/v1/clientes/${clienteId}/archivos`);
+  return data.data ?? [];
+}
+
+export async function attachArchivoCliente(clienteId: number, archivoId: number, orden?: number) {
+  const { data } = await api.post(`/v1/clientes/${clienteId}/archivos`, { archivoId, orden });
+  return data.data;
+}
+
+export async function detachArchivoCliente(clienteId: number, archivoId: number) {
+  const { data } = await api.delete(`/v1/clientes/${clienteId}/archivos/${archivoId}`);
+  return data.data;
 }

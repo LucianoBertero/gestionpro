@@ -17,3 +17,20 @@ export async function updateLiquidacion(id: number, payload: UpdateLiquidacionPa
 export async function deleteLiquidacion(id: number): Promise<void> {
   await api.delete(`/v1/admin/liquidaciones/${id}`);
 }
+
+// ─── Archivos ──────────────────────────────────────────────────────
+
+export async function getArchivosLiquidacion(liquidacionId: number) {
+  const { data } = await api.get(`/v1/liquidaciones/${liquidacionId}/archivos`);
+  return data.data ?? [];
+}
+
+export async function attachArchivoLiquidacion(liquidacionId: number, archivoId: number, orden?: number) {
+  const { data } = await api.post(`/v1/liquidaciones/${liquidacionId}/archivos`, { archivoId, orden });
+  return data.data;
+}
+
+export async function detachArchivoLiquidacion(liquidacionId: number, archivoId: number) {
+  const { data } = await api.delete(`/v1/liquidaciones/${liquidacionId}/archivos/${archivoId}`);
+  return data.data;
+}

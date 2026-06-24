@@ -21,21 +21,25 @@ import {
 } from '@/components/ui/select';
 import { Icons } from '@/components/icons';
 import { useMutation } from '@tanstack/react-query';
-import { createArchivo } from '../api/service';
+import { uploadArchivo } from '../api/service';
 import { getQueryClient } from '@/lib/query-client';
 import { archivosKeys } from '../api/queries';
-import type { TipoArchivo } from '../api/types';
+import { useT } from '@/lib/i18n/client';
+import type { TipoArchivo, ArchivoParent } from '../api/types';
 
 interface UploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const MAX_SIZE_KB = 10240; // 10MB
+const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
 export function UploadModal({ open, onOpenChange }: UploadModalProps) {
+  const t = useT();
+
   const [file, setFile] = useState<File | null>(null);
-  const [clienteId, setClienteId] = useState<number>(0);
+  const [parentType, setParentType] = useState<ArchivoParent['type']>('cliente');
+  const [parentId, setParentId] = useState<number>(0);
   const [tipo, setTipo] = useState<TipoArchivo>('COMPROBANTE');
   const [periodo, setPeriodo] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -43,8 +47,11 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
   const queryClient = getQueryClient();
 
   const uploadMutation = useMutation({
-    mutationFn: (data: { clienteId: number; nombre: string; tipo: TipoArchivo; periodo?: string; url: string; tamanioKb?: number }) =>
-      createArchivo(data),
+    mutationFn: () => {
+      if (!file) throw new Error('No file selected');
+      const parent: ArchivoParent = { type: parentType, id: parentId };
+      return uploadArchivo(file, parent, tipo, periodo || undefined);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: archivosKeys.all });
       resetForm();
@@ -57,7 +64,8 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
 
   const resetForm = () => {
     setFile(null);
-    setClienteId(0);
+    setParentType('cliente');
+    setParentId(0);
     setTipo('COMPROBANTE');
     setPeriodo('');
     setValidationError(null);
@@ -67,43 +75,34 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
     const f = acceptedFiles[0];
     if (!f) return;
 
-    const sizeKb = Math.round(f.size / 1024);
-    if (sizeKb > MAX_SIZE_KB) {
-      setValidationError(`El archivo es demasiado grande. Tamaño máximo: 10MB`);
+    if (f.size > MAX_SIZE_BYTES) {
+      setValidationError(t('archivos.upload.fileTooBig', { defaultValue: 'File is too large. Maximum size: 10MB' }));
       return;
     }
 
     setFile(f);
     setValidationError(null);
-  }, []);
+  }, [t]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxFiles: 1,
-    maxSize: MAX_SIZE_KB * 1024,
+    maxSize: MAX_SIZE_BYTES,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !clienteId) return;
-
-    uploadMutation.mutate({
-      clienteId,
-      nombre: file.name,
-      tipo,
-      periodo: periodo || undefined,
-      url: URL.createObjectURL(file),
-      tamanioKb: Math.round(file.size / 1024),
-    });
+    if (!file || !parentId) return;
+    uploadMutation.mutate();
   };
 
   return (
     <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) resetForm(); }}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Subir Archivo</DialogTitle>
+          <DialogTitle>{t('archivos.upload.title', { defaultValue: 'Upload file' })}</DialogTitle>
           <DialogDescription>
-            Cargá un archivo al sistema. Se guardará la metadata; el almacenamiento físico se habilitará próximamente.
+            {t('archivos.upload.description', { defaultValue: 'Attach a file to a client, task, or settlement. The file is stored securely.' })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -123,14 +122,16 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
                 </p>
               </div>
             ) : isDragActive ? (
-              <p className="text-sm text-muted-foreground">Soltá el archivo aquí...</p>
+              <p className="text-sm text-muted-foreground">
+                {t('archivos.upload.dropActive', { defaultValue: 'Drop the file here...' })}
+              </p>
             ) : (
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">
-                  Arrastrá y soltá tu archivo aquí
+                  {t('archivos.upload.dragHere', { defaultValue: 'Drag and drop your file here' })}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  PDF, Excel, Word, Imágenes — Max 10MB
+                  {t('archivos.upload.formats', { defaultValue: 'PDF, Excel, Word, Images — Max 10MB' })}
                 </p>
               </div>
             )}
@@ -142,48 +143,73 @@ export function UploadModal({ open, onOpenChange }: UploadModalProps) {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="clienteId">ID del Cliente</Label>
+              <Label htmlFor="parentType">{t('archivos.upload.parentType', { defaultValue: 'Type' })}</Label>
+              <Select value={parentType} onValueChange={(v: ArchivoParent['type']) => setParentType(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cliente">{t('archivos.parent.cliente', { defaultValue: 'Client' })}</SelectItem>
+                  <SelectItem value="tarea">{t('archivos.parent.tarea', { defaultValue: 'Task' })}</SelectItem>
+                  <SelectItem value="liquidacion">{t('archivos.parent.liquidacion', { defaultValue: 'Settlement' })}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="parentId">{t('archivos.upload.parentId', { defaultValue: 'ID' })}</Label>
               <Input
-                id="clienteId"
+                id="parentId"
                 type="number"
-                value={clienteId || ''}
-                onChange={(e) => setClienteId(Number(e.target.value))}
+                value={parentId || ''}
+                onChange={(e) => setParentId(Number(e.target.value))}
                 required
               />
             </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="tipo">Tipo</Label>
+              <Label htmlFor="tipoArchivo">{t('archivos.upload.category', { defaultValue: 'Category' })}</Label>
               <Select value={tipo} onValueChange={(v: TipoArchivo) => setTipo(v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="COMPROBANTE">Comprobante</SelectItem>
-                  <SelectItem value="DDJJ">DDJJ</SelectItem>
-                  <SelectItem value="CONTRATO">Contrato</SelectItem>
-                  <SelectItem value="OTRO">Otro</SelectItem>
+                  <SelectItem value="COMPROBANTE">
+                    {t('archivos.tipo.COMPROBANTE', { defaultValue: 'Comprobante' })}
+                  </SelectItem>
+                  <SelectItem value="DDJJ">
+                    {t('archivos.tipo.DDJJ', { defaultValue: 'DDJJ' })}
+                  </SelectItem>
+                  <SelectItem value="CONTRATO">
+                    {t('archivos.tipo.CONTRATO', { defaultValue: 'Contrato' })}
+                  </SelectItem>
+                  <SelectItem value="OTRO">
+                    {t('archivos.tipo.OTRO', { defaultValue: 'Otro' })}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="periodo">Período (opcional)</Label>
-            <Input
-              id="periodo"
-              value={periodo}
-              onChange={(e) => setPeriodo(e.target.value)}
-              placeholder="Ej: 2026-05"
-            />
+            <div className="space-y-2">
+              <Label htmlFor="periodo">{t('archivos.upload.periodo', { defaultValue: 'Period (optional)' })}</Label>
+              <Input
+                id="periodo"
+                value={periodo}
+                onChange={(e) => setPeriodo(e.target.value)}
+                placeholder={t('archivos.upload.periodoPlaceholder', { defaultValue: 'e.g. 2026-05' })}
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-            <Button type="submit" disabled={!file || !clienteId || uploadMutation.isPending}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              {t('archivos.upload.cancel', { defaultValue: 'Cancel' })}
+            </Button>
+            <Button type="submit" disabled={!file || !parentId || uploadMutation.isPending}>
               {uploadMutation.isPending ? (
-                <><Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> Subiendo...</>
+                <><Icons.spinner className="mr-2 h-4 w-4 animate-spin" /> {t('archivos.upload.uploading', { defaultValue: 'Uploading...' })}</>
               ) : (
-                <><Icons.upload className="mr-2 h-4 w-4" /> Subir</>
+                <><Icons.upload className="mr-2 h-4 w-4" /> {t('archivos.upload.submit', { defaultValue: 'Upload' })}</>
               )}
             </Button>
           </div>

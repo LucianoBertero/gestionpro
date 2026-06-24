@@ -1,0 +1,77 @@
+{
+  "title": "Files",
+  "description": "File and document management",
+  "upload": {
+    "title": "Upload file",
+    "button": "Upload File",
+    "description": "Attach a file to a client, task, or settlement. The file is stored securely.",
+    "cancel": "Cancel",
+    "submit": "Upload",
+    "uploading": "Uploading...",
+    "dragHere": "Drag and drop your file here",
+    "formats": "PDF, Excel, Word, Images — Max 10MB",
+    "dropActive": "Drop the file here...",
+    "fileTooBig": "File is too large. Maximum size: 10MB",
+    "parentType": "Type",
+    "parentId": "ID",
+    "category": "Category",
+    "periodo": "Period (optional)",
+    "periodoPlaceholder": "e.g. 2026-05"
+  },
+  "dropzone": {
+    "placeholder": "Drag a file or click to select",
+    "hint": "PDF, Excel, Word, Images — max {{maxSizeMB}} MB",
+    "dropHere": "Drop the file here",
+    "uploading": "Uploading...",
+    "cancel": "Cancel"
+  },
+  "errors": {
+    "fileTooBig": "File exceeds the maximum allowed size",
+    "unsupportedType": "Unsupported file type",
+    "invalidFile": "File does not match the declared type",
+    "uploadFailed": "Failed to upload file",
+    "downloadFailed": "Could not get the download link",
+    "deleteFailed": "Could not delete the file",
+    "notFound": "File not found",
+    "unknown": "Unknown error"
+  },
+  "success": {
+    "uploaded": "File uploaded successfully",
+    "deleted": "File deleted successfully",
+    "attached": "File attached successfully",
+    "detached": "File detached successfully"
+  },
+  "delete": {
+    "confirm": "Delete this file?"
+  },
+  "parent": {
+    "cliente": "Client",
+    "tarea": "Task",
+    "liquidacion": "Settlement"
+  },
+  "table": {
+    "name": "Name",
+    "type": "Type",
+    "period": "Period",
+    "size": "Size",
+    "uploadedBy": "Uploaded by",
+    "date": "Date",
+    "actions": "Actions",
+    "empty": "No files uploaded"
+  },
+  "tipo": {
+    "COMPROBANTE": "Receipt",
+    "DDJJ": "Tax Return",
+    "CONTRATO": "Contract",
+    "OTRO": "Other"
+  },
+  "filter": {
+    "selectParent": "Select an entity type and ID to browse files",
+    "parentTypeLabel": "Entity",
+    "parentIdLabel": "ID",
+    "searchButton": "Search"
+  },
+  "actions": {
+    "download": "Download"
+  }
+}

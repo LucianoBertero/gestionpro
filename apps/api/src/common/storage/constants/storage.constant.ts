@@ -1,0 +1,2 @@
+export const STORAGE_SERVICE = 'STORAGE_SERVICE';
+export const R2_S3_CLIENT = 'R2_S3_CLIENT';

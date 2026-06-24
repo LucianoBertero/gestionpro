@@ -1,0 +1,77 @@
+{
+  "title": "Archivos",
+  "description": "Gestión de archivos y documentos",
+  "upload": {
+    "title": "Subir archivo",
+    "button": "Subir Archivo",
+    "description": "Adjuntá un archivo a un cliente, tarea o liquidación. El archivo se almacena de forma segura.",
+    "cancel": "Cancelar",
+    "submit": "Subir",
+    "uploading": "Subiendo...",
+    "dragHere": "Arrastrá y soltá tu archivo aquí",
+    "formats": "PDF, Excel, Word, Imágenes — Max 10MB",
+    "dropActive": "Soltá el archivo aquí...",
+    "fileTooBig": "El archivo es demasiado grande. Tamaño máximo: 10MB",
+    "parentType": "Tipo",
+    "parentId": "ID",
+    "category": "Categoría",
+    "periodo": "Período (opcional)",
+    "periodoPlaceholder": "Ej: 2026-05"
+  },
+  "dropzone": {
+    "placeholder": "Arrastrá un archivo o hacé clic para seleccionar",
+    "hint": "PDF, Excel, Word, Imágenes — máx. {{maxSizeMB}} MB",
+    "dropHere": "Soltá el archivo acá",
+    "uploading": "Subiendo...",
+    "cancel": "Cancelar"
+  },
+  "errors": {
+    "fileTooBig": "El archivo supera el tamaño máximo permitido",
+    "unsupportedType": "Tipo de archivo no soportado",
+    "invalidFile": "El archivo no coincide con el tipo declarado",
+    "uploadFailed": "Error al subir el archivo",
+    "downloadFailed": "No se pudo obtener el link de descarga",
+    "deleteFailed": "No se pudo eliminar el archivo",
+    "notFound": "Archivo no encontrado",
+    "unknown": "Error desconocido"
+  },
+  "success": {
+    "uploaded": "Archivo subido correctamente",
+    "deleted": "Archivo eliminado correctamente",
+    "attached": "Archivo adjuntado correctamente",
+    "detached": "Archivo desvinculado correctamente"
+  },
+  "delete": {
+    "confirm": "¿Eliminar este archivo?"
+  },
+  "parent": {
+    "cliente": "Cliente",
+    "tarea": "Tarea",
+    "liquidacion": "Liquidación"
+  },
+  "table": {
+    "name": "Nombre",
+    "type": "Tipo",
+    "period": "Período",
+    "size": "Tamaño",
+    "uploadedBy": "Subido por",
+    "date": "Fecha",
+    "actions": "Acciones",
+    "empty": "No hay archivos cargados"
+  },
+  "tipo": {
+    "COMPROBANTE": "Comprobante",
+    "DDJJ": "DDJJ",
+    "CONTRATO": "Contrato",
+    "OTRO": "Otro"
+  },
+  "filter": {
+    "selectParent": "Seleccioná un tipo de entidad y un ID para ver los archivos",
+    "parentTypeLabel": "Entidad",
+    "parentIdLabel": "ID",
+    "searchButton": "Buscar"
+  },
+  "actions": {
+    "download": "Descargar"
+  }
+}
