@@ -1,6 +1,7 @@
 {
   "success": {
     "list": "Vencimientos retrieved",
+    "listWithClients": "Vencimientos with clients retrieved",
     "calculated": "Vencimiento calculated"
   },
   "error": {
