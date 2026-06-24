@@ -134,6 +134,18 @@ describe('ArchivoParentDto', () => {
         expect(dto.periodo).toBe('2026-05');
     });
 
+    it('accepts extra file field from multipart upload', async () => {
+        const dto = plainToInstance(ArchivoParentDto, {
+            parent: '{"type":"cliente","id":42}',
+            tipo: 'DDJJ',
+            periodo: '2026-05',
+            file: { fieldname: 'file', originalname: 'test.pdf', mimetype: 'application/pdf' },
+        });
+
+        const errors = await validate(dto);
+        expect(errors).toHaveLength(0);
+    });
+
     it('rejects invalid periodo format', async () => {
         const dto = plainToInstance(ArchivoParentDto, {
             parent: '{"type":"cliente","id":42}',

@@ -1,4 +1,5 @@
 import {
+    Allow,
     IsEnum,
     IsNotEmpty,
     IsOptional,
@@ -66,4 +67,8 @@ export class ArchivoParentDto {
     @IsString()
     @Matches(/^\d{4}-\d{2}$/, { message: 'archivo.error.invalidPeriodo' })
     periodo?: string;
+
+    /** Multipart `file` field — handled by `@UploadedFile()`. @Allow bypasses forbidNonWhitelisted. */
+    @Allow()
+    file?: unknown;
 }
