@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Label } from '@/components/ui/label';
 import { Icons } from '@/components/icons';
 import { useT } from '@/lib/i18n/client';
@@ -51,7 +52,7 @@ export function LiquidacionFormSheet({
   const tr = (key: string, fallback: string) => t(key, { defaultValue: fallback });
 
   const [impuesto, setImpuesto] = useState<TipoImpuesto>('IVA');
-  const [periodo, setPeriodo] = useState('');
+  const [periodo, setPeriodo] = useState<Date | undefined>(undefined);
   const [resultado, setResultado] = useState<ResultadoLiquidacion>('A_PAGAR');
   const [importe, setImporte] = useState('');
   const [vencimiento, setVencimiento] = useState('');
@@ -62,7 +63,13 @@ export function LiquidacionFormSheet({
     if (open) {
       if (liquidacion) {
         setImpuesto(liquidacion.impuesto);
-        setPeriodo(liquidacion.periodo);
+        // Período is stored as YYYY-MM string in the backend. Initialize the
+        // DatePicker with the first day of that month so the calendar shows
+        // something coherent. The day is irrelevant — only the year-month
+        // is sent to the backend.
+        setPeriodo(
+          liquidacion.periodo ? new Date(`${liquidacion.periodo}-01`) : undefined,
+        );
         setResultado(liquidacion.resultado);
         setImporte(liquidacion.importe != null ? liquidacion.importe.toString() : '');
         // Display the date portion only (YYYY-MM-DD) for the text input.
@@ -72,7 +79,7 @@ export function LiquidacionFormSheet({
         setFormaPago(liquidacion.formaPago ?? '');
       } else {
         setImpuesto('IVA');
-        setPeriodo('');
+        setPeriodo(undefined);
         setResultado('A_PAGAR');
         setImporte('');
         setVencimiento('');
@@ -100,7 +107,7 @@ export function LiquidacionFormSheet({
   });
 
   const handleSave = () => {
-    if (!impuesto || !periodo.trim() || !resultado) {
+    if (!impuesto || !periodo || !resultado) {
       toast.error(tr('liquidacion.missingFields', 'Completá los campos requeridos'));
       return;
     }
@@ -108,13 +115,16 @@ export function LiquidacionFormSheet({
     const vencimientoVal = vencimiento.trim() || undefined;
     const importeNum = importe ? Number(importe) : undefined;
     const formaPagoVal = formaPago.trim() || undefined;
+    // Período is a Date from the picker; backend expects YYYY-MM string.
+    // The day of the picked date is irrelevant.
+    const periodoVal = periodo ? periodo.toISOString().slice(0, 7) : '';
 
     if (isEditing && liquidacion) {
       updateMutation.mutate({
         id: liquidacion.id,
         values: {
           impuesto,
-          periodo: periodo.trim(),
+          periodo: periodoVal,
           resultado,
           importe: importeNum,
           vencimiento: vencimientoVal,
@@ -125,7 +135,7 @@ export function LiquidacionFormSheet({
       createMutation.mutate({
         clienteId,
         impuesto,
-        periodo: periodo.trim(),
+        periodo: periodoVal,
         resultado,
         importe: importeNum,
         vencimiento: vencimientoVal,
@@ -181,10 +191,13 @@ export function LiquidacionFormSheet({
           {/* Período */}
           <div className='space-y-2'>
             <Label>{tr('liquidacion.periodo', 'Período')} *</Label>
-            <Input
+            <DatePicker
               value={periodo}
-              onChange={(e) => setPeriodo(e.target.value)}
-              placeholder={tr('liquidacion.placeholderPeriodo', 'YYYY-MM')}
+              onChange={setPeriodo}
+              placeholder={tr(
+                'liquidacion.placeholderPeriodo',
+                'Seleccioná el mes',
+              )}
             />
           </div>
 
