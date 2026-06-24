@@ -40,6 +40,7 @@ import { liquidacionesQueryOptions } from '@/features/liquidaciones/api/queries'
 
 import { UploadDropzone } from '@/features/archivos/components/upload-dropzone';
 import { useUpload } from '@/features/archivos/hooks/use-upload';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import type { ArchivoParent, TipoArchivo } from '@/features/archivos/api/types';
 import { TIPO_ARCHIVO_VALUES, TIPO_ARCHIVO_LABELS } from '@/features/archivos/constants';
 
@@ -144,12 +145,17 @@ export function UploadModal({
     setPreviewUrl(null);
   }, [selectedFile]);
 
+  // Debounce the entity search string so we don't fire a query on every
+  // keystroke. CommandInput still filters the visible list client-side
+  // instantly; the debounced value only feeds the server-side queries.
+  const debouncedEntitySearch = useDebouncedValue(entitySearch, 300);
+
   // Queries for entity pickers
   const clientesQuery = useQuery(
-    clientesQueryOptions({ search: entitySearch, take: 50 }),
+    clientesQueryOptions({ search: debouncedEntitySearch, take: 50 }),
   );
   const tareasQuery = useQuery(
-    tareasQueryOptions({ search: entitySearch }),
+    tareasQueryOptions({ search: debouncedEntitySearch }),
   );
   // Liquidaciones doesn't have a search param — fetch all, filter client-side
   const liquidacionesQuery = useQuery(liquidacionesQueryOptions({}));
