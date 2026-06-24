@@ -8,6 +8,7 @@ import { PlaceholderTab } from './placeholder-tab';
 import { NotasTab } from './notas-tab';
 import { ClavesClienteTab } from './claves-cliente-tab';
 import { TareasTab } from './tareas-tab';
+import { LiquidacionesTab } from './liquidaciones-tab';
 import { ArchivosTab } from './archivos-tab';
 import type { ClienteLegajo } from '../../api/types';
 
@@ -59,7 +60,7 @@ export function ClienteLegajoTabs({ legajo, onEdit }: ClienteLegajoTabsProps) {
       </TabsContent>
 
       <TabsContent value='liquidaciones' className='mt-4'>
-        <PlaceholderTab title='Liquidaciones' />
+        <LiquidacionesTab clienteId={legajo.id} />
       </TabsContent>
 
       <TabsContent value='archivos' className='mt-4'>
