@@ -25,7 +25,9 @@ export class ClienteRepository {
         }
 
         if (semaforo) {
-            where.semaforo = semaforo;
+            where.semaforo = Array.isArray(semaforo)
+                ? { in: semaforo }
+                : semaforo;
         }
 
         if (search) {
@@ -52,7 +54,9 @@ export class ClienteRepository {
         }
 
         if (semaforo) {
-            where.semaforo = semaforo;
+            where.semaforo = Array.isArray(semaforo)
+                ? { in: semaforo }
+                : semaforo;
         }
 
         if (search) {

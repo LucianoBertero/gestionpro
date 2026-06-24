@@ -40,6 +40,6 @@ export interface ClienteFindAllOptions {
     skip?: number;
     take?: number;
     encargadoId?: string;
-    semaforo?: EstadoSemaforo;
+    semaforo?: EstadoSemaforo | EstadoSemaforo[];
     search?: string;
 }

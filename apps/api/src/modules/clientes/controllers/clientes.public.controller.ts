@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseArrayPipe, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { EstadoSemaforo } from 'src/common/database/enums/estado-semaforo.enum';
@@ -12,13 +12,7 @@ import {
 } from '../dtos/clientes.dto';
 import { ClienteService } from '../services/clientes.service';
 
-function parseSemaforo(value: string | undefined): EstadoSemaforo | undefined {
-    if (!value) return undefined;
-    if (Object.values(EstadoSemaforo).includes(value as EstadoSemaforo)) {
-        return value as EstadoSemaforo;
-    }
-    return undefined;
-}
+const VALID_SEMAFOROS = new Set<string>(Object.values(EstadoSemaforo));
 
 @ApiTags('public.clientes')
 @ApiBearerAuth('accessToken')
@@ -36,16 +30,25 @@ export class ClientesPublicController {
     async findAll(
         @AuthUser() user: IAuthUser,
         @Query('search') search?: string,
-        @Query('semaforo') semaforo?: string,
+        @Query('semaforo', new ParseArrayPipe({ items: String, separator: ',', optional: true }))
+        semaforo?: string[],
         @Query('encargadoId') encargadoId?: string,
         @Query('skip') skip?: string,
         @Query('take') take?: string
     ): Promise<{ data: ClienteResponseDto[]; total: number; skip: number; take: number }> {
         const parsedSkip = skip ? parseInt(skip, 10) : 0;
         const parsedTake = take ? parseInt(take, 10) : 20;
+
+        const semaforoFiltered = semaforo?.filter((s) =>
+            VALID_SEMAFOROS.has(s)
+        ) as EstadoSemaforo[] | undefined;
+
         const options = {
             search,
-            semaforo: parseSemaforo(semaforo),
+            semaforo:
+                semaforoFiltered && semaforoFiltered.length === 1
+                    ? semaforoFiltered[0]
+                    : semaforoFiltered,
             encargadoId,
             skip: parsedSkip,
             take: parsedTake,
