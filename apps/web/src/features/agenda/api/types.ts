@@ -8,10 +8,14 @@ export interface AgendaItem {
   titulo: string;
   descripcion: string | null;
   fecha: string;
+  fechaFin: string | null;
+  allDay: boolean;
   duracionMin: number;
   tipo: TipoEvento;
   origen: OrigenEvento;
   googleEventId: string | null;
+  recurrenceRule: string | null;
+  recurrenceEnd: string | null;
   esEstudio: boolean;
   activo: boolean;
   creadoEn: string;
@@ -42,19 +46,27 @@ export interface AgendaFilters {
 export interface CreateAgendaPayload {
   titulo: string;
   fecha: string;
+  fechaFin?: string;
+  allDay?: boolean;
   duracionMin: number;
   tipo: TipoEvento;
   descripcion?: string;
   tareaId?: number;
   esEstudio?: boolean;
   usuarioId?: string;
+  recurrenceRule?: string;
+  recurrenceEnd?: string;
 }
 
 export interface UpdateAgendaPayload {
   titulo?: string;
   fecha?: string;
+  fechaFin?: string;
+  allDay?: boolean;
   duracionMin?: number;
   tipo?: TipoEvento;
   descripcion?: string;
   esEstudio?: boolean;
+  recurrenceRule?: string;
+  recurrenceEnd?: string;
 }

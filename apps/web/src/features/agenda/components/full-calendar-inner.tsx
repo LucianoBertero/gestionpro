@@ -5,6 +5,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import rrulePlugin from '@fullcalendar/rrule';
 import esLocale from '@fullcalendar/core/locales/es';
 import type { DateSelectArg, EventClickArg, EventContentArg } from '@fullcalendar/core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -30,16 +31,30 @@ import { SOCIO } from '@/constants';
 import { getUserColor, getUserInitials } from '@/lib/user-colors';
 
 function toCalendarEvent(item: AgendaItem) {
-  const end = new Date(item.fecha);
-  end.setMinutes(end.getMinutes() + item.duracionMin);
   const itemWithUser = item as AgendaItemWithUsuario;
   const userColor = getUserColor(item.usuarioId);
   const userInitials = getUserInitials(itemWithUser.usuario?.nombre ?? '??');
+
+  const start = item.fecha;
+  let end: string;
+  if (item.fechaFin) {
+    end = item.fechaFin;
+  } else {
+    end = new Date(new Date(item.fecha).getTime() + item.duracionMin * 60000).toISOString();
+  }
+
+  const pad2 = (n: number) => String(n).padStart(2, '0');
+  const hours = Math.floor(item.duracionMin / 60);
+  const mins = item.duracionMin % 60;
+
   return {
     id: String(item.id),
     title: item.titulo,
-    start: item.fecha,
-    end: end.toISOString(),
+    start,
+    end,
+    allDay: item.allDay,
+    rrule: item.recurrenceRule ?? undefined,
+    duration: item.allDay ? undefined : `${pad2(hours)}:${pad2(mins)}`,
     backgroundColor:
       item.tipo === 'PERSONAL' ? '#3b82f6' :
       item.tipo === 'ESTUDIO' ? '#8b5cf6' :
@@ -189,7 +204,7 @@ export default function FullCalendarInnerWrapper() {
 
       <div className="rounded-lg border bg-card p-4">
         <FullCalendar
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, rrulePlugin]}
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',

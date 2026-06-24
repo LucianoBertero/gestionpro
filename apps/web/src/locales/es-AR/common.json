@@ -369,7 +369,40 @@
     "asignarUsuario": "Asignar a usuario",
     "compartirEstudio": "Compartir con el estudio (visible para el equipo)",
     "me": "yo",
-    "confirmDelete": "¿Eliminar evento {{title}}?"
+    "confirmDelete": "¿Eliminar evento {{title}}?",
+    "created": "Evento creado",
+    "updated": "Evento actualizado",
+    "deleted": "Evento eliminado",
+    "allDay": "Día completo",
+    "multiDay": {
+      "label": "Evento de varios días",
+      "endDate": "Fecha de fin"
+    },
+    "recurrence": {
+      "label": "Repetición",
+      "none": "No se repite",
+      "daily": "Diariamente",
+      "weekly": "Semanalmente",
+      "monthly": "Mensualmente",
+      "interval": "Cada",
+      "intervalUnit": {
+        "day": "día(s)",
+        "week": "semana(s)",
+        "month": "mes(es)"
+      },
+      "byDay": {
+        "label": "Días",
+        "monday": "Lun",
+        "tuesday": "Mar",
+        "wednesday": "Mié",
+        "thursday": "Jue",
+        "friday": "Vie",
+        "saturday": "Sáb",
+        "sunday": "Dom"
+      },
+      "endDate": "Repetir hasta",
+      "endDateRequired": "Indicá una fecha de fin para la repetición"
+    }
   },
   "notificacion": {
     "title": "Notificaciones",
