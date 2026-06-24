@@ -460,6 +460,81 @@
     "contrato": "Contrato",
     "confirmDelete": "¿Eliminar archivo {{name}}?"
   },
+  "archivos": {
+    "title": "Archivos",
+    "description": "Gestión de archivos y documentos",
+    "upload": {
+      "button": "Subir Archivo"
+    },
+    "delete": {
+      "confirm": "¿Eliminar este archivo?",
+      "success": "Archivo eliminado",
+      "error": "No se pudo eliminar el archivo"
+    },
+    "filter": {
+      "searchPlaceholder": "Buscar por nombre...",
+      "tipoLabel": "Tipo",
+      "tipoAll": "Todos",
+      "parentTypeLabel": "Padre",
+      "parentTypeAll": "Todos",
+      "dateFromLabel": "Desde",
+      "dateToLabel": "Hasta",
+      "clear": "Limpiar filtros"
+    },
+    "table": {
+      "name": "Nombre",
+      "type": "Tipo",
+      "period": "Período",
+      "size": "Tamaño",
+      "parent": "Padre",
+      "parent.estudio": "Estudio",
+      "uploadedBy": "Subido por",
+      "date": "Fecha",
+      "actions": "Acciones",
+      "empty.filtered": "No se encontraron archivos con los filtros aplicados"
+    },
+    "parent": {
+      "cliente": "Cliente",
+      "tarea": "Tarea",
+      "liquidacion": "Liquidación",
+      "estudio": "Estudio"
+    },
+    "modal": {
+      "title": "Subir archivo",
+      "description": {
+        "select": "Arrastrá o seleccioná un archivo PDF, imagen, Word o Excel.",
+        "uploading": "Por favor esperá mientras se sube el archivo.",
+        "confirm": "Revisá el archivo y confirmá para subirlo."
+      },
+      "uploading": "Subiendo...",
+      "confirm": {
+        "title": "¿Subir este archivo?",
+        "cancel": "Cancelar",
+        "upload": "Subir"
+      },
+      "parentLabel": "Adjuntar a",
+      "parentType": {
+        "cliente": "Cliente",
+        "tarea": "Tarea",
+        "liquidacion": "Liquidación",
+        "estudio": "Estudio (general)"
+      },
+      "parentSearch": {
+        "clientePlaceholder": "Buscar cliente...",
+        "tareaPlaceholder": "Buscar tarea...",
+        "liquidacionPlaceholder": "Buscar liquidación..."
+      },
+      "parentEmpty": {
+        "cliente": "No se encontró el cliente"
+      },
+      "error": "No se pudo subir el archivo"
+    },
+    "pagination": {
+      "pageOf": "Página {{page}} de {{total}}",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    }
+  },
   "claveCliente": {
     "title": "Claves del Cliente",
     "add": "Nueva Clave",

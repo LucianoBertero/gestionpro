@@ -461,6 +461,81 @@
     "contrato": "Contract",
     "confirmDelete": "Delete file {{name}}?"
   },
+  "archivos": {
+    "title": "Files",
+    "description": "File and document management",
+    "upload": {
+      "button": "Upload File"
+    },
+    "delete": {
+      "confirm": "Delete this file?",
+      "success": "File deleted",
+      "error": "Could not delete file"
+    },
+    "filter": {
+      "searchPlaceholder": "Search by name...",
+      "tipoLabel": "Type",
+      "tipoAll": "All",
+      "parentTypeLabel": "Parent",
+      "parentTypeAll": "All",
+      "dateFromLabel": "From",
+      "dateToLabel": "To",
+      "clear": "Clear filters"
+    },
+    "table": {
+      "name": "Name",
+      "type": "Type",
+      "period": "Period",
+      "size": "Size",
+      "parent": "Parent",
+      "parent.estudio": "Studio",
+      "uploadedBy": "Uploaded by",
+      "date": "Date",
+      "actions": "Actions",
+      "empty.filtered": "No files match the current filters"
+    },
+    "parent": {
+      "cliente": "Client",
+      "tarea": "Task",
+      "liquidacion": "Settlement",
+      "estudio": "Studio"
+    },
+    "modal": {
+      "title": "Upload file",
+      "description": {
+        "select": "Drag or select a PDF, image, Word, or Excel file.",
+        "uploading": "Please wait while the file is uploaded.",
+        "confirm": "Review the file and confirm the upload."
+      },
+      "uploading": "Uploading...",
+      "confirm": {
+        "title": "Upload this file?",
+        "cancel": "Cancel",
+        "upload": "Upload"
+      },
+      "parentLabel": "Attach to",
+      "parentType": {
+        "cliente": "Client",
+        "tarea": "Task",
+        "liquidacion": "Settlement",
+        "estudio": "Studio (general)"
+      },
+      "parentSearch": {
+        "clientePlaceholder": "Search client...",
+        "tareaPlaceholder": "Search task...",
+        "liquidacionPlaceholder": "Search settlement..."
+      },
+      "parentEmpty": {
+        "cliente": "Client not found"
+      },
+      "error": "Could not upload file"
+    },
+    "pagination": {
+      "pageOf": "Page {{page}} of {{total}}",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
   "claveCliente": {
     "title": "Client Credentials",
     "add": "New Credential",
