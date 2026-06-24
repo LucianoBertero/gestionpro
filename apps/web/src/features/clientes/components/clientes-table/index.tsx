@@ -1,35 +1,34 @@
 'use client';
 import { DataTable } from '@/components/ui/table/data-table';
-import { DataTableToolbar } from '@/components/ui/table/data-table-toolbar';
 import { useDataTable } from '@/hooks/use-data-table';
 import { useQuery } from '@tanstack/react-query';
-import { parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
-import { getSortingStateParser } from '@/lib/parsers';
+import { parseAsInteger, parseAsString, parseAsArrayOf, useQueryState } from 'nuqs';
 import {
   clientesQueryOptions,
   activeUsersQueryOptions,
 } from '../../api/queries';
 import { getColumns } from './columns';
+import { ClientesFilterBar } from './clientes-filter-bar';
 import { useMemo } from 'react';
 
-const columnIds = ['denominacion', 'cuit', 'encargado', 'semaforo', 'impuestos', 'actions'];
+const ARRAY_SEPARATOR = ',';
 
 export function ClientesTable() {
-  const [params] = useQueryStates({
-    page: parseAsInteger.withDefault(1),
-    perPage: parseAsInteger.withDefault(10),
-    search: parseAsString,
-    semaforo: parseAsString,
-    encargadoId: parseAsString,
-    sort: getSortingStateParser(columnIds).withDefault([]),
-  });
+  const [page] = useQueryState('page', parseAsInteger.withDefault(1));
+  const [perPage] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const [search, setSearch] = useQueryState('search', parseAsString.withDefault(''));
+  const [encargadoId, setEncargadoId] = useQueryState('encargadoId', parseAsString.withDefault(''));
+  const [semaforo, setSemaforo] = useQueryState(
+    'semaforo',
+    parseAsArrayOf(parseAsString, ARRAY_SEPARATOR).withDefault([])
+  );
 
   const filters = {
-    ...(params.search && { search: params.search }),
-    ...(params.semaforo && { semaforo: params.semaforo }),
-    ...(params.encargadoId && { encargadoId: params.encargadoId }),
-    skip: (params.page - 1) * params.perPage,
-    take: params.perPage,
+    ...(search && { search }),
+    ...(semaforo.length > 0 && { semaforo: semaforo.join(ARRAY_SEPARATOR) }),
+    ...(encargadoId && { encargadoId }),
+    skip: ((page ?? 1) - 1) * (perPage ?? 10),
+    take: perPage ?? 10,
   };
 
   const { data: clientesData, isLoading } = useQuery({
@@ -44,7 +43,7 @@ export function ClientesTable() {
   const clientes = clientesData?.data ?? [];
   // Backend now returns meta.total from the paginated envelope.
   const total = clientesData?.total ?? 0;
-  const pageCount = Math.max(1, Math.ceil(total / params.perPage));
+  const pageCount = Math.max(1, Math.ceil(total / (perPage ?? 10)));
 
   const columns = useMemo(() => getColumns(users), [users]);
 
@@ -65,7 +64,15 @@ export function ClientesTable() {
 
   return (
     <DataTable table={table}>
-      <DataTableToolbar table={table} />
+      <ClientesFilterBar
+        search={search ?? ''}
+        encargadoId={encargadoId ?? ''}
+        semaforo={semaforo ?? []}
+        setSearch={setSearch}
+        setEncargadoId={setEncargadoId}
+        setSemaforo={setSemaforo}
+        users={users}
+      />
     </DataTable>
   );
 }

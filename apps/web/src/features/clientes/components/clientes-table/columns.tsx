@@ -11,7 +11,6 @@ import {
 import { SemaforoBadge, semaforoDot } from '@/components/ui/semaforo-badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import type { Column, ColumnDef } from '@tanstack/react-table';
-import { Icons } from '@/components/icons';
 import { useT } from '@/lib/i18n/client';
 import { useMutationWithOptions } from '@/hooks/use-mutation-with-options';
 import { CellAction } from './cell-action';
@@ -122,11 +121,7 @@ export function getColumns(users: ActiveUser[]): ColumnDef<Cliente>[] {
       ),
       meta: {
         label: 'Denominación',
-        placeholder: 'Buscar por denominación o CUIT...',
-        variant: 'text' as const,
-        icon: Icons.text,
       },
-      enableColumnFilter: true,
     },
     {
       accessorKey: 'cuit',
@@ -149,10 +144,7 @@ export function getColumns(users: ActiveUser[]): ColumnDef<Cliente>[] {
       },
       meta: {
         label: 'Encargado',
-        variant: 'select' as const,
-        options: users.map((u) => ({ value: u.id, label: u.nombre })),
       },
-      enableColumnFilter: true,
     },
     {
       accessorKey: 'semaforo',
@@ -161,10 +153,8 @@ export function getColumns(users: ActiveUser[]): ColumnDef<Cliente>[] {
         <DataTableColumnHeader column={column} title='Semáforo' />
       ),
       cell: ({ row }) => <SemaforoCell row={row} />,
-      enableColumnFilter: true,
       meta: {
         label: 'Semáforo',
-        variant: 'multiSelect' as const,
         options: SEMAFORO_OPTIONS,
       },
     },

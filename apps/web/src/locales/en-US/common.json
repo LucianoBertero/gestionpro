@@ -220,7 +220,15 @@
     "deleteSuccess": "Client deleted successfully",
     "deleteError": "Error deleting client",
     "updateSuccess": "Client updated",
-    "updateError": "Error updating client"
+    "updateError": "Error updating client",
+    "filter": {
+      "searchPlaceholder": "Search by name or tax ID...",
+      "encargadoLabel": "Assignee",
+      "encargadoAll": "All",
+      "semaforoLabel": "Status",
+      "clearSemaforo": "Clear status",
+      "clear": "Clear filters"
+    }
   },
   "tarea": {
     "title": "Tasks",

@@ -218,7 +218,15 @@
     "deleteSuccess": "Cliente eliminado correctamente",
     "deleteError": "Error al eliminar el cliente",
     "updateSuccess": "Cliente actualizado",
-    "updateError": "Error al actualizar el cliente"
+    "updateError": "Error al actualizar el cliente",
+    "filter": {
+      "searchPlaceholder": "Buscar por denominación o CUIT...",
+      "encargadoLabel": "Encargado",
+      "encargadoAll": "Todos",
+      "semaforoLabel": "Semáforo",
+      "clearSemaforo": "Limpiar semáforo",
+      "clear": "Limpiar filtros"
+    }
   },
   "tarea": {
     "title": "Tareas",
