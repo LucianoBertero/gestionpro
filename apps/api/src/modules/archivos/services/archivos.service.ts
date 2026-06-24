@@ -251,11 +251,7 @@ export class ArchivosService {
             tipo: row.tipo,
             periodo: row.periodo,
             subidoPorId: row.subidoPorId,
-            subidoPorNombre: row.subidoPor
-                ? [row.subidoPor.firstName, row.subidoPor.lastName]
-                      .filter(Boolean)
-                      .join(' ') || null
-                : null,
+            subidoPorNombre: row.subidoPor?.nombre ?? null,
             activo: row.activo,
             creadoEn: row.creadoEn,
             parent: this.extractParent(row),

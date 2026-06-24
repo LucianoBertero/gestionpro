@@ -140,7 +140,7 @@ export class ArchivoRepository {
             this.db.archivo.findMany({
                 where: where as any,
                 include: {
-                    subidoPor: { select: { id: true, firstName: true, lastName: true } },
+                    subidoPor: { select: { id: true, nombre: true } },
                     archivosCliente: { include: { cliente: { select: { id: true, denominacion: true } } } },
                     archivosTarea: { include: { tarea: { select: { id: true, titulo: true } } } },
                     archivosLiquidacion: { include: { liquidacion: { select: { id: true, periodo: true } } } },
