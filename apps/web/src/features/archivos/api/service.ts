@@ -1,20 +1,20 @@
 import api from '@/lib/auth/axios-instance';
-import type { Archivo, ArchivoFilters, ArchivoParent, TipoArchivo } from './types';
+import type {
+  Archivo,
+  ArchivoListFilters,
+  ArchivoListResponse,
+  ArchivoParent,
+  TipoArchivo,
+} from './types';
 
 /**
  * Upload a file via multipart/form-data POST to /v1/archivos.
- *
- * Uses `api` (JWT-aware axios-instance) so the auth interceptor attaches
- * the Bearer token and the refresh interceptor handles 401s automatically.
- *
- * The `Content-Type` header is intentionally NOT set — the browser sets
- * the correct multipart boundary for FormData.
  */
 export async function uploadArchivo(
   file: File,
   parent: ArchivoParent,
   tipo?: TipoArchivo,
-  periodo?: string
+  periodo?: string,
 ): Promise<Archivo> {
   const formData = new FormData();
   formData.append('file', file);
@@ -26,9 +26,25 @@ export async function uploadArchivo(
   return data.data;
 }
 
-export async function getArchivos(filters?: ArchivoFilters): Promise<Archivo[]> {
-  const { data } = await api.get('/v1/archivos', { params: filters });
-  return data.data;
+/**
+ * Global file browser with filters.
+ */
+export async function getArchivos(
+  filters: ArchivoListFilters,
+): Promise<ArchivoListResponse> {
+  const params: Record<string, unknown> = {};
+  if (filters.search) params.search = filters.search;
+  if (filters.tipo && filters.tipo !== 'all') params.tipo = filters.tipo;
+  if (filters.parentType && filters.parentType !== 'all')
+    params.parentType = filters.parentType;
+  if (filters.dateFrom) params.dateFrom = filters.dateFrom;
+  if (filters.dateTo) params.dateTo = filters.dateTo;
+  if (filters.page) params.page = filters.page;
+  if (filters.limit) params.limit = filters.limit;
+
+  const { data } = await api.get('/v1/archivos', { params });
+  // Backend returns { data: items[], total, page, limit } wrapped in NestJS envelope
+  return data.data as ArchivoListResponse;
 }
 
 export async function getArchivo(id: number): Promise<Archivo> {
