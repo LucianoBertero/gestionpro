@@ -348,6 +348,42 @@
     "rowsProcessed": "Rows processed",
     "errorsFound": "Errors found",
     "downloadTemplate": "Download template",
+    "actions": {
+      "new": "New due date",
+      "duplicateYear": "Duplicate previous year",
+      "import": "Import Excel"
+    },
+    "form": {
+      "title": {
+        "new": "New due date",
+        "batch": "Load by month"
+      },
+      "mode": {
+        "individual": "Individual",
+        "batch": "By month"
+      },
+      "impuesto": "Tax",
+      "anio": "Year",
+      "mes": "Month",
+      "digitoCuit": "CUIT digit",
+      "fechaVence": "Due date",
+      "digito": "Digit {{n}}",
+      "submit": "Save",
+      "submitBatch": "Save 10 dates",
+      "cancel": "Cancel",
+      "created": "Due date created",
+      "createdBatch": "10 due dates created",
+      "createError": "Could not create the due date"
+    },
+    "duplicate": {
+      "title": "Duplicate year",
+      "sourceYear": "Source year",
+      "targetYear": "Target year",
+      "warning": "This will create/update due dates for the target year. Existing ones with the same (tax, year, month, digit) will be overwritten.",
+      "confirm": "Duplicate",
+      "success": "{{count}} due dates duplicated",
+      "error": "Could not duplicate the year"
+    },
     "proximos": {
       "title": "Upcoming due dates",
       "empty": "No due dates in the next 30 days",

@@ -61,3 +61,16 @@ export interface ImportResult {
   created: number;
   errors: string[];
 }
+
+export interface CreateVencimientoPayload {
+  impuesto: TipoImpuesto;
+  anio: number;
+  mes: number;
+  digitoCuit: number;
+  fechaVence: string;
+}
+
+export interface DuplicateYearPayload {
+  sourceYear: number;
+  targetYear: number;
+}

@@ -347,6 +347,42 @@
     "rowsProcessed": "Filas procesadas",
     "errorsFound": "Errores encontrados",
     "downloadTemplate": "Descargar plantilla",
+    "actions": {
+      "new": "Nuevo vencimiento",
+      "duplicateYear": "Duplicar año anterior",
+      "import": "Importar Excel"
+    },
+    "form": {
+      "title": {
+        "new": "Nuevo vencimiento",
+        "batch": "Cargar por mes"
+      },
+      "mode": {
+        "individual": "Individual",
+        "batch": "Por mes"
+      },
+      "impuesto": "Impuesto",
+      "anio": "Año",
+      "mes": "Mes",
+      "digitoCuit": "Dígito del CUIT",
+      "fechaVence": "Fecha de vencimiento",
+      "digito": "Dígito {{n}}",
+      "submit": "Guardar",
+      "submitBatch": "Guardar 10 fechas",
+      "cancel": "Cancelar",
+      "created": "Vencimiento creado",
+      "createdBatch": "10 vencimientos creados",
+      "createError": "No se pudo crear el vencimiento"
+    },
+    "duplicate": {
+      "title": "Duplicar año",
+      "sourceYear": "Año de origen",
+      "targetYear": "Año de destino",
+      "warning": "Esto va a crear/actualizar vencimientos para el año de destino. Los existentes con el mismo (impuesto, año, mes, dígito) se sobrescribirán.",
+      "confirm": "Duplicar",
+      "success": "{{count}} vencimientos duplicados",
+      "error": "No se pudo duplicar el año"
+    },
     "proximos": {
       "title": "Próximos vencimientos",
       "empty": "No hay vencimientos en los próximos 30 días",
