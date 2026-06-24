@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { liquidacionesQueryOptions } from '../api/queries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,7 +25,16 @@ export function LiquidacionListing() {
             {liquidaciones.slice(0, 20).map((l: Liquidacion) => (
               <div key={l.id} className="flex items-center justify-between border-b pb-2 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">{l.cliente?.denominacion ?? `Cliente #${l.clienteId}`}</span>
+                  {l.cliente ? (
+                    <Link
+                      href={`/dashboard/clientes/${l.cliente.id}`}
+                      className="font-medium hover:text-foreground hover:underline"
+                    >
+                      {l.cliente.denominacion}
+                    </Link>
+                  ) : (
+                    <span className="font-medium">Cliente #{l.clienteId}</span>
+                  )}
                   <Badge variant="outline" className="text-xs">{l.impuesto}</Badge>
                   <span className="text-muted-foreground">{l.periodo}</span>
                 </div>
