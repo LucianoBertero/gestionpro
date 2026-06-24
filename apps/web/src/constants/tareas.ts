@@ -58,3 +58,18 @@ export const TIPO_TAREA_LABELS: Record<TipoTarea, string> = {
   BALANCE: 'Balance',
   OTRO: 'Otro',
 };
+
+// ─── TiempoEstimado buckets ────────────
+
+export const TIEMPO_EST_MIN_BUCKETS = [
+  { value: '15', label: '15min' },
+  { value: '30', label: '30min' },
+  { value: '45', label: '45min' },
+  { value: '60', label: '1h' },
+  { value: '90', label: '1h 30m' },
+  { value: '120', label: '2h' },
+  { value: '180', label: '3h' },
+  { value: '240', label: '4h' },
+] as const;
+
+export type TiempoEstMinBucket = (typeof TIEMPO_EST_MIN_BUCKETS)[number]['value'];

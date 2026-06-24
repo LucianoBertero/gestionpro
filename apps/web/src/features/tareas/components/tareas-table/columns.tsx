@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { DataTableColumnHeader } from '@/components/ui/table/data-table-column-header';
 import { Icons } from '@/components/icons';
@@ -8,33 +9,62 @@ import {
   getPrioridadBadgeVariant,
   getEstadoBadgeVariant,
   PRIORIDAD_LABELS,
+  PRIORIDAD_VALUES,
   ESTADO_TAREA_LABELS,
+  ESTADO_TAREA_VALUES,
   TIPO_TAREA_LABELS,
+  TIPO_TAREA_VALUES,
   NULL_PLACEHOLDER,
 } from '@/constants';
 import type { Tarea } from '../../api/types';
 import type { ActiveUser } from '@/features/auth/api/types';
+import { EditableSelectCell } from './editable-cell';
+import type { UpdateTareaPayload } from '../../api/types';
 
 function getEncargadoNombre(encargadoId: string, users: ActiveUser[]): string {
   const user = users.find((u) => u.id === encargadoId);
   return user?.nombre ?? encargadoId;
 }
 
-export function getColumns(users: ActiveUser[]): ColumnDef<Tarea>[] {
+/**
+ * Callback for inline field editing. Receives the tarea id and a partial
+ * payload that will be sent via updateTareaMutation.
+ */
+export type OnUpdateField = (
+  tareaId: number,
+  values: Pick<UpdateTareaPayload, 'estado' | 'prioridad' | 'tipo'>
+) => void;
+
+export function getColumns(
+  users: ActiveUser[],
+  onUpdateField?: OnUpdateField
+): ColumnDef<Tarea>[] {
   return [
     {
       accessorKey: 'titulo',
       header: ({ column }: { column: Column<Tarea, unknown> }) => (
         <DataTableColumnHeader column={column} title='Tarea' />
       ),
-      cell: ({ row }) => (
-        <div className='flex max-w-[220px] flex-col'>
-          <span className='font-medium'>{row.original.titulo}</span>
-          <span className='text-muted-foreground text-xs'>
-            {row.original.cliente?.denominacion ?? NULL_PLACEHOLDER}
-          </span>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const cliente = row.original.cliente;
+        return (
+          <div className='flex max-w-[220px] flex-col'>
+            <span className='font-medium'>{row.original.titulo}</span>
+            <span className='text-muted-foreground text-xs'>
+              {cliente ? (
+                <Link
+                  href={`/dashboard/clientes/${cliente.id}`}
+                  className='hover:text-foreground hover:underline'
+                >
+                  {cliente.denominacion}
+                </Link>
+              ) : (
+                NULL_PLACEHOLDER
+              )}
+            </span>
+          </div>
+        );
+      },
       enableColumnFilter: true,
       filterFn: (row, id, value) => {
         const search = String(value ?? '').toLowerCase().trim();
@@ -69,10 +99,33 @@ export function getColumns(users: ActiveUser[]): ColumnDef<Tarea>[] {
       ),
       cell: ({ row }) => {
         const estado = row.getValue('estado') as keyof typeof ESTADO_TAREA_LABELS;
+
+        if (!onUpdateField) {
+          return (
+            <Badge className='text-xs' variant={getEstadoBadgeVariant(estado)}>
+              {ESTADO_TAREA_LABELS[estado]}
+            </Badge>
+          );
+        }
+
+        const options = ESTADO_TAREA_VALUES.map((v) => ({
+          value: v,
+          label: ESTADO_TAREA_LABELS[v],
+        }));
+
         return (
-          <Badge className='text-xs' variant={getEstadoBadgeVariant(estado)}>
-            {ESTADO_TAREA_LABELS[estado]}
-          </Badge>
+          <EditableSelectCell
+            value={estado}
+            options={options}
+            onChange={(newVal) =>
+              onUpdateField(row.original.id, { estado: newVal })
+            }
+            renderBadge={(v) => (
+              <Badge className='text-xs' variant={getEstadoBadgeVariant(v)}>
+                {ESTADO_TAREA_LABELS[v]}
+              </Badge>
+            )}
+          />
         );
       },
     },
@@ -81,11 +134,37 @@ export function getColumns(users: ActiveUser[]): ColumnDef<Tarea>[] {
       header: ({ column }: { column: Column<Tarea, unknown> }) => (
         <DataTableColumnHeader column={column} title='Tipo' />
       ),
-      cell: ({ row }) => (
-        <Badge variant='outline' className='text-xs'>
-          {TIPO_TAREA_LABELS[row.getValue('tipo') as keyof typeof TIPO_TAREA_LABELS]}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const tipo = row.getValue('tipo') as keyof typeof TIPO_TAREA_LABELS;
+
+        if (!onUpdateField) {
+          return (
+            <Badge variant='outline' className='text-xs'>
+              {TIPO_TAREA_LABELS[tipo]}
+            </Badge>
+          );
+        }
+
+        const options = TIPO_TAREA_VALUES.map((v) => ({
+          value: v,
+          label: TIPO_TAREA_LABELS[v],
+        }));
+
+        return (
+          <EditableSelectCell
+            value={tipo}
+            options={options}
+            onChange={(newVal) =>
+              onUpdateField(row.original.id, { tipo: newVal })
+            }
+            renderBadge={(v) => (
+              <Badge variant='outline' className='text-xs'>
+                {TIPO_TAREA_LABELS[v]}
+              </Badge>
+            )}
+          />
+        );
+      },
     },
     {
       accessorKey: 'prioridad',
@@ -94,10 +173,33 @@ export function getColumns(users: ActiveUser[]): ColumnDef<Tarea>[] {
       ),
       cell: ({ row }) => {
         const prioridad = row.getValue('prioridad') as keyof typeof PRIORIDAD_LABELS;
+
+        if (!onUpdateField) {
+          return (
+            <Badge className='text-xs' variant={getPrioridadBadgeVariant(prioridad)}>
+              {PRIORIDAD_LABELS[prioridad]}
+            </Badge>
+          );
+        }
+
+        const options = PRIORIDAD_VALUES.map((v) => ({
+          value: v,
+          label: PRIORIDAD_LABELS[v],
+        }));
+
         return (
-          <Badge className='text-xs' variant={getPrioridadBadgeVariant(prioridad)}>
-            {PRIORIDAD_LABELS[prioridad]}
-          </Badge>
+          <EditableSelectCell
+            value={prioridad}
+            options={options}
+            onChange={(newVal) =>
+              onUpdateField(row.original.id, { prioridad: newVal })
+            }
+            renderBadge={(v) => (
+              <Badge className='text-xs' variant={getPrioridadBadgeVariant(v)}>
+                {PRIORIDAD_LABELS[v]}
+              </Badge>
+            )}
+          />
         );
       },
     },

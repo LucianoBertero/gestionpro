@@ -42,6 +42,8 @@ export {
   TIPO_TAREA_VALUES,
   TIPO_TAREA_LABELS,
   type TipoTarea,
+  TIEMPO_EST_MIN_BUCKETS,
+  type TiempoEstMinBucket,
 } from './tareas';
 
 export {

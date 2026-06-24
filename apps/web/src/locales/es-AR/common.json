@@ -242,6 +242,7 @@
     "select": "Seleccionar",
     "none": "Ninguno",
     "withoutClient": "Sin cliente",
+    "withoutEstimate": "Sin estimación",
     "placeholderTitulo": "Ej: Presentar DDJJ IVA Mayo",
     "placeholderPeriodo": "2026-05",
     "placeholderTiempoEstMin": "60",

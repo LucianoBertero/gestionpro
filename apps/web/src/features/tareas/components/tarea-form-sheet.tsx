@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useQuery } from '@tanstack/react-query';
-import { useForm } from '@tanstack/react-form';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
 import { Input } from '@/components/ui/input';
@@ -25,13 +24,14 @@ import {
 } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
 import { useT } from '@/lib/i18n/client';
-import { activeUsersQueryOptions } from '@/features/clientes/api/queries';
+import { activeUsersQueryOptions, clientesQueryOptions } from '@/features/clientes/api/queries';
 import { toast } from 'sonner';
 import {
   TIPO_TAREA_VALUES,
   TIPO_IMPUESTO_VALUES,
   PRIORIDAD_VALUES,
   ESTADO_TAREA_VALUES,
+  TIEMPO_EST_MIN_BUCKETS,
 } from '@/constants';
 import { createTareaMutation, updateTareaMutation } from '../api/mutations';
 import type { Tarea, CreateTareaPayload, UpdateTareaPayload } from '../api/types';
@@ -63,12 +63,26 @@ export function TareaFormSheet({
     enabled: open && !encargados?.length,
   });
 
+  // Fetch clientes for the Cliente select — same pattern as encargados:
+  // lazy-fetch when the sheet opens, cached-stale for 30s (global default).
+  // Using take: 500 as safe headroom for 50–150 clients.
+  // NOTE: clientesQueryOptions returns the paginated envelope
+  // ({ data: Cliente[], total }) — we unwrap .data here because the form
+  // needs the array, not the envelope. (fetchedClientes is intentionally
+  // left untyped/defaulted so the .data extraction below is type-safe.)
+  const { data: clientesResp } = useQuery({
+    ...clientesQueryOptions({ take: 500 }),
+    enabled: open && !clientes?.length,
+  });
+
   const [titulo, setTitulo] = useState(tarea?.titulo ?? '');
   const [descripcion, setDescripcion] = useState(tarea?.descripcion ?? '');
   const [tipo, setTipo] = useState<string>(tarea?.tipo ?? 'DDJJ');
   const [impuesto, setImpuesto] = useState<string>(tarea?.impuesto ?? '');
   const [periodo, setPeriodo] = useState(tarea?.periodo ?? '');
-  const [tiempoEstMin, setTiempoEstMin] = useState(tarea?.tiempoEstMin?.toString() ?? '');
+  const [tiempoEstMin, setTiempoEstMin] = useState(
+    tarea?.tiempoEstMin != null ? tarea.tiempoEstMin.toString() : 'none',
+  );
   const [prioridad, setPrioridad] = useState<string>(tarea?.prioridad ?? 'MEDIA');
   const [estado, setEstado] = useState<string>(tarea?.estado ?? 'PENDIENTE');
   const [vence, setVence] = useState<Date | undefined>(
@@ -86,7 +100,7 @@ export function TareaFormSheet({
     setTipo(tarea?.tipo ?? 'DDJJ');
     setImpuesto(tarea?.impuesto ?? '');
     setPeriodo(tarea?.periodo ?? '');
-    setTiempoEstMin(tarea?.tiempoEstMin?.toString() ?? '');
+    setTiempoEstMin(tarea?.tiempoEstMin != null ? tarea.tiempoEstMin.toString() : 'none');
     setPrioridad(tarea?.prioridad ?? 'MEDIA');
     setEstado(tarea?.estado ?? 'PENDIENTE');
     setVence(tarea?.vence ? new Date(tarea.vence) : undefined);
@@ -108,7 +122,7 @@ export function TareaFormSheet({
       tipo: tipo as CreateTareaPayload['tipo'],
       impuesto: normalizedImpuesto,
       periodo: periodo || undefined,
-      tiempoEstMin: tiempoEstMin ? parseInt(tiempoEstMin, 10) : undefined,
+      tiempoEstMin: tiempoEstMin !== 'none' ? parseInt(tiempoEstMin, 10) : undefined,
       prioridad: prioridad as CreateTareaPayload['prioridad'],
       vence: vence ? vence.toISOString() : undefined,
       notas: notas || undefined,
@@ -155,7 +169,7 @@ export function TareaFormSheet({
     setTipo('DDJJ');
     setImpuesto('');
     setPeriodo('');
-    setTiempoEstMin('');
+    setTiempoEstMin('none');
     setPrioridad('MEDIA');
     setEstado('PENDIENTE');
     setVence(undefined);
@@ -166,6 +180,9 @@ export function TareaFormSheet({
 
   const isPending = createMutation.isPending || updateMutation.isPending;
   const encargadosList = encargados?.length ? encargados : (fetchedUsers as { id: string; nombre: string }[]);
+  const clientesList = clientes?.length
+    ? clientes
+    : ((clientesResp?.data ?? []) as { id: number; denominacion: string }[]);
 
   const tr = (key: string, fallback: string) => t(key, { defaultValue: fallback });
 
@@ -240,7 +257,7 @@ export function TareaFormSheet({
                 <SelectTrigger className="w-full"><SelectValue placeholder={tr('tarea.withoutClient', 'Sin cliente')} /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">{tr('tarea.withoutClient', 'Sin cliente')}</SelectItem>
-                  {clientes.map((c) => (
+                  {clientesList.map((c) => (
                     <SelectItem key={c.id} value={c.id.toString()}>{c.denominacion}</SelectItem>
                   ))}
                 </SelectContent>
@@ -274,12 +291,21 @@ export function TareaFormSheet({
               </div>
               <div className="space-y-2">
                 <Label>{tr('tarea.tiempoEstMin', 'Tiempo est. (min)')}</Label>
-                <Input
-                  type="number"
-                  value={tiempoEstMin}
-                  onChange={(e) => setTiempoEstMin(e.target.value)}
-                  placeholder={tr('tarea.placeholderTiempoEstMin', '60')}
-                />
+                <Select value={tiempoEstMin} onValueChange={setTiempoEstMin}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={tr('tarea.withoutEstimate', 'Sin estimación')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">
+                      {tr('tarea.withoutEstimate', 'Sin estimación')}
+                    </SelectItem>
+                    {TIEMPO_EST_MIN_BUCKETS.map((b) => (
+                      <SelectItem key={b.value} value={b.value}>
+                        {b.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           ) : (
@@ -297,12 +323,21 @@ export function TareaFormSheet({
               </div>
               <div className="space-y-2">
                 <Label>{tr('tarea.tiempoEstMin', 'Tiempo est. (min)')}</Label>
-                <Input
-                  type="number"
-                  value={tiempoEstMin}
-                  onChange={(e) => setTiempoEstMin(e.target.value)}
-                  placeholder={tr('tarea.placeholderTiempoEstMin', '60')}
-                />
+                <Select value={tiempoEstMin} onValueChange={setTiempoEstMin}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={tr('tarea.withoutEstimate', 'Sin estimación')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">
+                      {tr('tarea.withoutEstimate', 'Sin estimación')}
+                    </SelectItem>
+                    {TIEMPO_EST_MIN_BUCKETS.map((b) => (
+                      <SelectItem key={b.value} value={b.value}>
+                        {b.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}

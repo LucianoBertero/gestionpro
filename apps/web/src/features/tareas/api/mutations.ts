@@ -19,7 +19,28 @@ export const updateTareaMutation = mutationOptions({
     id: number;
     values: UpdateTareaPayload;
   }) => updateTarea(id, values),
-  onSuccess: () => {
+  onMutate: async ({ id, values }) => {
+    // Cancel outgoing refetches so they don't overwrite our optimistic update.
+    await getQueryClient().cancelQueries({ queryKey: tareasKeys.all });
+    // Snapshot previous value for rollback on error.
+    const previous = getQueryClient().getQueryData<{ data: { id: number }[] }>(tareasKeys.list());
+    // Optimistically update cache: merge new field values into the matching tarea.
+    if (previous) {
+      getQueryClient().setQueryData(tareasKeys.list(), {
+        ...previous,
+        data: previous.data.map((t) => (t.id === id ? { ...t, ...values } : t)),
+      });
+    }
+    return { previous };
+  },
+  onError: (_err, _vars, context) => {
+    // Rollback to the snapshot on error.
+    if (context?.previous) {
+      getQueryClient().setQueryData(tareasKeys.list(), context.previous);
+    }
+  },
+  onSettled: () => {
+    // Always refetch after mutation to sync with server truth.
     getQueryClient().invalidateQueries({ queryKey: tareasKeys.all, refetchType: 'active' });
   },
 });
